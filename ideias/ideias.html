@@ -83,7 +83,84 @@
       height: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.34;
+      opacity: 0.42;
+      overflow: visible;
+    }
+
+    #neural-svg .neural-lines {
+      stroke-dasharray: 8 10;
+      animation: neuralFlow 18s linear infinite;
+    }
+
+    #neural-svg .neural-lines path:nth-child(2n) {
+      animation-duration: 24s;
+    }
+
+    #neural-svg .neural-lines path:nth-child(3n) {
+      animation-duration: 30s;
+    }
+
+    #neural-svg .glow-node {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: neuralPulse 4.8s ease-in-out infinite;
+    }
+
+    #neural-svg .glow-node:nth-child(2n) { animation-duration: 6.2s; }
+    #neural-svg .glow-node:nth-child(3n) { animation-duration: 5.4s; }
+
+    #neural-svg .core-node {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: neuralTwinkle 3.8s ease-in-out infinite;
+    }
+
+    #neural-svg .core-node:nth-child(2n) { animation-duration: 5.2s; }
+    #neural-svg .core-node:nth-child(3n) { animation-duration: 4.6s; }
+
+    #neural-svg .float-a { animation: driftA 20s ease-in-out infinite; }
+    #neural-svg .float-b { animation: driftB 24s ease-in-out infinite; }
+    #neural-svg .float-c { animation: driftC 28s ease-in-out infinite; }
+
+    @keyframes neuralFlow {
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: -220; }
+    }
+
+    @keyframes neuralPulse {
+      0%, 100% { transform: scale(0.92); opacity: 0.34; }
+      50%      { transform: scale(1.18); opacity: 0.84; }
+    }
+
+    @keyframes neuralTwinkle {
+      0%, 100% { opacity: 0.45; transform: scale(0.96); }
+      50%      { opacity: 1; transform: scale(1.18); }
+    }
+
+    @keyframes driftA {
+      0%,100% { transform: translate3d(0px,0px,0); }
+      50%     { transform: translate3d(10px,-8px,0); }
+    }
+
+    @keyframes driftB {
+      0%,100% { transform: translate3d(0px,0px,0); }
+      50%     { transform: translate3d(-12px,8px,0); }
+    }
+
+    @keyframes driftC {
+      0%,100% { transform: translate3d(0px,0px,0); }
+      50%     { transform: translate3d(8px,10px,0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #neural-svg .neural-lines,
+      #neural-svg .glow-node,
+      #neural-svg .core-node,
+      #neural-svg .float-a,
+      #neural-svg .float-b,
+      #neural-svg .float-c {
+        animation: none !important;
+      }
     }
 
     .topbar {
@@ -789,14 +866,15 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getDatabase, ref, push, set, update, remove, onValue, off }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8",
   authDomain:        "sistema-de-vida-e6c68.firebaseapp.com",
+  databaseURL:       "https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com",
   projectId:         "sistema-de-vida-e6c68",
   storageBucket:     "sistema-de-vida-e6c68.firebasestorage.app",
   messagingSenderId: "590218702063",
@@ -805,7 +883,7 @@ const firebaseConfig = {
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db   = getFirestore(app);
+const db   = getDatabase(app);
 
 const COLS = ['screenshot','facebook','instagram','head','whatsapp','curadoria','cemiterio'];
 const LABELS = {
@@ -813,199 +891,84 @@ const LABELS = {
   facebook:   'Salvos do Facebook',
   instagram:  'Reels e posts salvos',
   head:       'Insights que vieram na cabeça',
-  whatsapp:   'Links, prints e ideias salvas no WhatsApp',
+  whatsapp:   'Links e ideias salvas no WhatsApp',
   curadoria:  'Ideias que passaram no filtro',
   cemiterio:  'Descanse em paz, ideias 🪦'
 };
-const THERMO_ICONS = ['', '❄️', '🌊', '⚡', '🔥', '🌋'];
+const THERMO_ICONS = ['','❄️','🌊','⚡','🔥','🌋'];
 
 let currentUser = null;
 let currentTags = [];
 let currentThermo = 3;
 let editingId = null;
-let imgBase64 = null;
-let _ideasCache = [];
-let _dragDropReady = false;
-let _isSaving = false;
-let _draftTimer = null;
-let _toastTimer = null;
-let savedRange = null;
-
-const $  = (sel, root = document) => root.querySelector(sel);
-const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-const cssEscape = value => (window.CSS && CSS.escape) ? CSS.escape(String(value)) : String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
-const modal = $('#modal');
-const descEditor = $('#f-desc');
-const floatingEditor = $('#floatingEditor');
-const descImageInput = $('#descImageInput');
-
-function localKey() { return currentUser ? `ideas_local_${currentUser.uid}` : 'ideas_local_guest'; }
-function draftKey() { return currentUser ? `ideas_draft_${currentUser.uid}` : 'ideas_draft_guest'; }
-function isCloudId(id) { return !!id && !String(id).startsWith('local_') && !String(id).startsWith('temp_'); }
-function validCol(col) { return COLS.includes(col) ? col : 'screenshot'; }
-function clampThermo(val) { return Math.max(1, Math.min(5, parseInt(val || 3, 10))); }
+let _ideasRef = null;
+let _unsubscribe = null;
 
 function escapeHtml(str) {
-  return String(str || '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
-}
-function escapeAttr(str) { return escapeHtml(str).replace(/`/g, '&#96;'); }
-
-function normalizeIdeaPayload(data) {
-  return Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined));
-}
-function toFirestoreData(item) {
-  const { id, _pendingSync, ...data } = item || {};
-  return normalizeIdeaPayload(data);
-}
-function uniqueTags(tags) {
-  return Array.from(new Set((tags || []).map(t => String(t).trim()).filter(Boolean))).slice(0, 18);
-}
-function normalizeIdea(item) {
-  const now = Date.now();
-  return {
-    id: item.id,
-    uid: item.uid || currentUser?.uid || null,
-    title: String(item.title || '').trim() || 'Ideia sem título',
-    desc: String(item.desc || '').trim(),
-    col: validCol(item.col),
-    link: String(item.link || '').trim(),
-    tags: uniqueTags(item.tags),
-    thermo: clampThermo(item.thermo),
-    img: item.img || null,
-    createdAt: item.createdAt || item.updatedAt || now,
-    updatedAt: item.updatedAt || item.createdAt || now,
-    _pendingSync: !!item._pendingSync
-  };
-}
-function getLocalIdeas() {
-  try {
-    const raw = localStorage.getItem(localKey());
-    return raw ? JSON.parse(raw).map(normalizeIdea).filter(x => x.id) : [];
-  } catch (err) {
-    console.warn('Backup local corrompido:', err);
-    return [];
-  }
-}
-function setLocalIdeas(items) {
-  try {
-    localStorage.setItem(localKey(), JSON.stringify(items.map(normalizeIdea).filter(x => x.id)));
-  } catch (err) {
-    console.warn('Não consegui atualizar o backup local:', err);
-    showToast('Backup local cheio. Salvei na tela, mas reduza imagens grandes.');
-  }
-}
-function getDraft() {
-  try { return JSON.parse(localStorage.getItem(draftKey()) || 'null'); }
-  catch { return null; }
-}
-function setDraft(data) {
-  try { localStorage.setItem(draftKey(), JSON.stringify(data)); }
-  catch (err) { console.warn('Rascunho não salvo:', err); }
-}
-function clearDraft() { localStorage.removeItem(draftKey()); }
-function hasDraftContent(draft) {
-  if (!draft) return false;
-  return Boolean((draft.title || '').trim() || (draft.desc || '').trim() || (draft.link || '').trim() || (draft.tags || []).length);
+  return String(str || '').replace(/[&<>'"]/g, ch =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 }
 
-function setStatus(text, type = '') {
-  const el = $('#sync-status');
+function setSyncStatus(state, msg) {
+  const el = document.getElementById('sync-status');
   if (!el) return;
-  el.textContent = text;
-  el.className = `sync-status ${type}`.trim();
+  el.className = 'sync-status ' + state;
+  el.textContent = msg;
 }
 
-function showToast(msg) {
-  const t = $('#toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-}
-window.showToast = showToast;
+// ── AUTH GUARD ──
+onAuthStateChanged(auth, user => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  _ideasRef = ref(db, 'ideas/' + user.uid);
+  listenIdeas();
+});
 
-function clearBoard() {
-  COLS.forEach(c => {
-    const body = $(`#col-${c}`);
-    const count = $(`#count-${c}`);
-    if (body) body.innerHTML = '';
-    if (count) count.textContent = '0';
-  });
-}
-function mergeById(items) {
-  const map = new Map();
-  items.map(normalizeIdea).filter(x => x.id).forEach(item => {
-    const old = map.get(item.id);
-    if (!old || (item.updatedAt || 0) >= (old.updatedAt || 0)) map.set(item.id, item);
-  });
-  return Array.from(map.values()).sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
-}
-function cacheUpsert(item, oldId = null) {
-  const normalized = normalizeIdea(item);
-  _ideasCache = _ideasCache.filter(x => x.id !== normalized.id && (!oldId || x.id !== oldId));
-  _ideasCache.unshift(normalized);
-  _ideasCache.sort((a, b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
-  return normalized;
-}
-function cacheRemove(id) { _ideasCache = _ideasCache.filter(x => x.id !== id); }
-function getIdeaById(id) { return _ideasCache.find(x => x.id === id) || getLocalIdeas().find(x => x.id === id) || null; }
+// ── ESCUTA EM TEMPO REAL (Realtime Database) ──
+function listenIdeas() {
+  if (_unsubscribe) { off(_ideasRef); }
+  setSyncStatus('busy', 'Carregando...');
 
-async function loadIdeas() {
-  if (!currentUser) return;
-  clearBoard();
-  setStatus('Carregando', 'busy');
+  onValue(_ideasRef, snap => {
+    // limpar board
+    COLS.forEach(c => document.getElementById('col-' + c).innerHTML = '');
 
-  try {
-    const q = query(collection(db, 'ideas'), where('uid', '==', currentUser.uid));
-    const snap = await getDocs(q);
-    const cloudItems = [];
-    snap.forEach(d => cloudItems.push(normalizeIdea({ id: d.id, ...d.data() })));
+    const items = [];
+    snap.forEach(child => items.push({ id: child.key, ...child.val() }));
+    // ordenar do mais recente para o mais antigo
+    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    items.forEach(renderCard);
 
-    const localItems = getLocalIdeas();
-    const pendingLocal = localItems.filter(x => x._pendingSync || !isCloudId(x.id));
-    _ideasCache = mergeById([...cloudItems, ...pendingLocal]);
-    renderAll(_ideasCache);
-    setLocalIdeas(_ideasCache);
-    setStatus('Pronto', 'ok');
     updateCounts();
-    syncPendingIdeas();
-  } catch (err) {
-    console.error('Erro ao carregar da nuvem, usando backup local:', err);
-    _ideasCache = mergeById(getLocalIdeas());
-    renderAll(_ideasCache);
-    setStatus('Modo local', 'warn');
-    showToast('Nuvem instável. Mostrando backup local.');
-  }
+    setupDragDrop();
+    setSyncStatus('ok', 'Sincronizado ✓');
+  }, err => {
+    console.error('Realtime DB error:', err);
+    setSyncStatus('warn', 'Offline');
+  });
+
+  _unsubscribe = true;
 }
 
-function renderAll(items) {
-  clearBoard();
-  items.forEach(renderCard);
-  updateCounts();
-}
-
-function renderCard(rawIdea) {
-  const idea = normalizeIdea(rawIdea);
-  const col = $(`#col-${idea.col}`);
-  if (!col || !idea.id) return;
-
-  const existing = $(`.idea-card[data-id="${cssEscape(idea.id)}"]`);
-  if (existing) existing.remove();
+// ── RENDER CARD ──
+function renderCard(idea) {
+  const col = document.getElementById('col-' + idea.col);
+  if (!col) return;
 
   const thermoHtml = [1,2,3,4,5].map(i => {
     const cls = i <= idea.thermo ? `thermo-pip active-${idea.thermo}` : 'thermo-pip';
     return `<div class="${cls}"></div>`;
   }).join('');
-  const tagsHtml = idea.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
-  const imgHtml = idea.img ? `<img class="card-img" src="${escapeAttr(idea.img)}" alt=""/>` : '';
-  const linkHtml = idea.link ? `<a class="card-link" href="${escapeAttr(idea.link)}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHtml(idea.link)}</a>` : '';
+
+  const thermoIcon = THERMO_ICONS[idea.thermo] || '⚡';
+  const tagsHtml   = (idea.tags||[]).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+  const imgHtml    = idea.img  ? `<img class="card-img" src="${idea.img}" alt=""/>` : '';
+  const linkHtml   = idea.link ? `<a class="card-link" href="${idea.link}" target="_blank" rel="noopener">🔗 ${idea.link}</a>` : '';
 
   const div = document.createElement('div');
-  div.className = 'idea-card';
-  div.draggable = true;
-  div.dataset.id = idea.id;
-  div.dataset.col = idea.col;
+  div.className   = 'idea-card';
+  div.draggable   = true;
+  div.dataset.id  = idea.id;
   div.innerHTML = `
     ${imgHtml}
     <div class="card-title">${escapeHtml(idea.title)}</div>
@@ -1015,403 +978,220 @@ function renderCard(rawIdea) {
     <div class="thermometer">
       <span class="thermo-label">Valor</span>
       ${thermoHtml}
-      <span class="thermo-icon">${THERMO_ICONS[idea.thermo] || '⚡'}</span>
+      <span class="thermo-icon">${thermoIcon}</span>
     </div>
     <div class="card-actions">
-      <button class="card-btn" type="button" data-action="edit">✏️ Editar</button>
-      <button class="card-btn danger" type="button" data-action="delete">🗑️</button>
+      <button class="card-btn" data-edit="${idea.id}">✏️ Editar</button>
+      <button class="card-btn danger" data-del="${idea.id}">🗑️</button>
     </div>
   `;
 
-  col.querySelector('.empty-state')?.remove();
-  col.appendChild(div);
-}
+  // eventos de editar/deletar por delegação (evita closure duplicado)
+  div.querySelector('[data-edit]').addEventListener('click', () => openModalEdit(idea));
+  div.querySelector('[data-del]').addEventListener('click', () => deleteIdea(idea.id));
 
-function updateCounts() {
-  COLS.forEach(c => {
-    const body = $(`#col-${c}`);
-    const countEl = $(`#count-${c}`);
-    if (!body) return;
-    const cards = $$('.idea-card', body);
-    if (countEl) countEl.textContent = String(cards.length);
-
-    const empty = $('.empty-state', body);
-    if (cards.length > 0) {
-      empty?.remove();
-    } else if (!empty) {
-      body.innerHTML = `<div class="empty-state"><span class="emoji">✨</span>${LABELS[c]}</div>`;
-    }
+  // drag
+  div.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', idea.id);
+    div.classList.add('dragging');
   });
+  div.addEventListener('dragend', () => div.classList.remove('dragging'));
+
+  // insere no TOPO
+  const first = col.querySelector('.idea-card');
+  if (first) col.insertBefore(div, first);
+  else col.appendChild(div);
+
+  const empty = col.querySelector('.empty-state');
+  if (empty) empty.remove();
 }
 
+// ── DRAG & DROP ──
 function setupDragDrop() {
-  if (_dragDropReady) return;
-  _dragDropReady = true;
-
-  document.addEventListener('click', e => {
-    const btn = e.target.closest('[data-action]');
-    if (!btn) return;
-    const card = btn.closest('.idea-card');
-    if (!card) return;
-    if (btn.dataset.action === 'edit') editIdea(card.dataset.id);
-    if (btn.dataset.action === 'delete') deleteIdea(card.dataset.id);
+  document.querySelectorAll('.col-body').forEach(col => {
+    // Remove listeners antigos clonando o nó
+    const fresh = col.cloneNode(true);
+    col.parentNode.replaceChild(fresh, col);
   });
 
-  document.addEventListener('dragstart', e => {
-    const card = e.target.closest('.idea-card');
-    if (!card || e.target.closest('button, a, input, textarea, select')) return;
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', card.dataset.id);
-    card.classList.add('dragging');
-  });
-
-  document.addEventListener('dragend', e => {
-    e.target.closest?.('.idea-card')?.classList.remove('dragging');
-    $$('.col-body.drag-over').forEach(c => c.classList.remove('drag-over'));
-  });
-
-  $$('.col-body').forEach(col => {
-    col.addEventListener('dragover', e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      col.classList.add('drag-over');
-    });
-    col.addEventListener('dragleave', e => {
-      if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
-    });
-    col.addEventListener('drop', async e => {
+  document.querySelectorAll('.col-body').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', e => {
       e.preventDefault();
       col.classList.remove('drag-over');
-      const id = e.dataTransfer.getData('text/plain');
-      if (!id) return;
-      await moveIdea(id, col.id.replace('col-', ''));
+      const id      = e.dataTransfer.getData('text/plain');
+      const newCol  = col.id.replace('col-', '');
+      // Atualiza no DOM imediatamente (otimista)
+      const cardEl  = document.querySelector(`.idea-card[data-id="${id}"]`);
+      if (cardEl) {
+        const first = col.querySelector('.idea-card');
+        if (first) col.insertBefore(cardEl, first);
+        else col.appendChild(cardEl);
+        updateCounts();
+      }
+      // Persiste no Realtime Database (rápido, sem await na UI)
+      setSyncStatus('busy', 'Salvando...');
+      update(ref(db, `ideas/${currentUser.uid}/${id}`), { col: newCol })
+        .then(() => setSyncStatus('ok', 'Sincronizado ✓'))
+        .catch(() => setSyncStatus('warn', 'Erro ao mover'));
     });
   });
 }
 
-async function moveIdea(id, targetCol) {
-  const newCol = validCol(targetCol);
-  const idea = getIdeaById(id);
-  const card = $(`.idea-card[data-id="${cssEscape(id)}"]`);
-  const body = $(`#col-${newCol}`);
-  if (!idea || !card || !body) return;
-
-  const oldCol = idea.col;
-  if (oldCol === newCol && body.firstElementChild === card) return;
-
-  body.querySelector('.empty-state')?.remove();
-  body.prepend(card);
-  card.dataset.col = newCol;
-  updateCounts();
-
-  const updated = cacheUpsert({ ...idea, col: newCol, updatedAt: Date.now(), _pendingSync: !isCloudId(id) || idea._pendingSync }, id);
-  setLocalIdeas(_ideasCache);
-  setStatus('Salvando', 'busy');
-
-  try {
-    if (isCloudId(id)) {
-      await updateDoc(doc(db, 'ideas', id), { col: newCol, updatedAt: updated.updatedAt });
-      cacheUpsert({ ...updated, _pendingSync: false }, id);
-      setLocalIdeas(_ideasCache);
-      setStatus('Pronto', 'ok');
-      showToast('Ideia movida ✓');
-    } else {
-      setStatus('Salvo local', 'warn');
-      showToast('Movido localmente. Sincroniza quando a nuvem voltar.');
+// ── CONTAGENS ──
+function updateCounts() {
+  COLS.forEach(c => {
+    const col   = document.getElementById('col-' + c);
+    const count = col.querySelectorAll('.idea-card').length;
+    document.getElementById('count-' + c).textContent = count;
+    if (count === 0) {
+      col.innerHTML = `<div class="empty-state"><span class="emoji">✨</span>${LABELS[c]}</div>`;
     }
-  } catch (err) {
-    console.error('Erro ao mover na nuvem:', err);
-    cacheUpsert({ ...updated, col: newCol, _pendingSync: true }, id);
-    setLocalIdeas(_ideasCache);
-    setStatus('Salvo local', 'warn');
-    showToast('Movi na tela e salvei no backup local.');
-  }
+  });
 }
 
-window.openModal = function(idea = null) {
-  if (!currentUser) { showToast('Login não identificado. Reabra pelo Hub.'); return; }
+// ── MODAL NOVA IDEIA ──
+window.openModal = function() {
+  editingId     = null;
+  currentTags   = [];
+  currentThermo = 3;
+  document.getElementById('f-title').value   = '';
+  document.getElementById('f-desc').innerHTML = '';
+  document.getElementById('f-source').value  = 'screenshot';
+  document.getElementById('f-link').value    = '';
+  document.getElementById('modal-title').innerHTML = '💡 Nova <span>Ideia</span>';
+  renderTagsPreview();
+  setThermo(3);
+  document.getElementById('modal').classList.add('open');
+};
 
-  const draft = getDraft();
-  const useNewDraft = !idea && hasDraftContent(draft) && !draft.editingId;
-  const useEditDraft = idea && draft?.editingId === idea.id && hasDraftContent(draft) && (draft.updatedAt || 0) >= (idea.updatedAt || 0);
-  const source = useEditDraft ? draft : (idea || (useNewDraft ? draft : null));
-
-  editingId = idea ? idea.id : null;
-  currentTags = source ? uniqueTags(source.tags) : [];
-  currentThermo = source ? clampThermo(source.thermo) : 3;
-  imgBase64 = source ? (source.img || null) : null;
-
-  $('#modal-title').innerHTML = editingId ? '✏️ Editar <span>Ideia</span>' : '💡 Nova <span>Ideia</span>';
-  $('#f-title').value = source ? (source.title || '') : '';
-  descEditor.innerHTML = source ? (source.desc || '') : '';
-  $('#f-source').value = validCol(source ? source.col : 'screenshot');
-  $('#f-link').value = source ? (source.link || '') : '';
-  $('#f-tag-input').value = '';
-
+function openModalEdit(idea) {
+  editingId     = idea.id;
+  currentTags   = [...(idea.tags || [])];
+  currentThermo = idea.thermo || 3;
+  document.getElementById('f-title').value    = idea.title || '';
+  document.getElementById('f-desc').innerHTML  = idea.desc  || '';
+  document.getElementById('f-source').value   = idea.col   || 'screenshot';
+  document.getElementById('f-link').value     = idea.link  || '';
+  document.getElementById('modal-title').innerHTML = '✏️ Editar <span>Ideia</span>';
   renderTagsPreview();
   setThermo(currentThermo);
-  modal.classList.add('open');
-  setTimeout(() => $('#f-title')?.focus(), 40);
-
-  if (useNewDraft || useEditDraft) showToast('Rascunho recuperado. Nada foi criado ainda.');
-};
+  document.getElementById('modal').classList.add('open');
+}
 
 window.closeModal = function() {
-  modal.classList.remove('open');
-  floatingEditor?.classList.remove('open');
-  document.querySelectorAll('.palette-menu').forEach(m => m.classList.remove('open'));
-  editingId = null;
-  imgBase64 = null;
-  currentTags = [];
-  currentThermo = 3;
-  savedRange = null;
+  document.getElementById('modal').classList.remove('open');
+  editingId = null; currentTags = []; currentThermo = 3;
 };
 
-modal.addEventListener('click', e => {
-  if (e.target === modal) closeModal();
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+// fechar clicando fora
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
 });
 
+// ── TAGS ──
 window.addTag = function() {
-  const input = $('#f-tag-input');
-  const val = input.value.trim();
-  if (val && !currentTags.includes(val)) {
-    currentTags.push(val);
-    renderTagsPreview();
-    saveDraftSoon();
-  }
+  const input = document.getElementById('f-tag-input');
+  const val   = input.value.trim();
+  if (val && !currentTags.includes(val)) { currentTags.push(val); renderTagsPreview(); }
   input.value = '';
 };
 
 function renderTagsPreview() {
-  const preview = $('#tags-preview');
-  preview.innerHTML = '';
-  currentTags.forEach(tag => {
-    const span = document.createElement('span');
-    span.className = 'tag-preview';
-    span.textContent = `${tag} ×`;
-    span.title = 'Clique para remover';
-    span.addEventListener('click', () => removeTag(tag));
-    preview.appendChild(span);
-  });
+  document.getElementById('tags-preview').innerHTML =
+    currentTags.map(t => `<span class="tag-preview" onclick="removeTag('${escapeHtml(t)}')">${escapeHtml(t)} ×</span>`).join('');
 }
 
-window.removeTag = function(tag) {
-  currentTags = currentTags.filter(x => x !== tag);
+window.removeTag = function(t) {
+  currentTags = currentTags.filter(x => x !== t);
   renderTagsPreview();
-  saveDraftSoon();
 };
 
+// ── TERMÔMETRO ──
 window.setThermo = function(val) {
-  currentThermo = clampThermo(val);
-  $$('.thermo-modal-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.val, 10) === currentThermo));
-  saveDraftSoon();
+  currentThermo = val;
+  document.querySelectorAll('.thermo-modal-btn').forEach(b =>
+    b.classList.toggle('selected', parseInt(b.dataset.val) === val));
 };
 
-window.previewImg = function(input) {
-  const file = input?.files?.[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => { imgBase64 = e.target.result; saveDraftSoon(); };
-  reader.readAsDataURL(file);
-};
-
-function cleanupDescriptionForSave() {
-  descEditor.querySelectorAll('.img-resize-wrap').forEach(unwrapImage);
-  descEditor.querySelectorAll('span[contenteditable="false"]').forEach(wrap => {
-    if (wrap.classList.contains('img-resize-wrap')) unwrapImage(wrap);
-  });
-  return descEditor.innerHTML.trim();
-}
-function currentFormData(clean = false) {
-  return {
-    title: $('#f-title').value.trim(),
-    desc: clean ? cleanupDescriptionForSave() : descEditor.innerHTML.trim(),
-    col: validCol($('#f-source').value),
-    link: $('#f-link').value.trim(),
-    tags: uniqueTags(currentTags),
-    thermo: clampThermo(currentThermo),
-    img: imgBase64 || null
-  };
-}
-function saveDraftSoon() {
-  if (!modal.classList.contains('open')) return;
-  clearTimeout(_draftTimer);
-  _draftTimer = setTimeout(() => {
-    const data = currentFormData();
-    if (hasDraftContent(data)) {
-      setDraft({ ...data, editingId, updatedAt: Date.now() });
-      setStatus('Rascunho salvo', 'ok');
-    }
-  }, 650);
-}
-['f-title','f-link','f-source'].forEach(id => {
-  const el = document.getElementById(id);
-  el?.addEventListener('input', saveDraftSoon);
-  el?.addEventListener('change', saveDraftSoon);
-});
-descEditor?.addEventListener('input', saveDraftSoon);
-
+// ── SALVAR (Realtime Database — instantâneo) ──
 window.saveIdea = async function() {
-  if (_isSaving) return;
-  const form = currentFormData(true);
-  if (!form.title) { showToast('Título obrigatório'); $('#f-title').focus(); return; }
-  if (!currentUser) { showToast('Login não identificado. Reabra pelo Hub.'); return; }
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('Título obrigatório'); return; }
 
-  const saveBtn = $('.btn-save');
-  const previousText = saveBtn.textContent;
-  const editId = editingId;
-  const wasEditing = Boolean(editId);
-  const existing = wasEditing ? getIdeaById(editId) : null;
-  const now = Date.now();
-  const localId = wasEditing ? editId : `local_${now}_${Math.random().toString(36).slice(2, 8)}`;
+  const data = {
+    uid:       currentUser.uid,
+    title,
+    desc:      document.getElementById('f-desc').innerHTML.trim(),
+    col:       document.getElementById('f-source').value || 'screenshot',
+    link:      document.getElementById('f-link').value.trim(),
+    tags:      [...currentTags],
+    thermo:    currentThermo,
+    updatedAt: Date.now()
+  };
 
-  const optimistic = normalizeIdea({
-    id: localId,
-    uid: currentUser.uid,
-    ...form,
-    createdAt: existing?.createdAt || now,
-    updatedAt: now,
-    _pendingSync: !isCloudId(localId)
-  });
-
-  _isSaving = true;
-  saveBtn.disabled = true;
-  saveBtn.textContent = 'Salvando...';
-  setStatus('Salvando', 'busy');
-
-  cacheUpsert(optimistic, editId);
-  renderCard(optimistic);
-  updateCounts();
-  setLocalIdeas(_ideasCache);
-  clearDraft();
+  setSyncStatus('busy', 'Salvando...');
   closeModal();
-  showToast(wasEditing ? 'Ideia atualizada ✓' : 'Ideia criada ✓');
 
   try {
-    if (wasEditing && isCloudId(editId)) {
-      await updateDoc(doc(db, 'ideas', editId), toFirestoreData(optimistic));
-      cacheUpsert({ ...optimistic, _pendingSync: false }, editId);
+    if (!editingId) {
+      data.createdAt = Date.now();
+      await push(_ideasRef, data);
     } else {
-      const docRef = await addDoc(collection(db, 'ideas'), toFirestoreData({ ...optimistic, _pendingSync: false }));
-      replaceIdeaId(localId, docRef.id);
+      await update(ref(db, `ideas/${currentUser.uid}/${editingId}`), data);
     }
-    setLocalIdeas(_ideasCache);
-    setStatus('Pronto', 'ok');
+    setSyncStatus('ok', 'Sincronizado ✓');
+    showToast(editingId ? 'Ideia atualizada ✓' : 'Ideia salva ✓');
   } catch (err) {
-    console.error('Erro ao salvar na nuvem:', err);
-    cacheUpsert({ ...optimistic, _pendingSync: true }, localId);
-    setLocalIdeas(_ideasCache);
-    setStatus('Salvo local', 'warn');
-    showToast('Salvo no backup local. A nuvem sincroniza depois.');
-  } finally {
-    _isSaving = false;
-    saveBtn.disabled = false;
-    saveBtn.textContent = previousText;
+    console.error('Erro ao salvar:', err);
+    setSyncStatus('warn', 'Erro ao salvar');
+    showToast('Erro ao salvar. Tente novamente.');
   }
 };
 
-function replaceIdeaId(oldId, newId) {
-  const item = getIdeaById(oldId);
-  if (!item) return;
-  const updated = normalizeIdea({ ...item, id: newId, _pendingSync: false });
-  cacheRemove(oldId);
-  cacheUpsert(updated);
-  const card = $(`.idea-card[data-id="${cssEscape(oldId)}"]`);
-  if (card) card.dataset.id = newId;
-}
-
-window.editIdea = async function(id) {
-  const cached = getIdeaById(id);
-  if (cached) { openModal(cached); return; }
-
-  setStatus('Carregando', 'busy');
-  showToast('Carregando ideia...');
-  try {
-    const q = query(collection(db, 'ideas'), where('uid', '==', currentUser.uid));
-    const snap = await getDocs(q);
-    const found = snap.docs.find(x => x.id === id);
-    if (found) {
-      const idea = normalizeIdea({ ...found.data(), id: found.id });
-      cacheUpsert(idea);
-      setLocalIdeas(_ideasCache);
-      openModal(idea);
-      setStatus('Pronto', 'ok');
-    } else {
-      setStatus('Pronto', 'ok');
-      showToast('Ideia não encontrada.');
-    }
-  } catch (err) {
-    console.error('Erro ao abrir edição:', err);
-    setStatus('Modo local', 'warn');
-    showToast('Não consegui abrir a edição agora.');
-  }
-};
-
-window.deleteIdea = async function(id) {
-  const idea = getIdeaById(id);
-  if (!idea) { showToast('Ideia não encontrada.'); return; }
+// ── DELETAR ──
+async function deleteIdea(id) {
   if (!confirm('Remover esta ideia permanentemente?')) return;
-
-  const card = $(`.idea-card[data-id="${cssEscape(id)}"]`);
-  card?.remove();
-  cacheRemove(id);
-  setLocalIdeas(_ideasCache);
-  updateCounts();
-  setStatus('Salvando', 'busy');
-
+  setSyncStatus('busy', 'Removendo...');
   try {
-    if (isCloudId(id)) await deleteDoc(doc(db, 'ideas', id));
-    setStatus('Pronto', 'ok');
+    await remove(ref(db, `ideas/${currentUser.uid}/${id}`));
+    setSyncStatus('ok', 'Sincronizado ✓');
     showToast('Ideia removida');
   } catch (err) {
-    console.error('Erro ao excluir da nuvem:', err);
-    setStatus('Modo local', 'warn');
-    showToast('Removi da tela. Confira a nuvem quando reconectar.');
-  }
-};
-
-async function syncPendingIdeas() {
-  const pending = _ideasCache.filter(x => x._pendingSync || !isCloudId(x.id));
-  if (!pending.length || !currentUser) return;
-
-  for (const item of pending) {
-    try {
-      if (isCloudId(item.id)) {
-        await updateDoc(doc(db, 'ideas', item.id), toFirestoreData({ ...item, _pendingSync: false }));
-        cacheUpsert({ ...item, _pendingSync: false }, item.id);
-      } else {
-        const docRef = await addDoc(collection(db, 'ideas'), toFirestoreData({ ...item, uid: currentUser.uid, _pendingSync: false }));
-        replaceIdeaId(item.id, docRef.id);
-      }
-      setLocalIdeas(_ideasCache);
-    } catch (err) {
-      console.warn('Sincronização pendente mantida:', err);
-    }
+    console.error('Erro ao remover:', err);
+    setSyncStatus('warn', 'Erro ao remover');
   }
 }
 
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+window.showToast = showToast;
+
 // ── EDITOR AVANÇADO DA DESCRIÇÃO ──
+let savedRange = null;
+const descEditor     = document.getElementById('f-desc');
+const floatingEditor = document.getElementById('floatingEditor');
+const descImageInput = document.getElementById('descImageInput');
+
 function getDescSelectionRange() {
   const sel = window.getSelection();
   if (!sel || !sel.rangeCount || sel.isCollapsed) return null;
   const range = sel.getRangeAt(0);
-  const root = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+  const root  = range.commonAncestorContainer.nodeType === Node.ELEMENT_NODE
+    ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
   return root && root.closest && root.closest('#f-desc') ? range : null;
 }
-function saveDescSelection() {
-  const range = getDescSelectionRange();
-  if (!range) return false;
-  savedRange = range.cloneRange();
-  return true;
-}
+function saveDescSelection()    { const r = getDescSelectionRange(); if (r) savedRange = r.cloneRange(); return !!r; }
 function restoreDescSelection() {
   if (!savedRange) return;
   const sel = window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(savedRange);
+  sel.removeAllRanges(); sel.addRange(savedRange);
   descEditor.focus({ preventScroll: true });
 }
 function positionEditorToolbar() {
@@ -1422,14 +1202,14 @@ function positionEditorToolbar() {
   if (!rect || (!rect.width && !rect.height)) return;
   floatingEditor.classList.add('open');
   requestAnimationFrame(() => {
-    const tb = floatingEditor.getBoundingClientRect();
-    let left = rect.left + rect.width / 2;
-    let top = rect.top - 12;
-    const pad = 12;
-    left = Math.max(pad + tb.width / 2, Math.min(window.innerWidth - pad - tb.width / 2, left));
+    const tb   = floatingEditor.getBoundingClientRect();
+    let left   = rect.left + rect.width / 2;
+    let top    = rect.top - 12;
+    const pad  = 12;
+    left = Math.max(pad + tb.width/2, Math.min(window.innerWidth - pad - tb.width/2, left));
     if (top - tb.height < pad) top = rect.bottom + tb.height + 18;
-    floatingEditor.style.left = `${left}px`;
-    floatingEditor.style.top = `${top}px`;
+    floatingEditor.style.left = left + 'px';
+    floatingEditor.style.top  = top  + 'px';
   });
 }
 function wrapSelection(styleObj) {
@@ -1437,58 +1217,53 @@ function wrapSelection(styleObj) {
   const sel = window.getSelection();
   if (!sel || !sel.rangeCount || sel.isCollapsed) return;
   const range = sel.getRangeAt(0);
-  const span = document.createElement('span');
+  const span  = document.createElement('span');
   Object.assign(span.style, styleObj);
   try { range.surroundContents(span); }
-  catch { span.appendChild(range.extractContents()); range.insertNode(span); }
+  catch(e) { span.appendChild(range.extractContents()); range.insertNode(span); }
   range.selectNodeContents(span);
-  sel.removeAllRanges();
-  sel.addRange(range);
+  sel.removeAllRanges(); sel.addRange(range);
   savedRange = range.cloneRange();
-  saveDraftSoon();
 }
-function execDesc(cmd, val = null) {
-  restoreDescSelection();
-  document.execCommand(cmd, false, val);
-  saveDescSelection();
-  saveDraftSoon();
-}
+function execDesc(cmd, val=null) { restoreDescSelection(); document.execCommand(cmd, false, val); saveDescSelection(); }
 
-floatingEditor.addEventListener('mousedown', e => {
-  if (e.target.closest('select')) return;
-  e.preventDefault();
-});
-floatingEditor.querySelectorAll('[data-cmd]').forEach(btn => btn.addEventListener('click', () => {
-  execDesc(btn.dataset.cmd);
-  positionEditorToolbar();
-}));
-$('#fontFamilySel').addEventListener('change', e => {
+floatingEditor.addEventListener('mousedown', e => e.preventDefault());
+floatingEditor.querySelectorAll('[data-cmd]').forEach(btn =>
+  btn.addEventListener('click', () => { execDesc(btn.dataset.cmd); positionEditorToolbar(); }));
+document.getElementById('fontFamilySel').addEventListener('change', e => {
   if (e.target.value) wrapSelection({ fontFamily: e.target.value });
-  e.target.value = '';
-  positionEditorToolbar();
+  e.target.value = ''; positionEditorToolbar();
 });
-$('#fontSizeSel').addEventListener('change', e => {
+document.getElementById('fontSizeSel').addEventListener('change', e => {
   if (e.target.value) wrapSelection({ fontSize: e.target.value });
-  e.target.value = '';
-  positionEditorToolbar();
+  e.target.value = ''; positionEditorToolbar();
 });
 
-const TEXT_COLORS = ['#edf4fb','#d8b85c','#ff7d7d','#ffc36a','#ffe08a','#75e2c8','#59e38c','#77b7ff','#b8a4ff','#f7a1d1','#ffffff','#111827'];
-const BG_COLORS = ['#fff3bf','#fde68a','#fecaca','#fed7aa','#bbf7d0','#ccfbf1','#bfdbfe','#ddd6fe','#fbcfe8','#e5e7eb','#ffffff','#0d1b2a'];
+const TEXT_COLORS = ['#e8edf3','#d8b85c','#ef4444','#f97316','#f59e0b','#22c55e','#14b8a6','#3b82f6','#8b5cf6','#ec4899','#ffffff','#111827'];
+const BG_COLORS   = ['#fff3bf','#fde68a','#fecaca','#fed7aa','#bbf7d0','#ccfbf1','#bfdbfe','#ddd6fe','#fbcfe8','#e5e7eb','#ffffff','#0d1b2a'];
+
 function buildPalette(id, colors, kind) {
   const el = document.getElementById(id);
-  el.innerHTML = colors.map(hex => `<button type="button" class="color-btn" data-hex="${hex}"><span class="swatch" style="background:${hex}"></span><span class="hex">${hex}</span></button>`).join('');
+  el.innerHTML = colors.map(hex =>
+    `<button type="button" class="color-btn" data-hex="${hex}"><span class="swatch" style="background:${hex}"></span><span class="hex">${hex}</span></button>`
+  ).join('');
   el.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-    const hex = b.dataset.hex;
-    wrapSelection(kind === 'text' ? { color: hex } : { backgroundColor: hex });
+    wrapSelection(kind === 'text' ? { color: b.dataset.hex } : { backgroundColor: b.dataset.hex });
     document.querySelectorAll('.palette-menu').forEach(m => m.classList.remove('open'));
     positionEditorToolbar();
   }));
 }
 buildPalette('textPalette', TEXT_COLORS, 'text');
 buildPalette('bgPalette', BG_COLORS, 'bg');
-$('#textPaletteBtn').addEventListener('click', () => { $('#textPaletteMenu').classList.toggle('open'); $('#bgPaletteMenu').classList.remove('open'); });
-$('#bgPaletteBtn').addEventListener('click', () => { $('#bgPaletteMenu').classList.toggle('open'); $('#textPaletteMenu').classList.remove('open'); });
+
+document.getElementById('textPaletteBtn').addEventListener('click', () => {
+  document.getElementById('textPaletteMenu').classList.toggle('open');
+  document.getElementById('bgPaletteMenu').classList.remove('open');
+});
+document.getElementById('bgPaletteBtn').addEventListener('click', () => {
+  document.getElementById('bgPaletteMenu').classList.toggle('open');
+  document.getElementById('textPaletteMenu').classList.remove('open');
+});
 
 document.addEventListener('selectionchange', () => {
   clearTimeout(window.__ideaToolbarTimer);
@@ -1500,19 +1275,16 @@ document.addEventListener('mousedown', e => {
   if (!e.target.closest('#f-desc')) floatingEditor.classList.remove('open');
 });
 
-$('#insertDescImageBtn').addEventListener('click', () => { restoreDescSelection(); descImageInput.click(); });
+// ── IMAGENS NA DESCRIÇÃO ──
+document.getElementById('insertDescImageBtn').addEventListener('click', () => { restoreDescSelection(); descImageInput.click(); });
 descImageInput.addEventListener('change', e => insertImagesIntoDesc(Array.from(e.target.files || [])));
+
 function insertImagesIntoDesc(files) {
   if (!files.length) return;
   restoreDescSelection();
-  files.filter(f => f.type.startsWith('image/') || /\.(heic|heif|svg|avif|bmp|webp|png|jpe?g|gif)$/i.test(f.name)).forEach(file => {
+  files.filter(f => f.type.startsWith('image/')).forEach(file => {
     const reader = new FileReader();
-    reader.onload = ev => {
-      const img = document.createElement('img');
-      img.src = ev.target.result;
-      insertNodeAtSelection(img);
-      saveDraftSoon();
-    };
+    reader.onload = ev => { const img = document.createElement('img'); img.src = ev.target.result; insertNodeAtSelection(img); };
     reader.readAsDataURL(file);
   });
   descImageInput.value = '';
@@ -1522,33 +1294,22 @@ function insertNodeAtSelection(node) {
   const sel = window.getSelection();
   if (sel && sel.rangeCount) {
     const range = sel.getRangeAt(0);
-    range.deleteContents();
-    range.insertNode(node);
-    range.setStartAfter(node);
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
+    range.deleteContents(); range.insertNode(node);
+    range.setStartAfter(node); range.collapse(true);
+    sel.removeAllRanges(); sel.addRange(range);
     savedRange = range.cloneRange();
-  } else {
-    descEditor.appendChild(node);
-  }
+  } else { descEditor.appendChild(node); }
 }
 descEditor.addEventListener('paste', e => {
   const items = e.clipboardData?.items;
   if (!items) return;
-  const imgs = Array.from(items).filter(item => item.type.startsWith('image/'));
+  const imgs = Array.from(items).filter(i => i.type.startsWith('image/'));
   if (!imgs.length) return;
   e.preventDefault();
   imgs.forEach(item => {
-    const file = item.getAsFile();
-    if (!file) return;
+    const file = item.getAsFile(); if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev => {
-      const img = document.createElement('img');
-      img.src = ev.target.result;
-      insertNodeAtSelection(img);
-      saveDraftSoon();
-    };
+    reader.onload = ev => { const img = document.createElement('img'); img.src = ev.target.result; insertNodeAtSelection(img); };
     reader.readAsDataURL(file);
   });
 });
@@ -1557,54 +1318,32 @@ descEditor.addEventListener('click', e => {
   else descEditor.querySelectorAll('.img-resize-wrap').forEach(unwrapImage);
 });
 function unwrapImage(wrap) {
-  const img = wrap.querySelector('img');
-  if (!img) return;
+  const img = wrap.querySelector('img'); if (!img) return;
   img.classList.remove('img-selected');
-  img.style.maxWidth = img.style.maxWidth || '100%';
-  wrap.parentNode.insertBefore(img, wrap);
-  wrap.remove();
+  wrap.parentNode.insertBefore(img, wrap); wrap.remove();
 }
 function selectResizableImage(img) {
   descEditor.querySelectorAll('.img-resize-wrap').forEach(w => { if (!w.contains(img)) unwrapImage(w); });
   img.classList.add('img-selected');
-  if (img.parentNode.classList?.contains('img-resize-wrap')) return;
+  if (img.parentNode.classList.contains('img-resize-wrap')) return;
   const wrap = document.createElement('span');
-  wrap.className = 'img-resize-wrap';
-  wrap.contentEditable = 'false';
-  img.parentNode.insertBefore(wrap, img);
-  wrap.appendChild(img);
+  wrap.className = 'img-resize-wrap'; wrap.contentEditable = 'false';
+  img.parentNode.insertBefore(wrap, img); wrap.appendChild(img);
   const handle = document.createElement('span');
-  handle.className = 'resize-handle';
-  wrap.appendChild(handle);
+  handle.className = 'resize-handle'; wrap.appendChild(handle);
   let startX = 0, startW = 0;
   handle.addEventListener('mousedown', ev => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    startX = ev.clientX;
-    startW = img.offsetWidth;
-    const onMove = mv => {
-      img.style.width = `${Math.max(70, startW + mv.clientX - startX)}px`;
-      img.style.maxWidth = 'none';
-    };
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      saveDraftSoon();
-    };
+    ev.preventDefault(); ev.stopPropagation();
+    startX = ev.clientX; startW = img.offsetWidth;
+    const onMove = mv => { img.style.width = Math.max(60, startW + mv.clientX - startX) + 'px'; img.style.maxWidth = 'none'; };
+    const onUp   = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
   });
 }
-
-onAuthStateChanged(auth, user => {
-  if (!user) { window.location.href = 'index.html'; return; }
-  currentUser = user;
-  setupDragDrop();
-  loadIdeas();
-});
 </script>
 
-<!-- FUNDO NEURAL LEVE: SVG pequeno e estático -->
+<!-- FUNDO NEURAL ANIMADO LEVE: SVG otimizado -->
 <svg id="neural-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 900" aria-hidden="true">
   <defs>
     <linearGradient id="neuralLine" x1="0" y1="0" x2="1" y2="1">
@@ -1617,25 +1356,37 @@ onAuthStateChanged(auth, user => {
       <stop offset="1" stop-color="#ffe08a" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <g stroke="url(#neuralLine)" stroke-width="1" fill="none">
+
+  <g class="float-a neural-lines" stroke="url(#neuralLine)" stroke-width="1.1" fill="none">
     <path d="M40 160L180 90L340 170L520 80L710 145L870 70L1060 150L1240 92L1400 170"/>
     <path d="M130 300L340 170L460 382L710 145L830 365L1060 150L1190 370L1400 270"/>
+  </g>
+  <g class="float-b neural-lines" stroke="url(#neuralLine)" stroke-width="1.1" fill="none">
     <path d="M80 560L260 470L460 382L610 540L830 365L990 530L1190 370L1360 560"/>
     <path d="M160 760L360 690L610 540L740 760L990 530L1130 740L1360 560"/>
-    <path d="M180 90L260 470M520 80L610 540M870 70L990 530M1240 92L1130 740" opacity=".45"/>
   </g>
-  <g fill="url(#nodeGlow)" opacity=".58">
-    <circle cx="340" cy="170" r="22"/><circle cx="710" cy="145" r="18"/><circle cx="830" cy="365" r="20"/>
-    <circle cx="610" cy="540" r="18"/><circle cx="990" cy="530" r="20"/><circle cx="740" cy="760" r="18"/>
+  <g class="float-c neural-lines" stroke="url(#neuralLine)" stroke-width="0.95" fill="none" opacity=".52">
+    <path d="M180 90L260 470M520 80L610 540M870 70L990 530M1240 92L1130 740"/>
+    <path d="M130 300L260 470M460 382L610 540M830 365L990 530M1190 370L1130 740" opacity=".32"/>
   </g>
-  <g fill="#edf4fb" opacity=".72">
-    <circle cx="40" cy="160" r="2.4"/><circle cx="180" cy="90" r="2.8"/><circle cx="340" cy="170" r="3.6"/>
-    <circle cx="520" cy="80" r="2.6"/><circle cx="710" cy="145" r="3.5"/><circle cx="870" cy="70" r="2.5"/>
-    <circle cx="1060" cy="150" r="3.4"/><circle cx="1240" cy="92" r="2.6"/><circle cx="1400" cy="170" r="2.4"/>
-    <circle cx="130" cy="300" r="2.5"/><circle cx="460" cy="382" r="3"/><circle cx="830" cy="365" r="3.4"/>
-    <circle cx="1190" cy="370" r="3"/><circle cx="80" cy="560" r="2.4"/><circle cx="260" cy="470" r="2.8"/>
-    <circle cx="610" cy="540" r="3.6"/><circle cx="990" cy="530" r="3.4"/><circle cx="1360" cy="560" r="2.4"/>
-    <circle cx="160" cy="760" r="2.5"/><circle cx="360" cy="690" r="2.8"/><circle cx="740" cy="760" r="3.5"/><circle cx="1130" cy="740" r="2.9"/>
+
+  <g class="float-a" fill="url(#nodeGlow)" opacity=".62">
+    <circle class="glow-node" cx="340" cy="170" r="22"/>
+    <circle class="glow-node" cx="710" cy="145" r="18"/>
+    <circle class="glow-node" cx="830" cy="365" r="20"/>
+    <circle class="glow-node" cx="610" cy="540" r="18"/>
+    <circle class="glow-node" cx="990" cy="530" r="20"/>
+    <circle class="glow-node" cx="740" cy="760" r="18"/>
+  </g>
+
+  <g class="float-b" fill="#edf4fb" opacity=".76">
+    <circle class="core-node" cx="40" cy="160" r="2.4"/><circle class="core-node" cx="180" cy="90" r="2.8"/><circle class="core-node" cx="340" cy="170" r="3.6"/>
+    <circle class="core-node" cx="520" cy="80" r="2.6"/><circle class="core-node" cx="710" cy="145" r="3.5"/><circle class="core-node" cx="870" cy="70" r="2.5"/>
+    <circle class="core-node" cx="1060" cy="150" r="3.4"/><circle class="core-node" cx="1240" cy="92" r="2.6"/><circle class="core-node" cx="1400" cy="170" r="2.4"/>
+    <circle class="core-node" cx="130" cy="300" r="2.5"/><circle class="core-node" cx="460" cy="382" r="3"/><circle class="core-node" cx="830" cy="365" r="3.4"/>
+    <circle class="core-node" cx="1190" cy="370" r="3"/><circle class="core-node" cx="80" cy="560" r="2.4"/><circle class="core-node" cx="260" cy="470" r="2.8"/>
+    <circle class="core-node" cx="610" cy="540" r="3.6"/><circle class="core-node" cx="990" cy="530" r="3.4"/><circle class="core-node" cx="1360" cy="560" r="2.4"/>
+    <circle class="core-node" cx="160" cy="760" r="2.5"/><circle class="core-node" cx="360" cy="690" r="2.8"/><circle class="core-node" cx="740" cy="760" r="3.5"/><circle class="core-node" cx="1130" cy="740" r="2.9"/>
   </g>
 </svg>
 
