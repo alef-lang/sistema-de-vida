@@ -83,84 +83,7 @@
       height: 100%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.42;
-      overflow: visible;
-    }
-
-    #neural-svg .neural-lines {
-      stroke-dasharray: 8 10;
-      animation: neuralFlow 18s linear infinite;
-    }
-
-    #neural-svg .neural-lines path:nth-child(2n) {
-      animation-duration: 24s;
-    }
-
-    #neural-svg .neural-lines path:nth-child(3n) {
-      animation-duration: 30s;
-    }
-
-    #neural-svg .glow-node {
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: neuralPulse 4.8s ease-in-out infinite;
-    }
-
-    #neural-svg .glow-node:nth-child(2n) { animation-duration: 6.2s; }
-    #neural-svg .glow-node:nth-child(3n) { animation-duration: 5.4s; }
-
-    #neural-svg .core-node {
-      transform-box: fill-box;
-      transform-origin: center;
-      animation: neuralTwinkle 3.8s ease-in-out infinite;
-    }
-
-    #neural-svg .core-node:nth-child(2n) { animation-duration: 5.2s; }
-    #neural-svg .core-node:nth-child(3n) { animation-duration: 4.6s; }
-
-    #neural-svg .float-a { animation: driftA 20s ease-in-out infinite; }
-    #neural-svg .float-b { animation: driftB 24s ease-in-out infinite; }
-    #neural-svg .float-c { animation: driftC 28s ease-in-out infinite; }
-
-    @keyframes neuralFlow {
-      from { stroke-dashoffset: 0; }
-      to   { stroke-dashoffset: -220; }
-    }
-
-    @keyframes neuralPulse {
-      0%, 100% { transform: scale(0.92); opacity: 0.34; }
-      50%      { transform: scale(1.18); opacity: 0.84; }
-    }
-
-    @keyframes neuralTwinkle {
-      0%, 100% { opacity: 0.45; transform: scale(0.96); }
-      50%      { opacity: 1; transform: scale(1.18); }
-    }
-
-    @keyframes driftA {
-      0%,100% { transform: translate3d(0px,0px,0); }
-      50%     { transform: translate3d(10px,-8px,0); }
-    }
-
-    @keyframes driftB {
-      0%,100% { transform: translate3d(0px,0px,0); }
-      50%     { transform: translate3d(-12px,8px,0); }
-    }
-
-    @keyframes driftC {
-      0%,100% { transform: translate3d(0px,0px,0); }
-      50%     { transform: translate3d(8px,10px,0); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      #neural-svg .neural-lines,
-      #neural-svg .glow-node,
-      #neural-svg .core-node,
-      #neural-svg .float-a,
-      #neural-svg .float-b,
-      #neural-svg .float-c {
-        animation: none !important;
-      }
+      opacity: 0.34;
     }
 
     .topbar {
@@ -674,6 +597,83 @@
     ::-webkit-scrollbar-thumb { background: rgba(216,184,92,0.20); border-radius: 6px; }
     ::-webkit-scrollbar-thumb:hover { background: rgba(216,184,92,0.34); }
 
+
+    /* ── FUNDO NEURAL ── */
+    html {
+      min-height: 100%;
+      overflow-x: auto;
+      background: #081422;
+      overscroll-behavior-x: none;
+    }
+
+    body {
+      background-color: #081422;
+      background-image:
+        radial-gradient(circle at 12% 8%, rgba(119,183,255,0.18), transparent 26%),
+        radial-gradient(circle at 88% 12%, rgba(247,161,209,0.14), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(117,226,200,0.13), transparent 26%),
+        linear-gradient(135deg, #081422 0%, #101f32 46%, #07111e 100%);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      overscroll-behavior-x: none;
+    }
+
+    #neural-bg {
+      position: fixed;
+      inset: -16px;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(119,183,255,0.10), transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(247,161,209,0.08), transparent 22%),
+        radial-gradient(circle at 52% 58%, rgba(117,226,200,0.07), transparent 28%),
+        linear-gradient(135deg, #081422 0%, #0d1b2a 45%, #07111e 100%);
+    }
+
+    /* Rede neural — constelação animada por CSS (zero canvas, zero JS) */
+    #star-net {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    #star-net .sn-line {
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 6 22;
+      stroke-dashoffset: 0;
+    }
+    #star-net .sn-line.a { stroke: rgba(119,183,255,0.22); stroke-width: 0.9; animation: snDash 14s linear infinite; }
+    #star-net .sn-line.b { stroke: rgba(247,161,209,0.18); stroke-width: 0.8; animation: snDash 18s linear infinite reverse; }
+    #star-net .sn-line.c { stroke: rgba(255,224,138,0.20); stroke-width: 0.9; animation: snDash 11s linear infinite; }
+    #star-net .sn-line.d { stroke: rgba(117,226,200,0.16); stroke-width: 0.7; animation: snDash 20s linear infinite reverse; }
+
+    #star-net .sn-node {
+      animation: snBlink 4s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+    #star-net .sn-node.s1 { animation-duration: 3.6s; }
+    #star-net .sn-node.s2 { animation-duration: 5.1s; animation-delay: -1.4s; }
+    #star-net .sn-node.s3 { animation-duration: 6.4s; animation-delay: -2.8s; }
+
+    #star-net .sn-signal {
+      opacity: .9;
+      filter: drop-shadow(0 0 5px currentColor);
+    }
+
+    @keyframes snDash {
+      to { stroke-dashoffset: -120; }
+    }
+    @keyframes snBlink {
+      0%, 100% { opacity: .72; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.35); }
+    }
+
     @media (max-width: 760px) {
       :root { --col-w: 86vw; }
       .topbar { padding: 0 16px; }
@@ -686,7 +686,212 @@
 <body>
 
 <!-- FUNDO NEURAL -->
+<!-- REDE NEURAL — CONSTELAÇÃO ANIMADA CSS (zero JS, zero canvas) -->
 <div id="neural-bg" aria-hidden="true"></div>
+<svg id="star-net" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <radialGradient id="gn1" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#77b7ff" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#77b7ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gn2" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffe08a" stop-opacity=".65"/>
+      <stop offset="1" stop-color="#ffe08a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gn3" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#f7a1d1" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#f7a1d1" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gn4" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#75e2c8" stop-opacity=".6"/>
+      <stop offset="1" stop-color="#75e2c8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Linhas de conexão distribuídas pela tela inteira -->
+  <!-- Cluster topo-esquerda -->
+  <line class="sn-line a" x1="68" y1="52" x2="198" y2="118"/>
+  <line class="sn-line b" x1="198" y1="118" x2="312" y2="74"/>
+  <line class="sn-line c" x1="68" y1="52" x2="142" y2="188"/>
+  <line class="sn-line d" x1="142" y1="188" x2="264" y2="210"/>
+  <line class="sn-line a" x1="312" y1="74" x2="264" y2="210"/>
+  <line class="sn-line b" x1="264" y1="210" x2="198" y2="118"/>
+
+  <!-- Cluster topo-centro -->
+  <line class="sn-line c" x1="520" y1="38" x2="648" y2="96"/>
+  <line class="sn-line a" x1="648" y1="96" x2="762" y2="44"/>
+  <line class="sn-line d" x1="520" y1="38" x2="584" y2="162"/>
+  <line class="sn-line b" x1="584" y1="162" x2="700" y2="178"/>
+  <line class="sn-line c" x1="700" y1="178" x2="762" y2="44"/>
+  <line class="sn-line a" x1="648" y1="96" x2="584" y2="162"/>
+
+  <!-- Cluster topo-direita -->
+  <line class="sn-line b" x1="980" y1="56" x2="1108" y2="32"/>
+  <line class="sn-line c" x1="1108" y1="32" x2="1240" y2="88"/>
+  <line class="sn-line a" x1="980" y1="56" x2="1042" y2="172"/>
+  <line class="sn-line d" x1="1042" y1="172" x2="1178" y2="156"/>
+  <line class="sn-line b" x1="1178" y1="156" x2="1240" y2="88"/>
+  <line class="sn-line c" x1="1108" y1="32" x2="1042" y2="172"/>
+
+  <!-- Cluster meio-esquerda -->
+  <line class="sn-line d" x1="42" y1="380" x2="168" y2="348"/>
+  <line class="sn-line a" x1="168" y1="348" x2="256" y2="424"/>
+  <line class="sn-line b" x1="42" y1="380" x2="96" y2="492"/>
+  <line class="sn-line c" x1="96" y1="492" x2="222" y2="516"/>
+  <line class="sn-line d" x1="222" y1="516" x2="256" y2="424"/>
+  <line class="sn-line a" x1="168" y1="348" x2="96" y2="492"/>
+
+  <!-- Cluster meio-centro -->
+  <line class="sn-line c" x1="580" y1="360" x2="704" y2="320"/>
+  <line class="sn-line b" x1="704" y1="320" x2="824" y2="388"/>
+  <line class="sn-line a" x1="824" y1="388" x2="860" y2="512"/>
+  <line class="sn-line d" x1="860" y1="512" x2="740" y2="548"/>
+  <line class="sn-line c" x1="740" y1="548" x2="620" y2="484"/>
+  <line class="sn-line b" x1="620" y1="484" x2="580" y2="360"/>
+  <line class="sn-line a" x1="704" y1="320" x2="740" y2="548"/>
+  <line class="sn-line d" x1="580" y1="360" x2="860" y2="512"/>
+
+  <!-- Cluster meio-direita -->
+  <line class="sn-line a" x1="1060" y1="340" x2="1196" y2="308"/>
+  <line class="sn-line b" x1="1196" y1="308" x2="1340" y2="372"/>
+  <line class="sn-line c" x1="1340" y1="372" x2="1380" y2="488"/>
+  <line class="sn-line d" x1="1380" y1="488" x2="1248" y2="520"/>
+  <line class="sn-line a" x1="1248" y1="520" x2="1100" y2="456"/>
+  <line class="sn-line b" x1="1100" y1="456" x2="1060" y2="340"/>
+  <line class="sn-line c" x1="1196" y1="308" x2="1248" y2="520"/>
+
+  <!-- Cluster baixo-esquerda -->
+  <line class="sn-line d" x1="80" y1="680" x2="212" y2="648"/>
+  <line class="sn-line a" x1="212" y1="648" x2="310" y2="724"/>
+  <line class="sn-line b" x1="80" y1="680" x2="128" y2="800"/>
+  <line class="sn-line c" x1="128" y1="800" x2="258" y2="828"/>
+  <line class="sn-line d" x1="258" y1="828" x2="310" y2="724"/>
+  <line class="sn-line a" x1="212" y1="648" x2="128" y2="800"/>
+
+  <!-- Cluster baixo-centro -->
+  <line class="sn-line b" x1="540" y1="700" x2="668" y2="660"/>
+  <line class="sn-line c" x1="668" y1="660" x2="798" y2="716"/>
+  <line class="sn-line a" x1="798" y1="716" x2="832" y2="840"/>
+  <line class="sn-line d" x1="832" y1="840" x2="700" y2="862"/>
+  <line class="sn-line b" x1="700" y1="862" x2="574" y2="808"/>
+  <line class="sn-line c" x1="574" y1="808" x2="540" y2="700"/>
+  <line class="sn-line a" x1="668" y1="660" x2="700" y2="862"/>
+
+  <!-- Cluster baixo-direita -->
+  <line class="sn-line d" x1="1040" y1="668" x2="1176" y2="640"/>
+  <line class="sn-line a" x1="1176" y1="640" x2="1310" y2="696"/>
+  <line class="sn-line b" x1="1310" y1="696" x2="1360" y2="820"/>
+  <line class="sn-line c" x1="1360" y1="820" x2="1220" y2="852"/>
+  <line class="sn-line d" x1="1220" y1="852" x2="1082" y2="784"/>
+  <line class="sn-line a" x1="1082" y1="784" x2="1040" y2="668"/>
+  <line class="sn-line b" x1="1176" y1="640" x2="1220" y2="852"/>
+
+  <!-- Conexões longas entre clusters -->
+  <line class="sn-line b" x1="312" y1="74" x2="520" y2="38"/>
+  <line class="sn-line c" x1="264" y1="210" x2="584" y2="162"/>
+  <line class="sn-line a" x1="762" y1="44" x2="980" y2="56"/>
+  <line class="sn-line d" x1="700" y1="178" x2="1042" y2="172"/>
+  <line class="sn-line c" x1="256" y1="424" x2="580" y2="360"/>
+  <line class="sn-line b" x1="222" y1="516" x2="620" y2="484"/>
+  <line class="sn-line a" x1="860" y1="512" x2="1060" y2="340"/>
+  <line class="sn-line d" x1="740" y1="548" x2="1100" y2="456"/>
+  <line class="sn-line c" x1="310" y1="724" x2="540" y2="700"/>
+  <line class="sn-line b" x1="258" y1="828" x2="574" y2="808"/>
+  <line class="sn-line a" x1="798" y1="716" x2="1040" y2="668"/>
+  <line class="sn-line d" x1="832" y1="840" x2="1082" y2="784"/>
+
+  <!-- Halos de brilho em nós principais -->
+  <circle cx="198" cy="118" r="16" fill="url(#gn1)" opacity=".38"/>
+  <circle cx="648" cy="96" r="18" fill="url(#gn2)" opacity=".34"/>
+  <circle cx="1108" cy="32" r="16" fill="url(#gn3)" opacity=".30"/>
+  <circle cx="256" cy="424" r="16" fill="url(#gn4)" opacity=".36"/>
+  <circle cx="724" cy="434" r="22" fill="url(#gn1)" opacity=".28"/>
+  <circle cx="1196" cy="308" r="18" fill="url(#gn2)" opacity=".32"/>
+  <circle cx="212" cy="648" r="16" fill="url(#gn3)" opacity=".30"/>
+  <circle cx="668" cy="660" r="18" fill="url(#gn4)" opacity=".34"/>
+  <circle cx="1176" cy="640" r="16" fill="url(#gn1)" opacity=".30"/>
+
+  <!-- Nós — constelação espalhada -->
+  <circle class="sn-node s1" cx="68"  cy="52"  r="2.8" fill="#77b7ff" opacity=".7"/>
+  <circle class="sn-node s2" cx="198" cy="118" r="3.4" fill="#eef6ff" opacity=".85"/>
+  <circle class="sn-node s3" cx="312" cy="74"  r="2.6" fill="#77b7ff" opacity=".65"/>
+  <circle class="sn-node s1" cx="142" cy="188" r="2.4" fill="#b8a4ff" opacity=".6"/>
+  <circle class="sn-node s2" cx="264" cy="210" r="3.0" fill="#eef6ff" opacity=".78"/>
+  <circle class="sn-node s3" cx="520" cy="38"  r="2.6" fill="#75e2c8" opacity=".65"/>
+  <circle class="sn-node s1" cx="648" cy="96"  r="3.6" fill="#eef6ff" opacity=".88"/>
+  <circle class="sn-node s2" cx="762" cy="44"  r="2.8" fill="#77b7ff" opacity=".7"/>
+  <circle class="sn-node s3" cx="584" cy="162" r="2.6" fill="#ffe08a" opacity=".72"/>
+  <circle class="sn-node s1" cx="700" cy="178" r="2.8" fill="#f7a1d1" opacity=".65"/>
+  <circle class="sn-node s2" cx="980" cy="56"  r="2.8" fill="#75e2c8" opacity=".68"/>
+  <circle class="sn-node s3" cx="1108" cy="32" r="3.4" fill="#eef6ff" opacity=".85"/>
+  <circle class="sn-node s1" cx="1240" cy="88" r="2.6" fill="#77b7ff" opacity=".65"/>
+  <circle class="sn-node s2" cx="1042" cy="172" r="2.8" fill="#ffe08a" opacity=".70"/>
+  <circle class="sn-node s3" cx="1178" cy="156" r="2.6" fill="#b8a4ff" opacity=".62"/>
+  <circle class="sn-node s1" cx="42"  cy="380" r="2.4" fill="#77b7ff" opacity=".58"/>
+  <circle class="sn-node s2" cx="168" cy="348" r="3.0" fill="#eef6ff" opacity=".80"/>
+  <circle class="sn-node s3" cx="256" cy="424" r="3.2" fill="#75e2c8" opacity=".82"/>
+  <circle class="sn-node s1" cx="96"  cy="492" r="2.6" fill="#f7a1d1" opacity=".65"/>
+  <circle class="sn-node s2" cx="222" cy="516" r="2.8" fill="#ffe08a" opacity=".72"/>
+  <circle class="sn-node s3" cx="580" cy="360" r="3.0" fill="#77b7ff" opacity=".75"/>
+  <circle class="sn-node s1" cx="704" cy="320" r="3.4" fill="#eef6ff" opacity=".88"/>
+  <circle class="sn-node s2" cx="824" cy="388" r="2.8" fill="#b8a4ff" opacity=".72"/>
+  <circle class="sn-node s3" cx="860" cy="512" r="3.2" fill="#75e2c8" opacity=".80"/>
+  <circle class="sn-node s1" cx="740" cy="548" r="2.8" fill="#f7a1d1" opacity=".68"/>
+  <circle class="sn-node s2" cx="620" cy="484" r="2.6" fill="#ffe08a" opacity=".65"/>
+  <circle class="sn-node s3" cx="1060" cy="340" r="2.8" fill="#77b7ff" opacity=".70"/>
+  <circle class="sn-node s1" cx="1196" cy="308" r="3.4" fill="#eef6ff" opacity=".88"/>
+  <circle class="sn-node s2" cx="1340" cy="372" r="2.6" fill="#75e2c8" opacity=".65"/>
+  <circle class="sn-node s3" cx="1380" cy="488" r="2.4" fill="#b8a4ff" opacity=".60"/>
+  <circle class="sn-node s1" cx="1248" cy="520" r="3.0" fill="#ffe08a" opacity=".75"/>
+  <circle class="sn-node s2" cx="1100" cy="456" r="2.8" fill="#f7a1d1" opacity=".68"/>
+  <circle class="sn-node s3" cx="80"  cy="680" r="2.4" fill="#77b7ff" opacity=".58"/>
+  <circle class="sn-node s1" cx="212" cy="648" r="3.2" fill="#eef6ff" opacity=".82"/>
+  <circle class="sn-node s2" cx="310" cy="724" r="2.8" fill="#75e2c8" opacity=".72"/>
+  <circle class="sn-node s3" cx="128" cy="800" r="2.6" fill="#b8a4ff" opacity=".65"/>
+  <circle class="sn-node s1" cx="258" cy="828" r="2.8" fill="#ffe08a" opacity=".70"/>
+  <circle class="sn-node s2" cx="540" cy="700" r="2.8" fill="#f7a1d1" opacity=".68"/>
+  <circle class="sn-node s3" cx="668" cy="660" r="3.4" fill="#eef6ff" opacity=".88"/>
+  <circle class="sn-node s1" cx="798" cy="716" r="3.0" fill="#77b7ff" opacity=".75"/>
+  <circle class="sn-node s2" cx="832" cy="840" r="2.8" fill="#75e2c8" opacity=".72"/>
+  <circle class="sn-node s3" cx="700" cy="862" r="2.6" fill="#b8a4ff" opacity=".65"/>
+  <circle class="sn-node s1" cx="574" cy="808" r="2.4" fill="#ffe08a" opacity=".62"/>
+  <circle class="sn-node s2" cx="1040" cy="668" r="2.8" fill="#77b7ff" opacity=".70"/>
+  <circle class="sn-node s3" cx="1176" cy="640" r="3.4" fill="#eef6ff" opacity=".88"/>
+  <circle class="sn-node s1" cx="1310" cy="696" r="2.6" fill="#75e2c8" opacity=".65"/>
+  <circle class="sn-node s2" cx="1360" cy="820" r="2.4" fill="#f7a1d1" opacity=".60"/>
+  <circle class="sn-node s3" cx="1220" cy="852" r="2.8" fill="#ffe08a" opacity=".70"/>
+  <circle class="sn-node s1" cx="1082" cy="784" r="3.0" fill="#b8a4ff" opacity=".75"/>
+
+  <!-- Sinais viajando pelas linhas -->
+  <circle class="sn-signal" r="3.2" fill="#77b7ff">
+    <animateMotion dur="10s" repeatCount="indefinite">
+      <mpath href="#sn-path1"/>
+    </animateMotion>
+  </circle>
+  <circle class="sn-signal" r="3.0" fill="#ffe08a">
+    <animateMotion dur="13s" repeatCount="indefinite" begin="3s">
+      <mpath href="#sn-path2"/>
+    </animateMotion>
+  </circle>
+  <circle class="sn-signal" r="2.8" fill="#f7a1d1">
+    <animateMotion dur="8.5s" repeatCount="indefinite" begin="5s">
+      <mpath href="#sn-path3"/>
+    </animateMotion>
+  </circle>
+  <circle class="sn-signal" r="2.6" fill="#75e2c8">
+    <animateMotion dur="11s" repeatCount="indefinite" begin="1.5s">
+      <mpath href="#sn-path4"/>
+    </animateMotion>
+  </circle>
+
+  <!-- Caminhos dos sinais -->
+  <defs>
+    <path id="sn-path1" d="M68 52 L198 118 L312 74 L520 38 L648 96 L762 44 L980 56 L1108 32 L1240 88"/>
+    <path id="sn-path2" d="M42 380 L168 348 L256 424 L580 360 L704 320 L824 388 L860 512 L1060 340 L1196 308 L1340 372 L1380 488"/>
+    <path id="sn-path3" d="M80 680 L212 648 L310 724 L540 700 L668 660 L798 716 L1040 668 L1176 640 L1310 696 L1360 820"/>
+    <path id="sn-path4" d="M264 210 L584 162 L700 178 L740 548 L620 484 L222 516 L96 492 L258 828 L700 862 L1220 852 L1082 784"/>
+  </defs>
+</svg>
 
 <!-- TOPBAR -->
 <header class="topbar">
@@ -1343,7 +1548,7 @@ function selectResizableImage(img) {
 }
 </script>
 
-<!-- FUNDO NEURAL ANIMADO LEVE: SVG otimizado -->
+<!-- FUNDO NEURAL LEVE: SVG pequeno e estático -->
 <svg id="neural-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 900" aria-hidden="true">
   <defs>
     <linearGradient id="neuralLine" x1="0" y1="0" x2="1" y2="1">
@@ -1356,37 +1561,25 @@ function selectResizableImage(img) {
       <stop offset="1" stop-color="#ffe08a" stop-opacity="0"/>
     </radialGradient>
   </defs>
-
-  <g class="float-a neural-lines" stroke="url(#neuralLine)" stroke-width="1.1" fill="none">
+  <g stroke="url(#neuralLine)" stroke-width="1" fill="none">
     <path d="M40 160L180 90L340 170L520 80L710 145L870 70L1060 150L1240 92L1400 170"/>
     <path d="M130 300L340 170L460 382L710 145L830 365L1060 150L1190 370L1400 270"/>
-  </g>
-  <g class="float-b neural-lines" stroke="url(#neuralLine)" stroke-width="1.1" fill="none">
     <path d="M80 560L260 470L460 382L610 540L830 365L990 530L1190 370L1360 560"/>
     <path d="M160 760L360 690L610 540L740 760L990 530L1130 740L1360 560"/>
+    <path d="M180 90L260 470M520 80L610 540M870 70L990 530M1240 92L1130 740" opacity=".45"/>
   </g>
-  <g class="float-c neural-lines" stroke="url(#neuralLine)" stroke-width="0.95" fill="none" opacity=".52">
-    <path d="M180 90L260 470M520 80L610 540M870 70L990 530M1240 92L1130 740"/>
-    <path d="M130 300L260 470M460 382L610 540M830 365L990 530M1190 370L1130 740" opacity=".32"/>
+  <g fill="url(#nodeGlow)" opacity=".58">
+    <circle cx="340" cy="170" r="22"/><circle cx="710" cy="145" r="18"/><circle cx="830" cy="365" r="20"/>
+    <circle cx="610" cy="540" r="18"/><circle cx="990" cy="530" r="20"/><circle cx="740" cy="760" r="18"/>
   </g>
-
-  <g class="float-a" fill="url(#nodeGlow)" opacity=".62">
-    <circle class="glow-node" cx="340" cy="170" r="22"/>
-    <circle class="glow-node" cx="710" cy="145" r="18"/>
-    <circle class="glow-node" cx="830" cy="365" r="20"/>
-    <circle class="glow-node" cx="610" cy="540" r="18"/>
-    <circle class="glow-node" cx="990" cy="530" r="20"/>
-    <circle class="glow-node" cx="740" cy="760" r="18"/>
-  </g>
-
-  <g class="float-b" fill="#edf4fb" opacity=".76">
-    <circle class="core-node" cx="40" cy="160" r="2.4"/><circle class="core-node" cx="180" cy="90" r="2.8"/><circle class="core-node" cx="340" cy="170" r="3.6"/>
-    <circle class="core-node" cx="520" cy="80" r="2.6"/><circle class="core-node" cx="710" cy="145" r="3.5"/><circle class="core-node" cx="870" cy="70" r="2.5"/>
-    <circle class="core-node" cx="1060" cy="150" r="3.4"/><circle class="core-node" cx="1240" cy="92" r="2.6"/><circle class="core-node" cx="1400" cy="170" r="2.4"/>
-    <circle class="core-node" cx="130" cy="300" r="2.5"/><circle class="core-node" cx="460" cy="382" r="3"/><circle class="core-node" cx="830" cy="365" r="3.4"/>
-    <circle class="core-node" cx="1190" cy="370" r="3"/><circle class="core-node" cx="80" cy="560" r="2.4"/><circle class="core-node" cx="260" cy="470" r="2.8"/>
-    <circle class="core-node" cx="610" cy="540" r="3.6"/><circle class="core-node" cx="990" cy="530" r="3.4"/><circle class="core-node" cx="1360" cy="560" r="2.4"/>
-    <circle class="core-node" cx="160" cy="760" r="2.5"/><circle class="core-node" cx="360" cy="690" r="2.8"/><circle class="core-node" cx="740" cy="760" r="3.5"/><circle class="core-node" cx="1130" cy="740" r="2.9"/>
+  <g fill="#edf4fb" opacity=".72">
+    <circle cx="40" cy="160" r="2.4"/><circle cx="180" cy="90" r="2.8"/><circle cx="340" cy="170" r="3.6"/>
+    <circle cx="520" cy="80" r="2.6"/><circle cx="710" cy="145" r="3.5"/><circle cx="870" cy="70" r="2.5"/>
+    <circle cx="1060" cy="150" r="3.4"/><circle cx="1240" cy="92" r="2.6"/><circle cx="1400" cy="170" r="2.4"/>
+    <circle cx="130" cy="300" r="2.5"/><circle cx="460" cy="382" r="3"/><circle cx="830" cy="365" r="3.4"/>
+    <circle cx="1190" cy="370" r="3"/><circle cx="80" cy="560" r="2.4"/><circle cx="260" cy="470" r="2.8"/>
+    <circle cx="610" cy="540" r="3.6"/><circle cx="990" cy="530" r="3.4"/><circle cx="1360" cy="560" r="2.4"/>
+    <circle cx="160" cy="760" r="2.5"/><circle cx="360" cy="690" r="2.8"/><circle cx="740" cy="760" r="3.5"/><circle cx="1130" cy="740" r="2.9"/>
   </g>
 </svg>
 
