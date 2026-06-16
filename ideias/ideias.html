@@ -598,10 +598,12 @@
     ::-webkit-scrollbar-thumb:hover { background: rgba(216,184,92,0.34); }
 
 
-    /* ── FUNDO NEURAL ── */
-    html {
+    /* ── OTIMIZAÇÃO: FUNDO LEVE + ROLAGEM VERTICAL ── */
+    html, body {
+      width: 100%;
+      max-width: 100%;
       min-height: 100%;
-      overflow-x: auto;
+      overflow-x: hidden;
       background: #081422;
       overscroll-behavior-x: none;
     }
@@ -609,75 +611,107 @@
     body {
       background-color: #081422;
       background-image:
-        radial-gradient(circle at 12% 8%, rgba(119,183,255,0.18), transparent 26%),
-        radial-gradient(circle at 88% 12%, rgba(247,161,209,0.14), transparent 24%),
-        radial-gradient(circle at 78% 82%, rgba(117,226,200,0.13), transparent 26%),
+        radial-gradient(circle at 12% 8%, rgba(119,183,255,0.16), transparent 26%),
+        radial-gradient(circle at 88% 12%, rgba(247,161,209,0.12), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(117,226,200,0.11), transparent 26%),
         linear-gradient(135deg, #081422 0%, #101f32 46%, #07111e 100%);
       background-repeat: no-repeat;
       background-attachment: fixed;
-      overscroll-behavior-x: none;
     }
 
     #neural-bg {
       position: fixed;
-      inset: -16px;
+      inset: 0;
       z-index: 0;
       pointer-events: none;
+      opacity: .8;
       background:
-        radial-gradient(circle at 18% 22%, rgba(119,183,255,0.10), transparent 24%),
-        radial-gradient(circle at 82% 18%, rgba(247,161,209,0.08), transparent 22%),
-        radial-gradient(circle at 52% 58%, rgba(117,226,200,0.07), transparent 28%),
-        linear-gradient(135deg, #081422 0%, #0d1b2a 45%, #07111e 100%);
+        radial-gradient(circle at 18% 22%, rgba(119,183,255,0.09), transparent 24%),
+        radial-gradient(circle at 82% 18%, rgba(247,161,209,0.07), transparent 22%),
+        radial-gradient(circle at 52% 58%, rgba(117,226,200,0.06), transparent 28%);
     }
 
-    /* Rede neural — constelação animada por CSS (zero canvas, zero JS) */
-    #star-net {
+    #neural-svg {
       position: fixed;
       inset: 0;
       width: 100%;
       height: 100%;
       z-index: 0;
       pointer-events: none;
-      overflow: visible;
+      opacity: .24;
+      will-change: auto;
     }
-
-    #star-net .sn-line {
-      stroke-linecap: round;
-      fill: none;
-      stroke-dasharray: 6 22;
-      stroke-dashoffset: 0;
+    #neural-svg path {
+      stroke-dasharray: 8 24;
+      animation: neuralFlow 26s linear infinite;
     }
-    #star-net .sn-line.a { stroke: rgba(119,183,255,0.22); stroke-width: 0.9; animation: snDash 14s linear infinite; }
-    #star-net .sn-line.b { stroke: rgba(247,161,209,0.18); stroke-width: 0.8; animation: snDash 18s linear infinite reverse; }
-    #star-net .sn-line.c { stroke: rgba(255,224,138,0.20); stroke-width: 0.9; animation: snDash 11s linear infinite; }
-    #star-net .sn-line.d { stroke: rgba(117,226,200,0.16); stroke-width: 0.7; animation: snDash 20s linear infinite reverse; }
-
-    #star-net .sn-node {
-      animation: snBlink 4s ease-in-out infinite;
+    #neural-svg circle {
       transform-box: fill-box;
       transform-origin: center;
+      animation: neuralBlink 7s ease-in-out infinite;
     }
-    #star-net .sn-node.s1 { animation-duration: 3.6s; }
-    #star-net .sn-node.s2 { animation-duration: 5.1s; animation-delay: -1.4s; }
-    #star-net .sn-node.s3 { animation-duration: 6.4s; animation-delay: -2.8s; }
+    #neural-svg circle:nth-of-type(3n) { animation-delay: -2s; }
+    #neural-svg circle:nth-of-type(4n) { animation-delay: -4s; }
 
-    #star-net .sn-signal {
-      opacity: .9;
-      filter: drop-shadow(0 0 5px currentColor);
+    @keyframes neuralFlow { to { stroke-dashoffset: -160; } }
+    @keyframes neuralBlink {
+      0%, 100% { opacity: .58; transform: scale(1); }
+      50% { opacity: .95; transform: scale(1.22); }
     }
 
-    @keyframes snDash {
-      to { stroke-dashoffset: -120; }
+    .topbar {
+      width: 100%;
+      min-width: 0;
     }
-    @keyframes snBlink {
-      0%, 100% { opacity: .72; transform: scale(1); }
-      50%       { opacity: 1;   transform: scale(1.35); }
+
+    .board-wrap {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 288px), 1fr));
+      width: min(100%, 1480px);
+      margin: 0 auto;
+      gap: 16px;
+      padding: clamp(18px, 2.2vw, 28px) clamp(14px, 2vw, 24px) 60px;
+      align-items: start;
+      min-height: calc(100vh - 64px);
+    }
+
+    .col {
+      width: 100%;
+      min-width: 0;
+      flex-shrink: 1;
+    }
+
+    .idea-card {
+      contain: layout paint;
+      touch-action: manipulation;
+    }
+    .idea-card.dragging {
+      opacity: .44;
+      transform: scale(.985);
+    }
+
+    .col-body.drag-over {
+      background: rgba(255,255,255,0.035);
+      outline-color: rgba(255,224,138,0.28);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      #neural-svg path, #neural-svg circle, #star-net * { animation: none !important; }
+      .idea-card, .btn-new, .back-btn, .card-btn { transition: none !important; }
     }
 
     @media (max-width: 760px) {
-      :root { --col-w: 86vw; }
-      .topbar { padding: 0 16px; }
+      :root { --col-w: 100%; }
+      .topbar {
+        min-height: 64px;
+        height: auto;
+        padding: 10px 14px;
+        flex-wrap: wrap;
+      }
+      .topbar-title { white-space: normal; }
       .sync-status { display: none; }
+      .board-wrap { grid-template-columns: 1fr; padding: 16px 12px 48px; }
       .modal { padding: 22px; }
       .floating-editor { transform: translate(-50%, -102%); }
     }
@@ -685,213 +719,8 @@
 </head>
 <body>
 
-<!-- FUNDO NEURAL -->
-<!-- REDE NEURAL — CONSTELAÇÃO ANIMADA CSS (zero JS, zero canvas) -->
+<!-- FUNDO NEURAL LEVE -->
 <div id="neural-bg" aria-hidden="true"></div>
-<svg id="star-net" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-  <defs>
-    <radialGradient id="gn1" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#77b7ff" stop-opacity=".7"/>
-      <stop offset="1" stop-color="#77b7ff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="gn2" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#ffe08a" stop-opacity=".65"/>
-      <stop offset="1" stop-color="#ffe08a" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="gn3" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#f7a1d1" stop-opacity=".6"/>
-      <stop offset="1" stop-color="#f7a1d1" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="gn4" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#75e2c8" stop-opacity=".6"/>
-      <stop offset="1" stop-color="#75e2c8" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-
-  <!-- Linhas de conexão distribuídas pela tela inteira -->
-  <!-- Cluster topo-esquerda -->
-  <line class="sn-line a" x1="68" y1="52" x2="198" y2="118"/>
-  <line class="sn-line b" x1="198" y1="118" x2="312" y2="74"/>
-  <line class="sn-line c" x1="68" y1="52" x2="142" y2="188"/>
-  <line class="sn-line d" x1="142" y1="188" x2="264" y2="210"/>
-  <line class="sn-line a" x1="312" y1="74" x2="264" y2="210"/>
-  <line class="sn-line b" x1="264" y1="210" x2="198" y2="118"/>
-
-  <!-- Cluster topo-centro -->
-  <line class="sn-line c" x1="520" y1="38" x2="648" y2="96"/>
-  <line class="sn-line a" x1="648" y1="96" x2="762" y2="44"/>
-  <line class="sn-line d" x1="520" y1="38" x2="584" y2="162"/>
-  <line class="sn-line b" x1="584" y1="162" x2="700" y2="178"/>
-  <line class="sn-line c" x1="700" y1="178" x2="762" y2="44"/>
-  <line class="sn-line a" x1="648" y1="96" x2="584" y2="162"/>
-
-  <!-- Cluster topo-direita -->
-  <line class="sn-line b" x1="980" y1="56" x2="1108" y2="32"/>
-  <line class="sn-line c" x1="1108" y1="32" x2="1240" y2="88"/>
-  <line class="sn-line a" x1="980" y1="56" x2="1042" y2="172"/>
-  <line class="sn-line d" x1="1042" y1="172" x2="1178" y2="156"/>
-  <line class="sn-line b" x1="1178" y1="156" x2="1240" y2="88"/>
-  <line class="sn-line c" x1="1108" y1="32" x2="1042" y2="172"/>
-
-  <!-- Cluster meio-esquerda -->
-  <line class="sn-line d" x1="42" y1="380" x2="168" y2="348"/>
-  <line class="sn-line a" x1="168" y1="348" x2="256" y2="424"/>
-  <line class="sn-line b" x1="42" y1="380" x2="96" y2="492"/>
-  <line class="sn-line c" x1="96" y1="492" x2="222" y2="516"/>
-  <line class="sn-line d" x1="222" y1="516" x2="256" y2="424"/>
-  <line class="sn-line a" x1="168" y1="348" x2="96" y2="492"/>
-
-  <!-- Cluster meio-centro -->
-  <line class="sn-line c" x1="580" y1="360" x2="704" y2="320"/>
-  <line class="sn-line b" x1="704" y1="320" x2="824" y2="388"/>
-  <line class="sn-line a" x1="824" y1="388" x2="860" y2="512"/>
-  <line class="sn-line d" x1="860" y1="512" x2="740" y2="548"/>
-  <line class="sn-line c" x1="740" y1="548" x2="620" y2="484"/>
-  <line class="sn-line b" x1="620" y1="484" x2="580" y2="360"/>
-  <line class="sn-line a" x1="704" y1="320" x2="740" y2="548"/>
-  <line class="sn-line d" x1="580" y1="360" x2="860" y2="512"/>
-
-  <!-- Cluster meio-direita -->
-  <line class="sn-line a" x1="1060" y1="340" x2="1196" y2="308"/>
-  <line class="sn-line b" x1="1196" y1="308" x2="1340" y2="372"/>
-  <line class="sn-line c" x1="1340" y1="372" x2="1380" y2="488"/>
-  <line class="sn-line d" x1="1380" y1="488" x2="1248" y2="520"/>
-  <line class="sn-line a" x1="1248" y1="520" x2="1100" y2="456"/>
-  <line class="sn-line b" x1="1100" y1="456" x2="1060" y2="340"/>
-  <line class="sn-line c" x1="1196" y1="308" x2="1248" y2="520"/>
-
-  <!-- Cluster baixo-esquerda -->
-  <line class="sn-line d" x1="80" y1="680" x2="212" y2="648"/>
-  <line class="sn-line a" x1="212" y1="648" x2="310" y2="724"/>
-  <line class="sn-line b" x1="80" y1="680" x2="128" y2="800"/>
-  <line class="sn-line c" x1="128" y1="800" x2="258" y2="828"/>
-  <line class="sn-line d" x1="258" y1="828" x2="310" y2="724"/>
-  <line class="sn-line a" x1="212" y1="648" x2="128" y2="800"/>
-
-  <!-- Cluster baixo-centro -->
-  <line class="sn-line b" x1="540" y1="700" x2="668" y2="660"/>
-  <line class="sn-line c" x1="668" y1="660" x2="798" y2="716"/>
-  <line class="sn-line a" x1="798" y1="716" x2="832" y2="840"/>
-  <line class="sn-line d" x1="832" y1="840" x2="700" y2="862"/>
-  <line class="sn-line b" x1="700" y1="862" x2="574" y2="808"/>
-  <line class="sn-line c" x1="574" y1="808" x2="540" y2="700"/>
-  <line class="sn-line a" x1="668" y1="660" x2="700" y2="862"/>
-
-  <!-- Cluster baixo-direita -->
-  <line class="sn-line d" x1="1040" y1="668" x2="1176" y2="640"/>
-  <line class="sn-line a" x1="1176" y1="640" x2="1310" y2="696"/>
-  <line class="sn-line b" x1="1310" y1="696" x2="1360" y2="820"/>
-  <line class="sn-line c" x1="1360" y1="820" x2="1220" y2="852"/>
-  <line class="sn-line d" x1="1220" y1="852" x2="1082" y2="784"/>
-  <line class="sn-line a" x1="1082" y1="784" x2="1040" y2="668"/>
-  <line class="sn-line b" x1="1176" y1="640" x2="1220" y2="852"/>
-
-  <!-- Conexões longas entre clusters -->
-  <line class="sn-line b" x1="312" y1="74" x2="520" y2="38"/>
-  <line class="sn-line c" x1="264" y1="210" x2="584" y2="162"/>
-  <line class="sn-line a" x1="762" y1="44" x2="980" y2="56"/>
-  <line class="sn-line d" x1="700" y1="178" x2="1042" y2="172"/>
-  <line class="sn-line c" x1="256" y1="424" x2="580" y2="360"/>
-  <line class="sn-line b" x1="222" y1="516" x2="620" y2="484"/>
-  <line class="sn-line a" x1="860" y1="512" x2="1060" y2="340"/>
-  <line class="sn-line d" x1="740" y1="548" x2="1100" y2="456"/>
-  <line class="sn-line c" x1="310" y1="724" x2="540" y2="700"/>
-  <line class="sn-line b" x1="258" y1="828" x2="574" y2="808"/>
-  <line class="sn-line a" x1="798" y1="716" x2="1040" y2="668"/>
-  <line class="sn-line d" x1="832" y1="840" x2="1082" y2="784"/>
-
-  <!-- Halos de brilho em nós principais -->
-  <circle cx="198" cy="118" r="16" fill="url(#gn1)" opacity=".38"/>
-  <circle cx="648" cy="96" r="18" fill="url(#gn2)" opacity=".34"/>
-  <circle cx="1108" cy="32" r="16" fill="url(#gn3)" opacity=".30"/>
-  <circle cx="256" cy="424" r="16" fill="url(#gn4)" opacity=".36"/>
-  <circle cx="724" cy="434" r="22" fill="url(#gn1)" opacity=".28"/>
-  <circle cx="1196" cy="308" r="18" fill="url(#gn2)" opacity=".32"/>
-  <circle cx="212" cy="648" r="16" fill="url(#gn3)" opacity=".30"/>
-  <circle cx="668" cy="660" r="18" fill="url(#gn4)" opacity=".34"/>
-  <circle cx="1176" cy="640" r="16" fill="url(#gn1)" opacity=".30"/>
-
-  <!-- Nós — constelação espalhada -->
-  <circle class="sn-node s1" cx="68"  cy="52"  r="2.8" fill="#77b7ff" opacity=".7"/>
-  <circle class="sn-node s2" cx="198" cy="118" r="3.4" fill="#eef6ff" opacity=".85"/>
-  <circle class="sn-node s3" cx="312" cy="74"  r="2.6" fill="#77b7ff" opacity=".65"/>
-  <circle class="sn-node s1" cx="142" cy="188" r="2.4" fill="#b8a4ff" opacity=".6"/>
-  <circle class="sn-node s2" cx="264" cy="210" r="3.0" fill="#eef6ff" opacity=".78"/>
-  <circle class="sn-node s3" cx="520" cy="38"  r="2.6" fill="#75e2c8" opacity=".65"/>
-  <circle class="sn-node s1" cx="648" cy="96"  r="3.6" fill="#eef6ff" opacity=".88"/>
-  <circle class="sn-node s2" cx="762" cy="44"  r="2.8" fill="#77b7ff" opacity=".7"/>
-  <circle class="sn-node s3" cx="584" cy="162" r="2.6" fill="#ffe08a" opacity=".72"/>
-  <circle class="sn-node s1" cx="700" cy="178" r="2.8" fill="#f7a1d1" opacity=".65"/>
-  <circle class="sn-node s2" cx="980" cy="56"  r="2.8" fill="#75e2c8" opacity=".68"/>
-  <circle class="sn-node s3" cx="1108" cy="32" r="3.4" fill="#eef6ff" opacity=".85"/>
-  <circle class="sn-node s1" cx="1240" cy="88" r="2.6" fill="#77b7ff" opacity=".65"/>
-  <circle class="sn-node s2" cx="1042" cy="172" r="2.8" fill="#ffe08a" opacity=".70"/>
-  <circle class="sn-node s3" cx="1178" cy="156" r="2.6" fill="#b8a4ff" opacity=".62"/>
-  <circle class="sn-node s1" cx="42"  cy="380" r="2.4" fill="#77b7ff" opacity=".58"/>
-  <circle class="sn-node s2" cx="168" cy="348" r="3.0" fill="#eef6ff" opacity=".80"/>
-  <circle class="sn-node s3" cx="256" cy="424" r="3.2" fill="#75e2c8" opacity=".82"/>
-  <circle class="sn-node s1" cx="96"  cy="492" r="2.6" fill="#f7a1d1" opacity=".65"/>
-  <circle class="sn-node s2" cx="222" cy="516" r="2.8" fill="#ffe08a" opacity=".72"/>
-  <circle class="sn-node s3" cx="580" cy="360" r="3.0" fill="#77b7ff" opacity=".75"/>
-  <circle class="sn-node s1" cx="704" cy="320" r="3.4" fill="#eef6ff" opacity=".88"/>
-  <circle class="sn-node s2" cx="824" cy="388" r="2.8" fill="#b8a4ff" opacity=".72"/>
-  <circle class="sn-node s3" cx="860" cy="512" r="3.2" fill="#75e2c8" opacity=".80"/>
-  <circle class="sn-node s1" cx="740" cy="548" r="2.8" fill="#f7a1d1" opacity=".68"/>
-  <circle class="sn-node s2" cx="620" cy="484" r="2.6" fill="#ffe08a" opacity=".65"/>
-  <circle class="sn-node s3" cx="1060" cy="340" r="2.8" fill="#77b7ff" opacity=".70"/>
-  <circle class="sn-node s1" cx="1196" cy="308" r="3.4" fill="#eef6ff" opacity=".88"/>
-  <circle class="sn-node s2" cx="1340" cy="372" r="2.6" fill="#75e2c8" opacity=".65"/>
-  <circle class="sn-node s3" cx="1380" cy="488" r="2.4" fill="#b8a4ff" opacity=".60"/>
-  <circle class="sn-node s1" cx="1248" cy="520" r="3.0" fill="#ffe08a" opacity=".75"/>
-  <circle class="sn-node s2" cx="1100" cy="456" r="2.8" fill="#f7a1d1" opacity=".68"/>
-  <circle class="sn-node s3" cx="80"  cy="680" r="2.4" fill="#77b7ff" opacity=".58"/>
-  <circle class="sn-node s1" cx="212" cy="648" r="3.2" fill="#eef6ff" opacity=".82"/>
-  <circle class="sn-node s2" cx="310" cy="724" r="2.8" fill="#75e2c8" opacity=".72"/>
-  <circle class="sn-node s3" cx="128" cy="800" r="2.6" fill="#b8a4ff" opacity=".65"/>
-  <circle class="sn-node s1" cx="258" cy="828" r="2.8" fill="#ffe08a" opacity=".70"/>
-  <circle class="sn-node s2" cx="540" cy="700" r="2.8" fill="#f7a1d1" opacity=".68"/>
-  <circle class="sn-node s3" cx="668" cy="660" r="3.4" fill="#eef6ff" opacity=".88"/>
-  <circle class="sn-node s1" cx="798" cy="716" r="3.0" fill="#77b7ff" opacity=".75"/>
-  <circle class="sn-node s2" cx="832" cy="840" r="2.8" fill="#75e2c8" opacity=".72"/>
-  <circle class="sn-node s3" cx="700" cy="862" r="2.6" fill="#b8a4ff" opacity=".65"/>
-  <circle class="sn-node s1" cx="574" cy="808" r="2.4" fill="#ffe08a" opacity=".62"/>
-  <circle class="sn-node s2" cx="1040" cy="668" r="2.8" fill="#77b7ff" opacity=".70"/>
-  <circle class="sn-node s3" cx="1176" cy="640" r="3.4" fill="#eef6ff" opacity=".88"/>
-  <circle class="sn-node s1" cx="1310" cy="696" r="2.6" fill="#75e2c8" opacity=".65"/>
-  <circle class="sn-node s2" cx="1360" cy="820" r="2.4" fill="#f7a1d1" opacity=".60"/>
-  <circle class="sn-node s3" cx="1220" cy="852" r="2.8" fill="#ffe08a" opacity=".70"/>
-  <circle class="sn-node s1" cx="1082" cy="784" r="3.0" fill="#b8a4ff" opacity=".75"/>
-
-  <!-- Sinais viajando pelas linhas -->
-  <circle class="sn-signal" r="3.2" fill="#77b7ff">
-    <animateMotion dur="10s" repeatCount="indefinite">
-      <mpath href="#sn-path1"/>
-    </animateMotion>
-  </circle>
-  <circle class="sn-signal" r="3.0" fill="#ffe08a">
-    <animateMotion dur="13s" repeatCount="indefinite" begin="3s">
-      <mpath href="#sn-path2"/>
-    </animateMotion>
-  </circle>
-  <circle class="sn-signal" r="2.8" fill="#f7a1d1">
-    <animateMotion dur="8.5s" repeatCount="indefinite" begin="5s">
-      <mpath href="#sn-path3"/>
-    </animateMotion>
-  </circle>
-  <circle class="sn-signal" r="2.6" fill="#75e2c8">
-    <animateMotion dur="11s" repeatCount="indefinite" begin="1.5s">
-      <mpath href="#sn-path4"/>
-    </animateMotion>
-  </circle>
-
-  <!-- Caminhos dos sinais -->
-  <defs>
-    <path id="sn-path1" d="M68 52 L198 118 L312 74 L520 38 L648 96 L762 44 L980 56 L1108 32 L1240 88"/>
-    <path id="sn-path2" d="M42 380 L168 348 L256 424 L580 360 L704 320 L824 388 L860 512 L1060 340 L1196 308 L1340 372 L1380 488"/>
-    <path id="sn-path3" d="M80 680 L212 648 L310 724 L540 700 L668 660 L798 716 L1040 668 L1176 640 L1310 696 L1360 820"/>
-    <path id="sn-path4" d="M264 210 L584 162 L700 178 L740 548 L620 484 L222 516 L96 492 L258 828 L700 862 L1220 852 L1082 784"/>
-  </defs>
-</svg>
 
 <!-- TOPBAR -->
 <header class="topbar">
@@ -1141,7 +970,7 @@ function listenIdeas() {
     const items = [];
     snap.forEach(child => items.push({ id: child.key, ...child.val() }));
     // ordenar do mais recente para o mais antigo
-    items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    items.sort((a, b) => (b.order || b.movedAt || b.createdAt || 0) - (a.order || a.movedAt || a.createdAt || 0));
     items.forEach(renderCard);
 
     updateCounts();
@@ -1168,7 +997,9 @@ function renderCard(idea) {
   const thermoIcon = THERMO_ICONS[idea.thermo] || '⚡';
   const tagsHtml   = (idea.tags||[]).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
   const imgHtml    = idea.img  ? `<img class="card-img" src="${idea.img}" alt=""/>` : '';
-  const linkHtml   = idea.link ? `<a class="card-link" href="${idea.link}" target="_blank" rel="noopener">🔗 ${idea.link}</a>` : '';
+  const link = String(idea.link || '').trim();
+  const safeLink = /^(https?:|mailto:|tel:)/i.test(link) ? escapeHtml(link) : '';
+  const linkHtml = safeLink ? `<a class="card-link" href="${safeLink}" target="_blank" rel="noopener">🔗 ${safeLink}</a>` : '';
 
   const div = document.createElement('div');
   div.className   = 'idea-card';
@@ -1197,49 +1028,92 @@ function renderCard(idea) {
 
   // drag
   div.addEventListener('dragstart', e => {
+    e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', idea.id);
     div.classList.add('dragging');
   });
-  div.addEventListener('dragend', () => div.classList.remove('dragging'));
+  div.addEventListener('dragend', () => {
+    div.classList.remove('dragging');
+    document.querySelectorAll('.col-body.drag-over').forEach(c => c.classList.remove('drag-over'));
+    updateCounts();
+  });
 
-  // insere no TOPO
-  const first = col.querySelector('.idea-card');
-  if (first) col.insertBefore(div, first);
-  else col.appendChild(div);
+  // renderiza na ordem recebida do banco
+  div.dataset.order = String(idea.order || idea.movedAt || idea.createdAt || 0);
+  col.appendChild(div);
 
   const empty = col.querySelector('.empty-state');
   if (empty) empty.remove();
 }
 
 // ── DRAG & DROP ──
+function getDragAfterElement(container, y) {
+  const cards = [...container.querySelectorAll('.idea-card:not(.dragging)')];
+  return cards.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    return (offset < 0 && offset > closest.offset) ? { offset, element: child } : closest;
+  }, { offset: Number.NEGATIVE_INFINITY, element: null }).element;
+}
+
+function getIdeaOrder(container, cardEl) {
+  const prev = cardEl.previousElementSibling?.classList?.contains('idea-card') ? cardEl.previousElementSibling : null;
+  const next = cardEl.nextElementSibling?.classList?.contains('idea-card') ? cardEl.nextElementSibling : null;
+  const prevOrder = prev ? Number(prev.dataset.order || 0) : null;
+  const nextOrder = next ? Number(next.dataset.order || 0) : null;
+
+  if (prevOrder !== null && nextOrder !== null) return (prevOrder + nextOrder) / 2;
+  if (prevOrder !== null) return prevOrder - 1000;
+  if (nextOrder !== null) return nextOrder + 1000;
+  return Date.now();
+}
+
 function setupDragDrop() {
   document.querySelectorAll('.col-body').forEach(col => {
-    // Remove listeners antigos clonando o nó
-    const fresh = col.cloneNode(true);
-    col.parentNode.replaceChild(fresh, col);
-  });
+    if (col.dataset.dndReady === '1') return;
+    col.dataset.dndReady = '1';
 
-  document.querySelectorAll('.col-body').forEach(col => {
-    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
-    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('dragover', e => {
+      e.preventDefault();
+      const dragging = document.querySelector('.idea-card.dragging');
+      if (!dragging) return;
+      col.classList.add('drag-over');
+      const empty = col.querySelector('.empty-state');
+      if (empty) empty.remove();
+      const after = getDragAfterElement(col, e.clientY);
+      if (after) col.insertBefore(dragging, after);
+      else col.appendChild(dragging);
+    });
+
+    col.addEventListener('dragleave', e => {
+      if (!col.contains(e.relatedTarget)) col.classList.remove('drag-over');
+    });
+
     col.addEventListener('drop', e => {
       e.preventDefault();
       col.classList.remove('drag-over');
-      const id      = e.dataTransfer.getData('text/plain');
-      const newCol  = col.id.replace('col-', '');
-      // Atualiza no DOM imediatamente (otimista)
-      const cardEl  = document.querySelector(`.idea-card[data-id="${id}"]`);
-      if (cardEl) {
-        const first = col.querySelector('.idea-card');
-        if (first) col.insertBefore(cardEl, first);
-        else col.appendChild(cardEl);
-        updateCounts();
-      }
-      // Persiste no Realtime Database (rápido, sem await na UI)
+      const id = e.dataTransfer.getData('text/plain');
+      const cardEl = document.querySelector(`.idea-card[data-id="${id}"]`);
+      if (!id || !cardEl || !currentUser) { updateCounts(); return; }
+
+      const newCol = col.id.replace('col-', '');
+      const newOrder = getIdeaOrder(col, cardEl);
+      cardEl.dataset.order = String(newOrder);
+      updateCounts();
+
       setSyncStatus('busy', 'Salvando...');
-      update(ref(db, `ideas/${currentUser.uid}/${id}`), { col: newCol })
+      update(ref(db, `ideas/${currentUser.uid}/${id}`), {
+        col: newCol,
+        order: newOrder,
+        movedAt: Date.now(),
+        updatedAt: Date.now()
+      })
         .then(() => setSyncStatus('ok', 'Sincronizado ✓'))
-        .catch(() => setSyncStatus('warn', 'Erro ao mover'));
+        .catch(err => {
+          console.error('Erro ao mover:', err);
+          setSyncStatus('warn', 'Erro ao mover');
+          showToast('Erro ao mover. Recarregue e tente novamente.');
+        });
     });
   });
 }
@@ -1304,8 +1178,16 @@ window.addTag = function() {
 };
 
 function renderTagsPreview() {
-  document.getElementById('tags-preview').innerHTML =
-    currentTags.map(t => `<span class="tag-preview" onclick="removeTag('${escapeHtml(t)}')">${escapeHtml(t)} ×</span>`).join('');
+  const wrap = document.getElementById('tags-preview');
+  wrap.innerHTML = '';
+  currentTags.forEach(tag => {
+    const chip = document.createElement('span');
+    chip.className = 'tag-preview';
+    chip.textContent = tag + ' ×';
+    chip.title = 'Remover tag';
+    chip.addEventListener('click', () => removeTag(tag));
+    wrap.appendChild(chip);
+  });
 }
 
 window.removeTag = function(t) {
@@ -1321,33 +1203,49 @@ window.setThermo = function(val) {
 };
 
 // ── SALVAR (Realtime Database — instantâneo) ──
+function getCleanDescHtml() {
+  const clone = descEditor.cloneNode(true);
+  clone.querySelectorAll('.resize-handle').forEach(h => h.remove());
+  clone.querySelectorAll('.img-resize-wrap').forEach(wrap => {
+    const img = wrap.querySelector('img');
+    if (img) { img.classList.remove('img-selected'); wrap.replaceWith(img); }
+    else wrap.remove();
+  });
+  clone.querySelectorAll('.img-selected').forEach(el => el.classList.remove('img-selected'));
+  return clone.innerHTML.trim();
+}
+
 window.saveIdea = async function() {
   const title = document.getElementById('f-title').value.trim();
   if (!title) { showToast('Título obrigatório'); return; }
+  if (!currentUser || !_ideasRef) { showToast('Aguarde a sincronização carregar.'); return; }
 
+  const idToEdit = editingId;
+  const now = Date.now();
   const data = {
     uid:       currentUser.uid,
     title,
-    desc:      document.getElementById('f-desc').innerHTML.trim(),
+    desc:      getCleanDescHtml(),
     col:       document.getElementById('f-source').value || 'screenshot',
     link:      document.getElementById('f-link').value.trim(),
     tags:      [...currentTags],
     thermo:    currentThermo,
-    updatedAt: Date.now()
+    updatedAt: now
   };
 
   setSyncStatus('busy', 'Salvando...');
   closeModal();
 
   try {
-    if (!editingId) {
-      data.createdAt = Date.now();
+    if (!idToEdit) {
+      data.createdAt = now;
+      data.order = now;
       await push(_ideasRef, data);
     } else {
-      await update(ref(db, `ideas/${currentUser.uid}/${editingId}`), data);
+      await update(ref(db, `ideas/${currentUser.uid}/${idToEdit}`), data);
     }
     setSyncStatus('ok', 'Sincronizado ✓');
-    showToast(editingId ? 'Ideia atualizada ✓' : 'Ideia salva ✓');
+    showToast(idToEdit ? 'Ideia atualizada ✓' : 'Ideia salva ✓');
   } catch (err) {
     console.error('Erro ao salvar:', err);
     setSyncStatus('warn', 'Erro ao salvar');
@@ -1484,16 +1382,66 @@ document.addEventListener('mousedown', e => {
 document.getElementById('insertDescImageBtn').addEventListener('click', () => { restoreDescSelection(); descImageInput.click(); });
 descImageInput.addEventListener('change', e => insertImagesIntoDesc(Array.from(e.target.files || [])));
 
-function insertImagesIntoDesc(files) {
-  if (!files.length) return;
-  restoreDescSelection();
-  files.filter(f => f.type.startsWith('image/')).forEach(file => {
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = ev => { const img = document.createElement('img'); img.src = ev.target.result; insertNodeAtSelection(img); };
+    reader.onload = ev => resolve(ev.target.result);
+    reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function optimizeImageFile(file) {
+  const original = await readFileAsDataURL(file);
+  // GIF/SVG podem perder animação/transparência em canvas; mantemos como estão.
+  if (/image\/(gif|svg\+xml)/i.test(file.type)) return original;
+
+  try {
+    const img = await loadImage(original);
+    const maxSide = 1180;
+    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+    const width = Math.max(1, Math.round(img.width * scale));
+    const height = Math.max(1, Math.round(img.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    ctx.drawImage(img, 0, 0, width, height);
+    const optimized = canvas.toDataURL('image/webp', 0.78);
+    return optimized.length < original.length ? optimized : original;
+  } catch (err) {
+    console.warn('Falha ao otimizar imagem, usando original:', err);
+    return original;
+  }
+}
+
+async function insertImagesIntoDesc(files) {
+  const images = files.filter(f => f.type.startsWith('image/'));
+  if (!images.length) return;
+  restoreDescSelection();
+  for (const file of images) {
+    try {
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.src = await optimizeImageFile(file);
+      insertNodeAtSelection(img);
+    } catch (err) {
+      console.error('Erro ao inserir imagem:', err);
+      showToast('Não consegui inserir uma imagem.');
+    }
+  }
   descImageInput.value = '';
 }
+
 function insertNodeAtSelection(node) {
   restoreDescSelection();
   const sel = window.getSelection();
@@ -1505,18 +1453,14 @@ function insertNodeAtSelection(node) {
     savedRange = range.cloneRange();
   } else { descEditor.appendChild(node); }
 }
+
 descEditor.addEventListener('paste', e => {
   const items = e.clipboardData?.items;
   if (!items) return;
   const imgs = Array.from(items).filter(i => i.type.startsWith('image/'));
   if (!imgs.length) return;
   e.preventDefault();
-  imgs.forEach(item => {
-    const file = item.getAsFile(); if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => { const img = document.createElement('img'); img.src = ev.target.result; insertNodeAtSelection(img); };
-    reader.readAsDataURL(file);
-  });
+  insertImagesIntoDesc(imgs.map(item => item.getAsFile()).filter(Boolean));
 });
 descEditor.addEventListener('click', e => {
   if (e.target.tagName === 'IMG') selectResizableImage(e.target);
@@ -1548,7 +1492,7 @@ function selectResizableImage(img) {
 }
 </script>
 
-<!-- FUNDO NEURAL LEVE: SVG pequeno e estático -->
+<!-- FUNDO NEURAL LEVE: SVG pequeno, tecnológico e animado por CSS -->
 <svg id="neural-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1440 900" aria-hidden="true">
   <defs>
     <linearGradient id="neuralLine" x1="0" y1="0" x2="1" y2="1">
