@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Sistema de Vida</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1b2a'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='20' fill='%23c9a84c'%3E◬%3C/text%3E%3C/svg%3E"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:       #0d1b2a;
+      --navy-card:  #1b2e42;
+      --navy-hover: #223650;
+      --gold:       #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-dim:   rgba(201,168,76,0.18);
+      --gold-glow:  rgba(201,168,76,0.35);
+      --text:       #e8edf3;
+      --text-muted: #8ba0b8;
+      --radius:     16px;
+      --radius-sm:  8px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--navy);
+      color: var(--text);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(30,80,140,0.15) 0%, transparent 50%);
+    }
+
+    /* ── LOGIN ─────────────────────────────────────────────── */
+    #loginScreen {
+      min-height: 100vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--navy-card);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .login-logo .glyph {
+      font-family: 'DM Mono', monospace;
+      font-size: 2.2rem;
+      color: var(--gold);
+      display: block;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .login-logo h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.04em;
+    }
+
+    .login-logo p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    .btn-login {
+      width: 100%;
+      margin-top: 8px;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--navy);
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn-login:hover  { opacity: 0.92; transform: translateY(-1px); }
+    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .login-error {
+      margin-top: 14px;
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.83rem;
+      color: #fca5a5;
+      display: none;
+    }
+
+    /* ── DASHBOARD ─────────────────────────────────────────── */
+    #dashboard { display: none; min-height: 100vh; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 64px;
+      background: rgba(13,27,42,0.9);
+      border-bottom: 1px solid var(--gold-dim);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-brand .glyph {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.3rem;
+      color: var(--gold);
+      letter-spacing: -1px;
+    }
+
+    .topbar-brand span {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.04em;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-info {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid var(--gold-dim);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      color: var(--gold);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-logout:hover {
+      background: var(--gold-dim);
+      border-color: var(--gold);
+    }
+
+    /* ── CONTEÚDO PRINCIPAL ─────────────────────────────────── */
+    .main {
+      padding: 40px 32px 60px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 18px;
+      background: var(--gold);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .welcome {
+      margin-bottom: 40px;
+    }
+
+    .welcome h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .welcome h2 span { color: var(--gold); }
+
+    .welcome p {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ── GRADE DE MÓDULOS ───────────────────────────────────── */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .module-card {
+      background: var(--navy-card);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 24px 22px 20px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+
+    .module-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top left, rgba(201,168,76,0.06), transparent 65%);
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+
+    .module-card:hover {
+      background: var(--navy-hover);
+      border-color: rgba(201,168,76,0.4);
+      transform: translateY(-2px);
+    }
+
+    .module-card:hover::after { opacity: 1; }
+
+    .module-card.locked {
+      opacity: 0.45;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .module-icon {
+      font-size: 24px;
+      margin-bottom: 14px;
+      line-height: 1;
+    }
+
+    .module-card h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .module-card p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .module-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--gold-dim);
+    }
+
+    .badge-ready {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: #6ee7b7;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-soon {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .btn-open {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--gold-light);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── BARRA DE FOCO ──────────────────────────────────────── */
+    .focus-bar {
+      background: rgba(201,168,76,0.05);
+      border: 1px solid var(--gold-dim);
+      border-radius: 10px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .focus-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      flex-shrink: 0;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.75); }
+    }
+
+    .focus-text {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--gold-light);
+      letter-spacing: 0.05em;
+    }
+
+    .focus-text span {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+    }
+
+    @media (max-width: 520px) {
+      .topbar { padding: 0 16px; }
+      .main { padding: 28px 16px 48px; }
+      .modules-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="glyph">◬</span>
+      <h1>SISTEMA DE VIDA</h1>
+      <p>Seu espaço. Sua clareza.</p>
+    </div>
+    <div class="field">
+      <label>E-mail</label>
+      <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-login" id="btnLogin">Entrar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════════ -->
+<div id="dashboard">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="glyph">◬</span>
+      <span>SISTEMA DE VIDA</span>
+    </div>
+    <div class="topbar-right">
+      <span class="user-info" id="userEmail"></span>
+      <button class="btn-logout" id="btnLogout">Sair</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <div class="welcome">
+      <h2>Bem-vindo ao seu<br><span>sistema de vida.</span></h2>
+      <p>Todas as dimensões em um só lugar. Escolha uma área para começar.</p>
+    </div>
+
+    <div class="focus-bar">
+      <div class="focus-dot"></div>
+      <div class="focus-text">
+        Foco de hoje: <strong id="js-focus">—</strong>
+        <span>&nbsp;·&nbsp; escolha uma área abaixo</span>
+      </div>
+    </div>
+
+    <div class="section-title">Módulos</div>
+
+    <div class="modules-grid">
+
+      <a class="module-card" href="hub-principal.html">
+        <div class="module-icon">🏠</div>
+        <h3>Hub Principal</h3>
+        <p>Visão geral de todas as áreas. Ponto de partida do sistema.</p>
+        <div class="module-footer">
+          <span class="badge-ready">● Disponível</span>
+          <span class="btn-open">Abrir →</span>
+        </div>
+      </a>
+
+      <a class="module-card" href="financas.html">
+        <div class="module-icon">💰</div>
+        <h3>Finanças</h3>
+        <p>Aquisições, despesas, dívidas, projeções e lembretes.</p>
+        <div class="module-footer">
+          <span class="badge-ready">● Disponível</span>
+          <span class="btn-open">Abrir →</span>
+        </div>
+      </a>
+
+      <a class="module-card" href="ideias.html">
+        <div class="module-icon">💡</div>
+        <h3>Ideias</h3>
+        <p>Repositório de captura rápida. Nada se perde.</p>
+        <div class="module-footer">
+          <span class="badge-ready">● Disponível</span>
+          <span class="btn-open">Abrir →</span>
+        </div>
+      </a>
+
+      <div class="module-card locked">
+        <div class="module-icon">🚀</div>
+        <h3>Projetos</h3>
+        <p>Fluignos, BIF, Maestria e próximas ações.</p>
+        <div class="module-footer">
+          <span class="badge-soon">Em breve</span>
+        </div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-icon">🧭</div>
+        <h3>Propósito &amp; Espiritual</h3>
+        <p>Reflexões, intenções e perguntas em aberto.</p>
+        <div class="module-footer">
+          <span class="badge-soon">Em breve</span>
+        </div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-icon">🤝</div>
+        <h3>Pessoas</h3>
+        <p>Conexões que importam. Última conversa, próximo contato.</p>
+        <div class="module-footer">
+          <span class="badge-soon">Em breve</span>
+        </div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-icon">📅</div>
+        <h3>Agenda</h3>
+        <p>Compromissos com o mundo e consigo mesmo.</p>
+        <div class="module-footer">
+          <span class="badge-soon">Em breve</span>
+        </div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-icon">🏃</div>
+        <h3>Corpo &amp; Rotina</h3>
+        <p>Saúde e hábitos como sinal, não como tracker.</p>
+        <div class="module-footer">
+          <span class="badge-soon">Em breve</span>
+        </div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-icon">📚</div>
+        <h3>Aprendizado</h3>
+        <p>Cursos, livros e o que você tirou deles.</p>
+        <div class="module-footer">
+          <span class="badge-soon">Em breve</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // ─────────────────────────────────────────────────────────────
+  // 🔧 SUBSTITUA pelo firebaseConfig do seu projeto novo
+  // Console: https://console.firebase.google.com
+  // ─────────────────────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey:            "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8",
+    authDomain:        "sistema-de-vida-e6c68.firebaseapp.com",
+    projectId:         "sistema-de-vida-e6c68",
+    storageBucket:     "sistema-de-vida-e6c68.firebasestorage.app",
+    messagingSenderId: "590218702063",
+    appId:             "1:590218702063:web:4586798cf9925edacb7f1a"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const loginScreen = document.getElementById('loginScreen');
+  const dashboard   = document.getElementById('dashboard');
+  const loginEmail  = document.getElementById('loginEmail');
+  const loginPass   = document.getElementById('loginPassword');
+  const btnLogin    = document.getElementById('btnLogin');
+  const loginError  = document.getElementById('loginError');
+  const userEmail   = document.getElementById('userEmail');
+  const btnLogout   = document.getElementById('btnLogout');
+
+  // Foco do dia
+  const focos = [
+    'Finanças em dia','Uma ideia por vez','Próximo passo do projeto',
+    'Cuidar de alguém hoje','Aprender algo novo','Checar a agenda','Mover o corpo'
+  ];
+  document.getElementById('js-focus').textContent = focos[new Date().getDay()];
+
+  // Estado de autenticação
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      loginScreen.style.display = 'none';
+      dashboard.style.display   = 'block';
+      userEmail.textContent      = user.email;
+    } else {
+      loginScreen.style.display = 'flex';
+      dashboard.style.display   = 'none';
+    }
+  });
+
+  // Login
+  btnLogin.addEventListener('click', async () => {
+    const email = loginEmail.value.trim();
+    const pass  = loginPass.value;
+    if (!email || !pass) { showError('Preencha e-mail e senha.'); return; }
+    btnLogin.disabled    = true;
+    btnLogin.textContent = 'Entrando...';
+    loginError.style.display = 'none';
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch(e) {
+      const msgs = {
+        'auth/user-not-found':     'Usuário não encontrado.',
+        'auth/wrong-password':     'Senha incorreta.',
+        'auth/invalid-email':      'E-mail inválido.',
+        'auth/too-many-requests':  'Muitas tentativas. Aguarde alguns minutos.',
+        'auth/invalid-credential': 'E-mail ou senha incorretos.'
+      };
+      showError(msgs[e.code] || 'Erro ao entrar. Tente novamente.');
+    } finally {
+      btnLogin.disabled    = false;
+      btnLogin.textContent = 'Entrar';
+    }
+  });
+
+  loginPass.addEventListener('keydown', e => { if (e.key === 'Enter') btnLogin.click(); });
+
+  btnLogout.addEventListener('click', () => signOut(auth));
+
+  function showError(msg) {
+    loginError.textContent    = msg;
+    loginError.style.display  = 'block';
+  }
+</script>
+
+</body>
+</html>
