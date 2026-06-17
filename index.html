@@ -465,7 +465,7 @@
 
     <div class="modules-grid">
 
-      <a class="module-card" href="hub-principal.html">
+      <a class="module-card" href="index.html">
         <div class="module-icon">🏠</div>
         <h3>Hub Principal</h3>
         <p>Visão geral de todas as áreas. Ponto de partida do sistema.</p>
@@ -475,7 +475,7 @@
         </div>
       </a>
 
-      <a class="module-card" href="financas.html">
+      <a class="module-card" href="prosperidade/index-financas.html">
         <div class="module-icon">💰</div>
         <h3>Finanças</h3>
         <p>Aquisições, despesas, dívidas, projeções e lembretes.</p>
@@ -555,7 +555,7 @@
 
 <script type="module">
   import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence }
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   // ─────────────────────────────────────────────────────────────
@@ -574,7 +574,6 @@
 
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  setPersistence(auth, browserLocalPersistence).catch(console.warn);
 
   const loginScreen = document.getElementById('loginScreen');
   const dashboard   = document.getElementById('dashboard');
