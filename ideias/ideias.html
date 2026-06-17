@@ -4,51 +4,593 @@
   <meta charset="UTF-8" />
   <title>Ideias — Sistema de Vida</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307111e'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='19'%3E%F0%9F%92%A1%3C/text%3E%3C/svg%3E" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    :root{--bg:#07111e;--panel:#132337;--card:#1a304a;--line:rgba(255,255,255,.10);--text:#edf4fb;--muted:#9eb1c7;--gold:#d8b85c;--gold2:#ffe08a;--green:#75e2c8;--red:#ff8f8f;--blue:#77b7ff;--pink:#f7a1d1;--r:18px;--shadow:0 18px 46px rgba(0,0,0,.28)}
-    *{box-sizing:border-box} body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 8%,rgba(119,183,255,.16),transparent 24%),radial-gradient(circle at 88% 12%,rgba(247,161,209,.11),transparent 22%),linear-gradient(135deg,#07111e,#102035 48%,#07111e);overflow-x:hidden}
-    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.23;background-image:linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(0deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:72px 72px;mask-image:linear-gradient(to bottom,#000,transparent 85%)}
-    .neural{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.22}.neural path{stroke-dasharray:8 28;animation:flow 32s linear infinite}.neural circle{animation:pulse 8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes flow{to{stroke-dashoffset:-180}}@keyframes pulse{50%{opacity:.95;transform:scale(1.2)}}
-    .app{position:relative;z-index:1;width:min(1180px,100%);margin:auto;padding:0 16px 70px}.topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 -16px;padding:12px 16px;min-height:64px;background:rgba(7,17,30,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-    .top-left,.top-actions{display:flex;align-items:center;gap:10px;min-width:0}.back{color:var(--muted);text-decoration:none;font-size:12px;font-weight:800;letter-spacing:.06em}.back:hover{color:var(--gold2)}.brand{font-size:18px;font-weight:900;letter-spacing:-.03em}.brand span{color:var(--gold2)}
-    button,input,textarea,select{font:inherit}button{cursor:pointer}.btn{border:1px solid var(--line);border-radius:14px;min-height:40px;padding:9px 13px;background:rgba(255,255,255,.055);color:var(--text);font-weight:800}.btn:hover{background:rgba(255,255,255,.085)}.btn.gold{border:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#081422}.btn.danger:hover{color:#ffd1d1;border-color:rgba(255,143,143,.35)}.status{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--muted);font-size:11px;font-weight:800;white-space:nowrap}.status.ok{color:var(--green);border-color:rgba(117,226,200,.25)}.status.busy{color:var(--gold2);border-color:rgba(255,224,138,.25)}.status.warn{color:#ffc36a;border-color:rgba(255,195,106,.25)}
-    .hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:16px;padding:22px 0 16px}.panel{border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));box-shadow:var(--shadow);padding:18px}h1,h2,p{margin:0}h1{font-size:clamp(24px,4vw,40px);line-height:1.05;letter-spacing:-.04em}h1 span{color:var(--gold2)}.hint{margin-top:8px;color:var(--muted);line-height:1.55}.guide{display:grid;gap:10px;color:var(--muted);font-size:14px;line-height:1.45}.guide div{border:1px solid var(--line);border-radius:16px;padding:10px;background:rgba(255,255,255,.035)}
-    .form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field.full{grid-column:1/-1}label{display:block;margin-bottom:6px;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em}input,textarea,select{width:100%;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(255,255,255,.055);color:var(--text);outline:0}input,select{min-height:42px;padding:10px 12px}textarea{min-height:120px;resize:vertical;padding:12px;line-height:1.55}select option{background:#132337;color:var(--text)}input:focus,textarea:focus,select:focus{border-color:rgba(255,224,138,.55);box-shadow:0 0 0 4px rgba(216,184,92,.12)}.actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}.draft{color:var(--muted);font-size:12px}
-    .toolbar{position:sticky;top:64px;z-index:8;margin:0 0 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;background:rgba(8,20,34,.82);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:20px;padding:12px}.filters{display:flex;gap:8px;flex-wrap:wrap}.filter.active{color:#081422;background:linear-gradient(135deg,var(--gold),var(--gold2));border:0}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}.stat{border:1px solid var(--line);border-radius:18px;padding:12px;background:rgba(255,255,255,.04)}.stat b{display:block;font-size:24px}.stat span{color:var(--muted);font-size:12px}
-    .cols{display:grid;gap:16px}.section{border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.035);overflow:hidden}.section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.045)}.section-title{font-weight:900}.section-title small{display:block;color:var(--muted);font-weight:600}.count{color:var(--gold2);border:1px solid rgba(216,184,92,.18);border-radius:999px;padding:5px 10px;background:rgba(216,184,92,.10);font-size:12px;font-weight:900}.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:12px}.card{border:1px solid var(--line);border-radius:18px;padding:13px;background:rgba(20,38,58,.90);box-shadow:0 10px 24px rgba(0,0,0,.16)}.card.hot{border-color:rgba(255,224,138,.25)}.card-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:7px}.card h3{margin:0;font-size:16px;line-height:1.25;overflow-wrap:anywhere}.thermo{flex:0 0 auto}.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}.pill{display:inline-flex;max-width:100%;padding:4px 8px;border-radius:999px;color:var(--muted);background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:800}.tag{color:var(--gold2);background:rgba(216,184,92,.10);border-color:rgba(216,184,92,.16)}.desc{color:var(--muted);font-size:13px;line-height:1.48;white-space:pre-wrap;overflow-wrap:anywhere}.link{display:block;margin-top:8px;color:#9dccff;font-size:12px;word-break:break-all}.card-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:12px}.move{width:auto;min-width:118px;min-height:34px;padding:6px 8px;border-radius:11px;color:var(--muted);font-size:12px}.empty{grid-column:1/-1;text-align:center;color:var(--muted);border:1px dashed rgba(255,255,255,.12);border-radius:18px;padding:18px;background:rgba(255,255,255,.025)}.toast{position:fixed;right:18px;bottom:18px;z-index:50;transform:translateY(80px);opacity:0;transition:.22s;padding:12px 14px;border:1px solid rgba(255,224,138,.22);border-radius:16px;background:rgba(15,29,47,.96);color:var(--gold2);font-weight:800;pointer-events:none}.toast.show{transform:translateY(0);opacity:1}
-    @media(max-width:850px){.hero{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.app{padding:0 12px 50px}.topbar{margin:0 -12px;flex-wrap:wrap}.form{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.status{display:none}.top-actions{width:100%;justify-content:space-between}.btn.gold{flex:1}}
+    :root{
+      --bg:#07111e; --bg2:#0d1b2a; --panel:#102037; --panel2:#142842;
+      --card:#182d48; --card2:#203a5a; --line:rgba(255,255,255,.10);
+      --text:#edf4fb; --muted:#9eb1c7; --muted2:#71879f;
+      --gold:#d8b85c; --gold2:#ffe08a; --green:#75e2c8; --red:#ff8f8f;
+      --blue:#77b7ff; --pink:#f7a1d1; --r:20px;
+      --shadow:0 18px 48px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;min-height:100%}
+    body{
+      min-height:100vh;
+      color:var(--text);
+      font-family:'DM Sans',system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 13% 7%,rgba(119,183,255,.14),transparent 26%),
+        radial-gradient(circle at 88% 15%,rgba(247,161,209,.10),transparent 25%),
+        radial-gradient(circle at 78% 92%,rgba(117,226,200,.10),transparent 28%),
+        linear-gradient(135deg,#07111e,#102035 50%,#07111e);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.18;
+      background-image:
+        linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),
+        linear-gradient(0deg,rgba(255,255,255,.035) 1px,transparent 1px);
+      background-size:76px 76px;
+      mask-image:linear-gradient(to bottom,#000 0%,transparent 86%);
+    }
+    .app{position:relative;z-index:1;width:min(1180px,100%);margin:0 auto;padding:0 16px 70px}
+    .topbar{
+      position:sticky;top:0;z-index:30;margin:0 -16px;min-height:66px;padding:12px 16px;
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+      background:rgba(7,17,30,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+    }
+    .top-left,.top-actions{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}
+    .back{color:var(--muted);text-decoration:none;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    .back:hover{color:var(--gold2)}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .brand-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:14px;background:rgba(216,184,92,.14);border:1px solid rgba(216,184,92,.25);font-size:20px}
+    .brand-text{min-width:0}
+    .brand-text b{display:block;font-family:'Poppins',sans-serif;font-size:16px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand-text small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    .btn{
+      border:1px solid var(--line);border-radius:14px;min-height:40px;padding:9px 13px;
+      background:rgba(255,255,255,.055);color:var(--text);font-weight:900;
+      transition:transform .12s,background .16s,border-color .16s,box-shadow .16s,opacity .16s;
+    }
+    .btn:hover{background:rgba(255,255,255,.085);transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .btn.gold{border:0;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#081422;box-shadow:0 10px 24px rgba(216,184,92,.20)}
+    .btn.gold:hover{box-shadow:0 14px 30px rgba(216,184,92,.30)}
+    .btn.ghost{background:transparent;border-color:rgba(255,255,255,.16)}
+    .btn.danger{color:#ffd1d1}
+    .btn.danger:hover{border-color:rgba(255,143,143,.35);background:rgba(255,143,143,.08)}
+    .btn.sm{min-height:34px;padding:7px 10px;border-radius:11px;font-size:12px}
+    .status{border:1px solid var(--line);border-radius:999px;padding:7px 10px;color:var(--muted);font-size:11px;font-weight:900;white-space:nowrap}
+    .status.ok{color:var(--green);border-color:rgba(117,226,200,.25)}
+    .status.busy{color:var(--gold2);border-color:rgba(255,224,138,.25)}
+    .status.warn{color:#ffc36a;border-color:rgba(255,195,106,.25)}
+    .hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:16px;padding:22px 0 16px}
+    .panel{border:1px solid var(--line);border-radius:26px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));box-shadow:var(--shadow);overflow:hidden}
+    .intro{padding:24px;position:relative}
+    .intro::after{content:"";position:absolute;right:-70px;bottom:-80px;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(216,184,92,.16),transparent 68%);pointer-events:none}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--gold2);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+    .eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold2);box-shadow:0 0 12px rgba(255,224,138,.55)}
+    h1{font-family:'Poppins',sans-serif;font-size:clamp(26px,4.5vw,44px);line-height:1.03;letter-spacing:-.05em;margin:0 0 10px}
+    h1 span{color:var(--gold2)}
+    .hint{color:var(--muted);line-height:1.62;max-width:650px}
+    .mini-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}
+    .mini{border:1px solid var(--line);border-radius:18px;padding:12px;background:rgba(255,255,255,.035)}
+    .mini b{display:block;color:var(--text);font-size:14px;margin-bottom:4px}.mini span{color:var(--muted);font-size:12px;line-height:1.35}
+    .capture{padding:18px}
+    .capture-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .capture-head h2{font-family:'Poppins',sans-serif;font-size:18px;letter-spacing:-.02em}
+    .capture-head p{color:var(--muted);font-size:13px;line-height:1.45;margin-top:3px}
+    form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field.full{grid-column:1/-1}
+    label{display:block;margin-bottom:6px;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.09em}
+    input,textarea,select{width:100%;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(255,255,255,.055);color:var(--text);outline:0}
+    input,select{min-height:42px;padding:10px 12px}
+    textarea{min-height:118px;resize:vertical;padding:12px;line-height:1.55}
+    select option{background:#132337;color:var(--text)}
+    input:focus,textarea:focus,select:focus{border-color:rgba(255,224,138,.55);box-shadow:0 0 0 4px rgba(216,184,92,.12)}
+    .form-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:2px}
+    .draft{color:var(--muted);font-size:12px;line-height:1.35}
+    .toolbar{position:sticky;top:66px;z-index:20;margin:0 0 16px;border:1px solid var(--line);border-radius:22px;background:rgba(8,20,34,.84);backdrop-filter:blur(14px);padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+    .search-wrap{position:relative}.search-wrap span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+    .search-wrap input{padding-left:38px}
+    .filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    .filter{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:8px 12px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--muted);font-weight:900}
+    .filter.active{color:#07111e;border-color:transparent;background:linear-gradient(135deg,var(--gold),var(--gold2));box-shadow:0 8px 20px rgba(216,184,92,.20)}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+    .stat{border:1px solid var(--line);border-radius:20px;padding:13px;background:rgba(255,255,255,.04)}
+    .stat b{display:block;font-family:'Poppins',sans-serif;font-size:25px;line-height:1}.stat span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+    .list-panel{border:1px solid var(--line);border-radius:26px;background:rgba(255,255,255,.035);box-shadow:var(--shadow);overflow:hidden}
+    .list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.045)}
+    .list-head h2{font-family:'Poppins',sans-serif;font-size:18px;letter-spacing:-.02em}.list-head p{color:var(--muted);font-size:12px;margin-top:2px}.list-count{color:var(--gold2);font-weight:900;font-size:13px;border:1px solid rgba(216,184,92,.20);border-radius:999px;padding:6px 10px;background:rgba(216,184,92,.10);white-space:nowrap}
+    .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;padding:14px}
+    .card{position:relative;border:1px solid var(--line);border-radius:20px;padding:14px;background:linear-gradient(180deg,rgba(25,47,73,.94),rgba(17,34,55,.92));box-shadow:0 10px 24px rgba(0,0,0,.16);transition:transform .14s,border-color .16s,box-shadow .16s}
+    .card:hover{transform:translateY(-2px);border-color:rgba(255,224,138,.24);box-shadow:0 16px 34px rgba(0,0,0,.26)}
+    .card.hot{border-color:rgba(255,224,138,.30)}
+    .card-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}.card h3{font-family:'Poppins',sans-serif;font-size:16px;line-height:1.25;letter-spacing:-.01em;overflow-wrap:anywhere}.thermo{flex:0 0 auto;font-size:18px}
+    .meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}.pill{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:4px 8px;border-radius:999px;color:var(--muted);background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:900}.pill.cat{color:var(--chip,#ffe08a);background:rgba(216,184,92,.08);border-color:rgba(216,184,92,.14)}.pill.tag{color:var(--gold2);background:rgba(216,184,92,.10);border-color:rgba(216,184,92,.16)}
+    .desc{color:var(--muted);font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;max-height:112px;overflow:auto;padding-right:2px}.link{display:block;margin-top:9px;color:#9dccff;font-size:12px;word-break:break-all;text-decoration:none}.link:hover{text-decoration:underline}
+    .card-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:12px}.move{flex:1;min-width:126px;min-height:34px;padding:6px 8px;border-radius:11px;color:var(--muted);font-size:12px}
+    .empty{grid-column:1/-1;text-align:center;color:var(--muted);border:1px dashed rgba(255,255,255,.12);border-radius:20px;padding:28px;background:rgba(255,255,255,.025);line-height:1.55}.empty b{display:block;color:var(--text);font-size:16px;margin-bottom:4px}
+    .toast{position:fixed;right:18px;bottom:18px;z-index:80;transform:translateY(80px);opacity:0;transition:.22s;padding:12px 14px;border:1px solid rgba(255,224,138,.22);border-radius:16px;background:rgba(15,29,47,.97);color:var(--gold2);font-weight:900;box-shadow:0 16px 42px rgba(0,0,0,.32);pointer-events:none}.toast.show{transform:translateY(0);opacity:1}
+    .path-note{font-family:'DM Mono',monospace;color:var(--muted2);font-size:11px;margin-top:10px;word-break:break-all}
+    @media(max-width:940px){.hero{grid-template-columns:1fr}.toolbar{grid-template-columns:1fr}.filters{justify-content:flex-start}.mini-grid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.app{padding:0 12px 56px}.topbar{margin:0 -12px}.top-actions{width:100%;justify-content:space-between}.status{display:none}.hero{padding-top:14px}form{grid-template-columns:1fr}.mini-grid{grid-template-columns:1fr}.form-actions{align-items:stretch;flex-direction:column}.form-actions>div{display:flex;gap:8px}.form-actions .btn{flex:1}.cards{grid-template-columns:1fr;padding:12px}.toolbar{top:0;position:relative}.stats{grid-template-columns:1fr 1fr}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
   </style>
 </head>
 <body>
-<svg class="neural" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#77b7ff" stop-opacity=".42"/><stop offset=".52" stop-color="#f7a1d1" stop-opacity=".26"/><stop offset="1" stop-color="#75e2c8" stop-opacity=".34"/></linearGradient></defs><g fill="none" stroke="url(#g)" stroke-width="1"><path d="M80 130L240 90L390 160L560 80L720 142L920 95L1100 160L1310 110"/><path d="M120 360L280 300L470 385L650 310L850 380L1030 325L1260 410"/><path d="M90 650L260 590L450 675L650 610L850 700L1060 635L1320 720"/></g><g fill="#ffe08a" opacity=".7"><circle cx="240" cy="90" r="3"/><circle cx="560" cy="80" r="3"/><circle cx="650" cy="310" r="3"/><circle cx="1060" cy="635" r="3"/></g></svg>
 <div class="app">
-<header class="topbar"><div class="top-left"><a class="back" href="../index.html">← HUB</a><div class="brand">💡 <span>Ideias</span> sem atrito</div></div><div class="top-actions"><span class="status busy" id="syncStatus">Iniciando</span><button class="btn gold" id="focusBtn" type="button">+ Capturar ideia</button></div></header>
-<main>
-<section class="hero"><div class="panel"><h1>Joga aqui primeiro. <span>Organiza depois.</span></h1><p class="hint">Página leve para chuva de ideias, com Firebase Realtime Database no caminho <b>users/{uid}/modulos/ideias</b>.</p><div class="form" style="margin-top:16px"><div class="field"><label>Título curto</label><input id="title" placeholder="Ex: post sobre reforma tributária..." autocomplete="off"></div><div class="field"><label>Link opcional</label><input id="link" placeholder="https://..."></div><div class="field"><label>Fonte</label><select id="col"></select></div><div class="field"><label>Valor</label><select id="thermo"><option value="1">❄️ Frio</option><option value="2">🌊 Morno</option><option value="3">⚡ Interessante</option><option value="4">🔥 Quente</option><option value="5">🌋 Explosivo</option></select></div><div class="field full"><label>Brain dump</label><textarea id="desc" placeholder="Escreva do jeito que vier. Pode estar bagunçado mesmo."></textarea></div><div class="field full"><label>Tags</label><input id="tags" placeholder="viral, fiscal, reels..."></div></div><div class="actions"><span class="draft" id="draft">Rascunho local pronto.</span><button class="btn" id="clearBtn" type="button">Limpar</button><button class="btn gold" id="saveBtn" type="button">Salvar ideia ✓</button></div></div><aside class="panel guide"><div><b>1.</b> Capture sem decidir perfeito.</div><div><b>2.</b> Use busca quando lembrar só uma palavra.</div><div><b>3.</b> Mova a ideia de categoria pelo seletor do cartão.</div></aside></section>
-<section class="toolbar"><input id="search" placeholder="Buscar por palavra, tag, fonte ou link..."><div class="filters" id="filters"></div></section>
-<section class="stats"><div class="stat"><b id="stTotal">0</b><span>Total</span></div><div class="stat"><b id="stToday">0</b><span>Criadas hoje</span></div><div class="stat"><b id="stHot">0</b><span>Quentes 🔥</span></div><div class="stat"><b id="stCur">0</b><span>Curadoria</span></div></section>
-<section class="cols" id="sections"></section>
-</main></div><div class="toast" id="toast"></div>
+  <header class="topbar">
+    <div class="top-left">
+      <a class="back" href="../index.html">← Hub</a>
+      <div class="brand">
+        <div class="brand-icon">💡</div>
+        <div class="brand-text"><b>Ideias</b><small>captura rápida, sem atrito</small></div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span class="status busy" id="syncStatus">Iniciando</span>
+      <button class="btn gold" id="focusBtn" type="button">+ Nova ideia</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="panel intro">
+        <span class="eyebrow">Sistema de Vida</span>
+        <h1>Capture rápido. <span>Organize quando der.</span></h1>
+        <p class="hint">Esta página foi simplificada para funcionar com estabilidade: salva cada ideia como um novo registro no Firebase, mantém rascunho local e mostra tudo em uma lista única, sem esconder a segunda ideia em outra seção.</p>
+        <div class="mini-grid">
+          <div class="mini"><b>1. Escreva</b><span>Jogue a ideia sem tentar deixar perfeita.</span></div>
+          <div class="mini"><b>2. Salve</b><span>Cada clique cria um registro independente.</span></div>
+          <div class="mini"><b>3. Encontre</b><span>Use busca, tags e filtros simples.</span></div>
+        </div>
+        <div class="path-note">Firebase: users/{uid}/modulos/ideias</div>
+      </div>
+
+      <section class="panel capture" id="capturePanel">
+        <div class="capture-head">
+          <div>
+            <h2>Capturar ideia</h2>
+            <p>Sem bloco de IA, sem ruído. Só o essencial para salvar e continuar.</p>
+          </div>
+        </div>
+        <form id="ideaForm" autocomplete="off">
+          <div class="field full">
+            <label for="title">Título curto</label>
+            <input id="title" maxlength="120" placeholder="Ex: post sobre reforma tributária..." />
+          </div>
+          <div class="field">
+            <label for="category">Fonte / lugar</label>
+            <select id="category"></select>
+          </div>
+          <div class="field">
+            <label for="value">Valor da ideia</label>
+            <select id="value">
+              <option value="1">❄️ Fria</option>
+              <option value="2">🌊 Morna</option>
+              <option value="3" selected>⚡ Interessante</option>
+              <option value="4">🔥 Quente</option>
+              <option value="5">🌋 Prioridade</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="desc">Brain dump</label>
+            <textarea id="desc" placeholder="Escreva do jeito que veio. Pode estar bagunçado mesmo."></textarea>
+          </div>
+          <div class="field">
+            <label for="tags">Tags</label>
+            <input id="tags" placeholder="viral, fiscal, reels..." />
+          </div>
+          <div class="field">
+            <label for="link">Link opcional</label>
+            <input id="link" placeholder="https://..." />
+          </div>
+          <div class="form-actions">
+            <span class="draft" id="draftStatus">Rascunho local pronto.</span>
+            <div>
+              <button class="btn ghost" id="clearBtn" type="button">Limpar</button>
+              <button class="btn gold" id="saveBtn" type="submit">Salvar ideia ✓</button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </section>
+
+    <section class="toolbar" aria-label="Busca e filtros">
+      <div class="search-wrap"><span>🔎</span><input id="search" placeholder="Buscar por palavra, tag, fonte ou link..." /></div>
+      <div class="filters" id="filters"></div>
+    </section>
+
+    <section class="stats" aria-label="Resumo">
+      <div class="stat"><b id="stTotal">0</b><span>Total</span></div>
+      <div class="stat"><b id="stToday">0</b><span>Criadas hoje</span></div>
+      <div class="stat"><b id="stHot">0</b><span>Quentes</span></div>
+      <div class="stat"><b id="stVisible">0</b><span>Visíveis agora</span></div>
+    </section>
+
+    <section class="list-panel">
+      <div class="list-head">
+        <div><h2>Lista de ideias</h2><p>As mais recentes aparecem primeiro. Use os filtros só quando quiser recortar.</p></div>
+        <span class="list-count" id="listCount">0 ideias</span>
+      </div>
+      <div class="cards" id="cards"></div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-const firebaseConfig={apiKey:"AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8",authDomain:"sistema-de-vida-e6c68.firebaseapp.com",databaseURL:"https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com",projectId:"sistema-de-vida-e6c68",storageBucket:"sistema-de-vida-e6c68.firebasestorage.app",messagingSenderId:"590218702063",appId:"1:590218702063:web:4586798cf9925edacb7f1a"};
-const COLS=[{id:"screenshot",label:"📱 Capturas",hint:"Prints e recortes"},{id:"instagram",label:"📸 Instagram",hint:"Reels e posts"},{id:"whatsapp",label:"💬 WhatsApp",hint:"Links e mensagens"},{id:"facebook",label:"📘 Facebook",hint:"Referências"},{id:"head",label:"💭 Ideias soltas",hint:"Pensamentos avulsos"},{id:"curadoria",label:"🗂️ Curadoria",hint:"Merece virar ação"},{id:"cemiterio",label:"🪦 Arquivo",hint:"Guardado sem pesar"}];
-const TH={1:"❄️",2:"🌊",3:"⚡",4:"🔥",5:"🌋"}, DRAFT="ideias_draft_v3";const $=s=>document.querySelector(s);const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));const norm=v=>String(v||"").normalize("NFD").replace(/\p{Diacritic}/gu,"").toLowerCase();
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getDatabase(app);setPersistence(auth,browserLocalPersistence).catch(console.warn);let user=null,ideasRef=null,ideas=[],filter="all",editing=null;
-function status(k,t){$("#syncStatus").className="status "+k;$("#syncStatus").textContent=t}function toast(t){$("#toast").textContent=t;$("#toast").classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>$("#toast").classList.remove("show"),2400)}
-function tags(v){return String(v||"").split(/[,;\n]/).map(x=>x.trim()).filter(Boolean).slice(0,12)}function today(){const d=new Date();d.setHours(0,0,0,0);return d.getTime()}
-function seed(){const opts=COLS.map(c=>`<option value="${c.id}">${c.label}</option>`).join("");$("#col").innerHTML=opts;$("#filters").innerHTML=`<button class="btn filter active" data-f="all">Todos</button>`+COLS.map(c=>`<button class="btn filter" data-f="${c.id}">${c.label.split(" ")[0]}</button>`).join("");$("#sections").innerHTML=COLS.map(c=>`<div class="section"><div class="section-head"><div class="section-title">${c.label}<small>${c.hint}</small></div><span class="count" id="count-${c.id}">0</span></div><div class="cards" id="cards-${c.id}"></div></div>`).join("")}
-function loadDraft(){try{const d=JSON.parse(localStorage.getItem(DRAFT)||"{}");["title","link","desc","tags"].forEach(k=>{if(d[k])$("#"+k).value=d[k]}); if(d.col)$("#col").value=d.col; if(d.thermo)$("#thermo").value=d.thermo}catch{}}function saveDraft(){const d={title:$("#title").value,link:$("#link").value,desc:$("#desc").value,tags:$("#tags").value,col:$("#col").value,thermo:$("#thermo").value};localStorage.setItem(DRAFT,JSON.stringify(d));$("#draft").textContent="Rascunho salvo localmente."}
-function clearForm(){editing=null;["title","link","desc","tags"].forEach(k=>$("#"+k).value="");$("#col").value="head";$("#thermo").value="3";$("#saveBtn").textContent="Salvar ideia ✓";localStorage.removeItem(DRAFT)}
-async function save(){if(!user)return toast("Faça login pelo Hub primeiro.");const title=$("#title").value.trim();if(!title)return toast("Dê um título curto para não perder.");const data={title,link:$("#link").value.trim(),desc:$("#desc").value.trim(),tags:tags($("#tags").value),col:$("#col").value,thermo:Number($("#thermo").value||3),updatedAt:Date.now()};status("busy","Salvando...");if(editing){await update(ref(db,`users/${user.uid}/modulos/ideias/${editing}`),data);toast("Ideia atualizada ✓")}else{data.createdAt=Date.now();await set(push(ideasRef),data);toast("Ideia salva ✓")}clearForm();status("ok","Sincronizado ✓")}
-function render(){const q=norm($("#search").value);const shown=ideas.filter(i=>(filter==="all"||i.col===filter)&&(!q||norm([i.title,i.desc,i.link,(i.tags||[]).join(" "),i.col].join(" ")).includes(q)));COLS.forEach(c=>{const arr=shown.filter(i=>i.col===c.id);$(`#count-${c.id}`).textContent=arr.length;$(`#cards-${c.id}`).innerHTML=arr.length?arr.map(card).join(""):`<div class="empty">Nada aqui ainda.</div>`});$("#stTotal").textContent=ideas.length;$("#stToday").textContent=ideas.filter(i=>(i.createdAt||0)>=today()).length;$("#stHot").textContent=ideas.filter(i=>(i.thermo||0)>=4).length;$("#stCur").textContent=ideas.filter(i=>i.col==="curadoria").length}
-function card(i){const t=(i.tags||[]).map(x=>`<span class="pill tag">#${esc(x)}</span>`).join("");const link=i.link?`<a class="link" href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.link)}</a>`:"";return `<article class="card ${(i.thermo||0)>=4?'hot':''}" data-id="${i.id}"><div class="card-head"><h3>${esc(i.title)}</h3><span class="thermo">${TH[i.thermo]||"⚡"}</span></div><div class="meta"><span class="pill">${esc((COLS.find(c=>c.id===i.col)||{}).label||i.col)}</span>${t}</div><div class="desc">${esc(i.desc||"")}</div>${link}<div class="card-actions"><select class="move" data-move="${i.id}">${COLS.map(c=>`<option value="${c.id}" ${c.id===i.col?'selected':''}>${c.label}</option>`).join("")}</select><button class="btn" data-edit="${i.id}">Editar</button><button class="btn danger" data-del="${i.id}">Excluir</button></div></article>`}
-function edit(id){const i=ideas.find(x=>x.id===id);if(!i)return;editing=id;$("#title").value=i.title||"";$("#link").value=i.link||"";$("#desc").value=i.desc||"";$("#tags").value=(i.tags||[]).join(", ");$("#col").value=i.col||"head";$("#thermo").value=i.thermo||3;$("#saveBtn").textContent="Salvar edição ✓";window.scrollTo({top:0,behavior:"smooth"})}
-async function del(id){if(!confirm("Excluir esta ideia?"))return;status("busy","Excluindo...");await remove(ref(db,`users/${user.uid}/modulos/ideias/${id}`));status("ok","Sincronizado ✓");toast("Excluída ✓")}
-seed();loadDraft();["title","link","desc","tags","col","thermo"].forEach(k=>$("#"+k).addEventListener("input",saveDraft));$("#saveBtn").onclick=save;$("#clearBtn").onclick=clearForm;$("#focusBtn").onclick=()=>$("#title").focus();$("#search").oninput=render;$("#filters").onclick=e=>{const b=e.target.closest("[data-f]");if(!b)return;filter=b.dataset.f;document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("active",x===b));render()};$("#sections").onclick=e=>{const ed=e.target.closest("[data-edit]");const de=e.target.closest("[data-del]");if(ed)edit(ed.dataset.edit);if(de)del(de.dataset.del)};$("#sections").onchange=async e=>{const s=e.target.closest("[data-move]");if(!s)return;await update(ref(db,`users/${user.uid}/modulos/ideias/${s.dataset.move}`),{col:s.value,movedAt:Date.now(),updatedAt:Date.now()});toast("Movida ✓")};
-onAuthStateChanged(auth,u=>{if(!u){status("warn","Faça login");setTimeout(()=>location.href="../index.html",600);return}user=u;ideasRef=ref(db,`users/${u.uid}/modulos/ideias`);status("busy","Carregando...");onValue(ideasRef,snap=>{const list=[];snap.forEach(ch=>list.push({id:ch.key,...ch.val()}));ideas=list.sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));render();status("ok","Sincronizado ✓")},err=>{console.error(err);status("warn", err?.code==="PERMISSION_DENIED" ? "Sem permissão no Firebase" : "Offline/erro Firebase");toast(err?.code==="PERMISSION_DENIED" ? "Firebase bloqueou: confira a regra users/{uid}." : "Erro ao sincronizar com Firebase.")})});
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8",
+    authDomain: "sistema-de-vida-e6c68.firebaseapp.com",
+    databaseURL: "https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com",
+    projectId: "sistema-de-vida-e6c68",
+    storageBucket: "sistema-de-vida-e6c68.firebasestorage.app",
+    messagingSenderId: "590218702063",
+    appId: "1:590218702063:web:4586798cf9925edacb7f1a"
+  };
+
+  const CATEGORIES = [
+    { id:"capturas", icon:"📱", label:"Capturas", color:"#77b7ff" },
+    { id:"instagram", icon:"📸", label:"Instagram", color:"#f7a1d1" },
+    { id:"whatsapp", icon:"💬", label:"WhatsApp", color:"#75e2c8" },
+    { id:"referencias", icon:"🔗", label:"Referências", color:"#9dccff" },
+    { id:"soltas", icon:"💭", label:"Ideias soltas", color:"#d8b85c" },
+    { id:"curadoria", icon:"🗂️", label:"Curadoria", color:"#ffe08a" },
+    { id:"arquivo", icon:"📦", label:"Arquivo", color:"#9eb1c7" }
+  ];
+
+  const VALUE_ICON = {1:"❄️",2:"🌊",3:"⚡",4:"🔥",5:"🌋"};
+  const DRAFT_KEY = "sistema_vida_ideias_draft_v4";
+
+  const $ = (selector, root=document) => root.querySelector(selector);
+  const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  let currentUser = null;
+  let basePath = "";
+  let ideasRef = null;
+  let ideas = [];
+  let activeFilter = "all";
+  let editingId = null;
+  let saving = false;
+
+  setPersistence(auth, browserLocalPersistence).catch(console.warn);
+
+  function escapeHtml(value){
+    return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function normalize(value){
+    return String(value || "").normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
+  }
+  function startOfToday(){
+    const d = new Date(); d.setHours(0,0,0,0); return d.getTime();
+  }
+  function status(kind, text){
+    const el = $("#syncStatus");
+    el.className = "status " + kind;
+    el.textContent = text;
+  }
+  function toast(text){
+    const el = $("#toast");
+    el.textContent = text;
+    el.classList.add("show");
+    clearTimeout(toast.timer);
+    toast.timer = setTimeout(() => el.classList.remove("show"), 2400);
+  }
+  function getCategory(id){
+    return CATEGORIES.find(c => c.id === id) || CATEGORIES[4];
+  }
+  function splitTags(value){
+    return String(value || "").split(/[,;\n]/).map(t => t.trim()).filter(Boolean).slice(0, 12);
+  }
+  function sortIdeas(list){
+    return [...list].sort((a,b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0));
+  }
+
+  function seedUI(){
+    $("#category").innerHTML = CATEGORIES.map(c => `<option value="${c.id}">${c.icon} ${c.label}</option>`).join("");
+    $("#category").value = "soltas";
+    renderFilters();
+  }
+  function renderFilters(){
+    const filters = [
+      { id:"all", label:"Todas", icon:"📚" },
+      { id:"hot", label:"Quentes", icon:"🔥" },
+      ...CATEGORIES
+    ];
+    $("#filters").innerHTML = filters.map(f => `
+      <button type="button" class="filter ${activeFilter === f.id ? "active" : ""}" data-filter="${f.id}">
+        <span>${f.icon}</span>${f.label}
+      </button>
+    `).join("");
+  }
+  function getFormData(){
+    const title = $("#title").value.trim();
+    if(!title){
+      toast("Dê um título curto para salvar.");
+      $("#title").focus();
+      return null;
+    }
+    return {
+      title,
+      category: $("#category").value || "soltas",
+      value: Number($("#value").value || 3),
+      desc: $("#desc").value.trim(),
+      tags: splitTags($("#tags").value),
+      link: $("#link").value.trim(),
+      updatedAt: Date.now()
+    };
+  }
+  function populateForm(item){
+    editingId = item.id;
+    $("#title").value = item.title || "";
+    $("#category").value = item.category || item.col || "soltas";
+    $("#value").value = String(item.value || item.thermo || 3);
+    $("#desc").value = item.desc || "";
+    $("#tags").value = (item.tags || []).join(", ");
+    $("#link").value = item.link || "";
+    $("#saveBtn").textContent = "Salvar edição ✓";
+    $("#draftStatus").textContent = "Editando ideia existente.";
+    $("#capturePanel").scrollIntoView({behavior:"smooth", block:"start"});
+    setTimeout(() => $("#title").focus(), 180);
+  }
+  function resetForm(clearDraft=true){
+    editingId = null;
+    $("#ideaForm").reset();
+    $("#category").value = "soltas";
+    $("#value").value = "3";
+    $("#saveBtn").textContent = "Salvar ideia ✓";
+    $("#draftStatus").textContent = "Rascunho local pronto.";
+    if(clearDraft) localStorage.removeItem(DRAFT_KEY);
+  }
+  function saveDraft(){
+    if(editingId) return;
+    const draft = {
+      title: $("#title").value,
+      category: $("#category").value,
+      value: $("#value").value,
+      desc: $("#desc").value,
+      tags: $("#tags").value,
+      link: $("#link").value
+    };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    $("#draftStatus").textContent = "Rascunho salvo neste navegador.";
+  }
+  function restoreDraft(){
+    try{
+      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "{}");
+      if(!Object.keys(draft).length) return;
+      $("#title").value = draft.title || "";
+      $("#category").value = draft.category || "soltas";
+      $("#value").value = draft.value || "3";
+      $("#desc").value = draft.desc || "";
+      $("#tags").value = draft.tags || "";
+      $("#link").value = draft.link || "";
+      $("#draftStatus").textContent = "Rascunho recuperado.";
+    }catch(e){
+      console.warn("Rascunho inválido", e);
+    }
+  }
+  function setSavingState(isSaving){
+    saving = isSaving;
+    $("#saveBtn").disabled = isSaving;
+    $("#saveBtn").textContent = isSaving ? "Salvando..." : (editingId ? "Salvar edição ✓" : "Salvar ideia ✓");
+  }
+
+  async function saveIdea(event){
+    event?.preventDefault();
+    if(saving) return;
+    if(!currentUser || !ideasRef){
+      toast("Faça login pelo Hub antes de salvar.");
+      return;
+    }
+    const data = getFormData();
+    if(!data) return;
+
+    const existing = editingId ? ideas.find(i => i.id === editingId) : null;
+    const id = editingId || push(ideasRef).key;
+    const payload = {
+      ...data,
+      createdAt: existing?.createdAt || Date.now(),
+      schemaVersion: 4
+    };
+
+    setSavingState(true);
+    status("busy", "Salvando...");
+    try{
+      await update(ref(db, `${basePath}/${id}`), payload);
+
+      const localItem = { id, ...payload };
+      const idx = ideas.findIndex(item => item.id === id);
+      if(idx >= 0) ideas[idx] = localItem;
+      else ideas.unshift(localItem);
+      ideas = sortIdeas(ideas);
+
+      activeFilter = "all";
+      renderFilters();
+      render();
+      resetForm(true);
+      $("#title").focus();
+      status("ok", "Sincronizado ✓");
+      toast(existing ? "Ideia atualizada ✓" : "Ideia salva ✓ — pode incluir a próxima");
+    }catch(error){
+      console.error(error);
+      status("warn", error?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Erro ao salvar");
+      toast(error?.code === "PERMISSION_DENIED" ? "Firebase bloqueou. Confira a regra users/{uid}." : "Não consegui salvar. Verifique conexão/Firebase.");
+    }finally{
+      setSavingState(false);
+    }
+  }
+  async function deleteIdea(id){
+    if(!currentUser) return;
+    const item = ideas.find(i => i.id === id);
+    if(!item) return;
+    if(!confirm(`Excluir a ideia "${item.title}"?`)) return;
+    status("busy", "Excluindo...");
+    try{
+      await remove(ref(db, `${basePath}/${id}`));
+      ideas = ideas.filter(i => i.id !== id);
+      render();
+      status("ok", "Sincronizado ✓");
+      toast("Ideia excluída ✓");
+    }catch(error){
+      console.error(error);
+      status("warn", "Erro ao excluir");
+      toast("Não consegui excluir agora.");
+    }
+  }
+  async function moveIdea(id, category){
+    if(!currentUser) return;
+    const item = ideas.find(i => i.id === id);
+    if(!item) return;
+    const previous = item.category;
+    item.category = category;
+    item.updatedAt = Date.now();
+    render();
+    try{
+      await update(ref(db, `${basePath}/${id}`), {category, updatedAt:item.updatedAt, movedAt:Date.now()});
+      toast("Ideia movida ✓");
+    }catch(error){
+      console.error(error);
+      item.category = previous;
+      render();
+      toast("Não consegui mover agora.");
+    }
+  }
+
+  function getVisibleIdeas(){
+    const query = normalize($("#search").value);
+    return ideas.filter(item => {
+      const category = item.category || item.col || "soltas";
+      const value = Number(item.value || item.thermo || 3);
+      const filterOk = activeFilter === "all" || (activeFilter === "hot" && value >= 4) || category === activeFilter;
+      if(!filterOk) return false;
+      if(!query) return true;
+      const haystack = normalize([item.title, item.desc, item.link, category, ...(item.tags || [])].join(" "));
+      return haystack.includes(query);
+    });
+  }
+  function render(){
+    const visible = getVisibleIdeas();
+    $("#stTotal").textContent = ideas.length;
+    $("#stToday").textContent = ideas.filter(i => (i.createdAt || 0) >= startOfToday()).length;
+    $("#stHot").textContent = ideas.filter(i => Number(i.value || i.thermo || 3) >= 4).length;
+    $("#stVisible").textContent = visible.length;
+    $("#listCount").textContent = `${visible.length} ${visible.length === 1 ? "ideia" : "ideias"}`;
+
+    const cards = $("#cards");
+    if(!visible.length){
+      cards.innerHTML = `<div class="empty"><b>Nenhuma ideia aparecendo aqui.</b>Limpe a busca ou mude o filtro. Para salvar uma nova, use o painel acima.</div>`;
+      return;
+    }
+    cards.innerHTML = visible.map(renderCard).join("");
+  }
+  function renderCard(item){
+    const category = getCategory(item.category || item.col || "soltas");
+    const value = Number(item.value || item.thermo || 3);
+    const tagHtml = (item.tags || []).map(tag => `<span class="pill tag">#${escapeHtml(tag)}</span>`).join("");
+    const linkHtml = item.link ? `<a class="link" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">${escapeHtml(item.link)}</a>` : "";
+    const options = CATEGORIES.map(c => `<option value="${c.id}" ${c.id === category.id ? "selected" : ""}>${c.icon} ${c.label}</option>`).join("");
+    return `
+      <article class="card ${value >= 4 ? "hot" : ""}" data-id="${escapeHtml(item.id)}">
+        <div class="card-head">
+          <h3>${escapeHtml(item.title)}</h3>
+          <span class="thermo" title="Valor da ideia">${VALUE_ICON[value] || "⚡"}</span>
+        </div>
+        <div class="meta">
+          <span class="pill cat" style="--chip:${category.color}">${category.icon} ${escapeHtml(category.label)}</span>
+          ${tagHtml}
+        </div>
+        <div class="desc">${escapeHtml(item.desc || "")}</div>
+        ${linkHtml}
+        <div class="card-actions">
+          <select class="move" data-move="${escapeHtml(item.id)}">${options}</select>
+          <button class="btn sm" type="button" data-edit="${escapeHtml(item.id)}">Editar</button>
+          <button class="btn sm danger" type="button" data-delete="${escapeHtml(item.id)}">Excluir</button>
+        </div>
+      </article>
+    `;
+  }
+
+  seedUI();
+  restoreDraft();
+
+  $("#ideaForm").addEventListener("submit", saveIdea);
+  $("#clearBtn").addEventListener("click", () => resetForm(true));
+  $("#focusBtn").addEventListener("click", () => {
+    $("#capturePanel").scrollIntoView({behavior:"smooth", block:"start"});
+    setTimeout(() => $("#title").focus(), 160);
+  });
+  ["title","category","value","desc","tags","link"].forEach(id => {
+    const el = $("#" + id);
+    el.addEventListener("input", saveDraft);
+    el.addEventListener("change", saveDraft);
+  });
+  $("#search").addEventListener("input", render);
+  $("#filters").addEventListener("click", event => {
+    const button = event.target.closest("[data-filter]");
+    if(!button) return;
+    activeFilter = button.dataset.filter;
+    renderFilters();
+    render();
+  });
+  $("#cards").addEventListener("click", event => {
+    const editButton = event.target.closest("[data-edit]");
+    const deleteButton = event.target.closest("[data-delete]");
+    if(editButton){
+      const item = ideas.find(i => i.id === editButton.dataset.edit);
+      if(item) populateForm(item);
+    }
+    if(deleteButton){
+      deleteIdea(deleteButton.dataset.delete);
+    }
+  });
+  $("#cards").addEventListener("change", event => {
+    const select = event.target.closest("[data-move]");
+    if(!select) return;
+    moveIdea(select.dataset.move, select.value);
+  });
+
+  onAuthStateChanged(auth, user => {
+    if(!user){
+      status("warn", "Faça login");
+      toast("Faça login pelo Hub para sincronizar.");
+      setTimeout(() => { window.location.href = "../index.html"; }, 900);
+      return;
+    }
+    currentUser = user;
+    basePath = `users/${user.uid}/modulos/ideias`;
+    ideasRef = ref(db, basePath);
+    status("busy", "Carregando...");
+    onValue(ideasRef, snapshot => {
+      const next = [];
+      snapshot.forEach(child => {
+        const value = child.val() || {};
+        next.push({ id: child.key, ...value });
+      });
+      ideas = sortIdeas(next);
+      render();
+      status("ok", "Sincronizado ✓");
+    }, error => {
+      console.error(error);
+      status("warn", error?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Offline/erro");
+      toast(error?.code === "PERMISSION_DENIED" ? "Firebase bloqueou. Confira a regra users/{uid}." : "Erro ao sincronizar com Firebase.");
+    });
+  });
 </script>
 </body>
 </html>
