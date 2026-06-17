@@ -218,6 +218,19 @@
       letter-spacing: 0.1em;
     }
 
+
+    .back-main {
+      display: inline-block;
+      margin-bottom: 18px;
+      color: var(--gold-light);
+      text-decoration: none;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      opacity: 0.92;
+    }
+    .back-main:hover { opacity: 1; text-decoration: underline; }
+
     @media (max-width: 480px) {
       body { padding: 32px 16px 64px; }
       .hub-grid { grid-template-columns: 1fr; }
@@ -227,6 +240,7 @@
 <body>
 
   <header class="hub-header">
+    <a class="back-main" href="../index.html">← Sistema de Vida</a>
     <div class="hub-eyebrow">Controle Pessoal</div>
     <h1 class="hub-title">Seu dinheiro,<br /><span>seu mapa.</span></h1>
     <p class="hub-desc">Planeje aquisições, acompanhe despesas, visualize dívidas e simule cenários futuros — tudo num só lugar.</p>
@@ -237,19 +251,16 @@
   <div class="hub-grid">
 
     <!-- Aquisições -->
-    <a class="hub-card" href="aquisicoes.html">
+    <div class="hub-card placeholder">
       <div class="card-icon">🛒</div>
       <div class="card-label">Módulo 01</div>
       <div class="card-title">Aquisições</div>
       <div class="card-desc">Registre itens pendentes, defina prioridade, anote preço estimado e decida o momento certo de comprar.</div>
-      <div class="card-action">
-        Abrir
-        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.8"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
-      </div>
-    </a>
+      <div class="badge-soon">Em breve</div>
+    </div>
 
     <!-- Despesas -->
-    <a class="hub-card" href="despesas.html">
+    <a class="hub-card" href="despesas_mes_tdah.html">
       <div class="card-icon">💸</div>
       <div class="card-label">Módulo 02</div>
       <div class="card-title">Despesas do Mês</div>
@@ -261,7 +272,7 @@
     </a>
 
     <!-- Dívidas -->
-    <a class="hub-card" href="dividas.html">
+    <a class="hub-card" href="dividas_tdah.html">
       <div class="card-icon">💳</div>
       <div class="card-label">Módulo 03</div>
       <div class="card-title">Dívidas</div>
@@ -273,7 +284,7 @@
     </a>
 
     <!-- Projeções -->
-    <a class="hub-card" href="projecoes.html">
+    <a class="hub-card" href="projecoes_tdah.html">
       <div class="card-icon">📊</div>
       <div class="card-label">Módulo 04</div>
       <div class="card-title">Projeções</div>
