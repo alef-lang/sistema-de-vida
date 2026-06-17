@@ -409,6 +409,12 @@
       .modules-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <!-- ── PWA ── -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#c9a84c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Sistema de Vida"/>
 </head>
 <body>
 
@@ -661,5 +667,14 @@
   }
 </script>
 
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sistema-de-vida/sw.js')
+          .then(r => console.log('SW registrado:', r.scope))
+          .catch(e => console.warn('SW falhou:', e));
+      });
+    }
+  </script>
 </body>
 </html>
