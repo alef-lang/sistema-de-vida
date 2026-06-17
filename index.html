@@ -555,7 +555,7 @@
 
 <script type="module">
   import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   // ─────────────────────────────────────────────────────────────
@@ -565,6 +565,7 @@
   const firebaseConfig = {
     apiKey:            "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8",
     authDomain:        "sistema-de-vida-e6c68.firebaseapp.com",
+    databaseURL:       "https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com",
     projectId:         "sistema-de-vida-e6c68",
     storageBucket:     "sistema-de-vida-e6c68.firebasestorage.app",
     messagingSenderId: "590218702063",
@@ -573,6 +574,7 @@
 
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  setPersistence(auth, browserLocalPersistence).catch(console.warn);
 
   const loginScreen = document.getElementById('loginScreen');
   const dashboard   = document.getElementById('dashboard');
