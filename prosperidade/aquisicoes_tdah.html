@@ -85,14 +85,14 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </main>
 <div id="toast" class="toast"></div>
 <script type="module">
-const CONFIG = {"key": "aquisicoes", "title": "Aquisições", "subtitle": "Registre itens pendentes, defina prioridade, anote preço estimado e decida o momento certo de comprar.", "emoji": "🛒", "accent": "#77b7ff", "accent2": "#ffe08a", "dbPath": "aquisicoes_light", "localKey": "sistema_vida_aquisicoes_light_v1", "backHref": "index-financas.html", "quickTitle": "Captura de compra sem impulso", "quickHint": "Jogue a vontade aqui primeiro. Depois você pondera com calma, preço, prioridade e real necessidade.", "titleLabel": "Item / vontade de compra", "titlePlaceholder": "Ex: monitor ultrawide, curso, cadeira, luminária...", "descLabel": "Motivo, prints, comparação e observações", "descPlaceholder": "Cole imagens, links, argumentos a favor/contra e o que essa compra resolveria...", "fields": [{"key": "price", "label": "Preço estimado", "type": "text", "placeholder": "Ex: R$ 349,90"}, {"key": "priority", "label": "Prioridade", "type": "select", "options": [["1", "1 · pode esperar"], ["2", "2 · útil"], ["3", "3 · importante"], ["4", "4 · muito importante"], ["5", "5 · resolveria algo agora"]]}, {"key": "status", "label": "Momento", "type": "select", "options": [["pendente", "Pendente"], ["pesquisar", "Pesquisar melhor"], ["esperar", "Esperar esfriar"], ["comprar", "Pode comprar"], ["comprado", "Comprado"], ["descartado", "Descartado"]]}, {"key": "reviewAt", "label": "Reavaliar em", "type": "date", "placeholder": ""}, {"key": "link", "label": "Link de referência", "type": "url", "placeholder": "https://..."}], "filters": [["all", "Todos"], ["pendente", "Pendentes"], ["pesquisar", "Pesquisar"], ["esperar", "Esperar"], ["comprar", "Comprar"], ["comprado", "Comprados"], ["descartado", "Descartados"]], "statLabels": {"total": "Itens", "today": "Hoje", "focus": "Prioridade 4+", "pending": "Pendentes"}, "empty": "Nenhuma aquisição registrada ainda. Capture a vontade antes de comprar: isso já reduz impulso.", "cardMeta": "purchase"};
+const CONFIG = {"key": "aquisicoes", "title": "Aquisições", "subtitle": "Registre itens pendentes, defina prioridade, anote preço estimado e decida o momento certo de comprar.", "emoji": "🛒", "accent": "#77b7ff", "accent2": "#ffe08a", "dbPath": "users/{uid}/modulos/aquisicoes", "localKey": "sistema_vida_aquisicoes_light_v1", "backHref": "index-financas.html", "quickTitle": "Captura de compra sem impulso", "quickHint": "Jogue a vontade aqui primeiro. Depois você pondera com calma, preço, prioridade e real necessidade.", "titleLabel": "Item / vontade de compra", "titlePlaceholder": "Ex: monitor ultrawide, curso, cadeira, luminária...", "descLabel": "Motivo, prints, comparação e observações", "descPlaceholder": "Cole imagens, links, argumentos a favor/contra e o que essa compra resolveria...", "fields": [{"key": "price", "label": "Preço estimado", "type": "text", "placeholder": "Ex: R$ 349,90"}, {"key": "priority", "label": "Prioridade", "type": "select", "options": [["1", "1 · pode esperar"], ["2", "2 · útil"], ["3", "3 · importante"], ["4", "4 · muito importante"], ["5", "5 · resolveria algo agora"]]}, {"key": "status", "label": "Momento", "type": "select", "options": [["pendente", "Pendente"], ["pesquisar", "Pesquisar melhor"], ["esperar", "Esperar esfriar"], ["comprar", "Pode comprar"], ["comprado", "Comprado"], ["descartado", "Descartado"]]}, {"key": "reviewAt", "label": "Reavaliar em", "type": "date", "placeholder": ""}, {"key": "link", "label": "Link de referência", "type": "url", "placeholder": "https://..."}], "filters": [["all", "Todos"], ["pendente", "Pendentes"], ["pesquisar", "Pesquisar"], ["esperar", "Esperar"], ["comprar", "Comprar"], ["comprado", "Comprados"], ["descartado", "Descartados"]], "statLabels": {"total": "Itens", "today": "Hoje", "focus": "Prioridade 4+", "pending": "Pendentes"}, "empty": "Nenhuma aquisição registrada ainda. Capture a vontade antes de comprar: isso já reduz impulso.", "cardMeta": "purchase"};
 const FIREBASE_CONFIG = {"apiKey": "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8", "authDomain": "sistema-de-vida-e6c68.firebaseapp.com", "databaseURL": "https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com", "projectId": "sistema-de-vida-e6c68", "storageBucket": "sistema-de-vida-e6c68.firebasestorage.app", "messagingSenderId": "590218702063", "appId": "1:590218702063:web:4586798cf9925edacb7f1a"};
 document.documentElement.style.setProperty('--accent', CONFIG.accent);
 document.documentElement.style.setProperty('--accent2', CONFIG.accent2);
 
 const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
-const state = { items: [], filter: 'all', search: '', editingId: null, tags: [], expanded: new Set(), mode: 'local', remote: null, firebase: null };
+const state = { items: [], filter: 'all', search: '', editingId: null, tags: [], expanded: new Set(), mode: 'local', remote: null, remotePath: null, firebase: null };
 const editor = $('#richEditor');
 const toolbar = $('#editorToolbar');
 const tagInput = $('#tagInput');
@@ -148,19 +148,26 @@ async function initFirebase(){
     authMod.onAuthStateChanged(auth, user=>{
       if(!user){ state.mode='local'; setStatus('warn','Faça login'); setTimeout(()=>{ window.location.href='../index.html'; }, 600); return; }
       state.mode='firebase';
-      state.remote = dbMod.ref(db, CONFIG.dbPath + '/' + user.uid);
+      state.remotePath = 'users/' + user.uid + '/modulos/' + CONFIG.key;
+      state.remote = dbMod.ref(db, state.remotePath);
       setStatus('busy','Sincronizando...');
-      dbMod.onValue(state.remote, snap=>{
+      dbMod.onValue(state.remote, async snap=>{
         const list=[]; snap.forEach(child=>list.push({id:child.key, ...child.val()}));
+        if(!snap.exists() && state.items.length){
+          const payload={};
+          state.items.forEach(item=>{ const id=item.id || uid(); const data={...item}; delete data.id; payload[id]=data; });
+          await dbMod.set(state.remote, payload);
+          return;
+        }
         state.items=list; render(); setStatus('ok','Sincronizado ✓');
-      }, err=>{ console.error(err); setStatus('warn','Offline'); });
+      }, err=>{ console.error(err); setStatus('warn', err?.code==='PERMISSION_DENIED' ? 'Sem permissão no Firebase' : 'Offline/erro Firebase'); showToast(err?.code==='PERMISSION_DENIED' ? 'Firebase bloqueou: confira a regra users/{uid}.' : 'Erro ao sincronizar com Firebase.'); });
     });
   }catch(err){ console.warn('Firebase indisponível, usando localStorage:',err); setStatus('ok','Local ✓'); }
 }
 async function saveRemote(item){
   if(state.mode==='firebase' && state.remote && state.firebase){
     const {dbMod, db}=state.firebase; setStatus('busy','Salvando...');
-    if(item.id){ const id=item.id; const payload={...item}; delete payload.id; await dbMod.update(dbMod.ref(db, CONFIG.dbPath + '/' + (state.remote.key||'') + '/' + id), payload); }
+    if(item.id){ const id=item.id; const payload={...item}; delete payload.id; await dbMod.update(dbMod.ref(db, state.remotePath + '/' + id), payload); }
     else { const r=dbMod.push(state.remote); const payload={...item}; delete payload.id; await dbMod.set(r,payload); }
     setStatus('ok','Sincronizado ✓');
   } else {
@@ -171,8 +178,7 @@ async function saveRemote(item){
 async function deleteRemote(id){
   if(state.mode==='firebase' && state.remote && state.firebase){
     const {dbMod, db}=state.firebase; setStatus('busy','Excluindo...');
-    const uidPath = state.remote.toString().split('/').pop();
-    await dbMod.remove(dbMod.ref(db, CONFIG.dbPath + '/' + uidPath + '/' + id));
+    await dbMod.remove(dbMod.ref(db, state.remotePath + '/' + id));
     setStatus('ok','Sincronizado ✓');
   } else { state.items=state.items.filter(x=>x.id!==id); localSaveAll(); }
 }
