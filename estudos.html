@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Estudos — Sistema de Vida</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+--bg:#081422;--bg2:#0d1b2a;--panel:rgba(18,32,50,0.72);--panel-solid:#132337;
+--panel-soft:rgba(255,255,255,0.055);--card:rgba(20,34,52,0.82);--card-hover:rgba(26,44,68,0.94);
+--gold:#d8b85c;--gold-light:#ffe08a;--gold-dim:rgba(216,184,92,0.18);
+--text:#edf4fb;--muted:#96aac0;--muted2:#6e849c;
+--blue:#77b7ff;--pink:#f7a1d1;--green:#75e2c8;--purple:#b8a4ff;--orange:#ffc36a;--red:#ff7d7d;
+--radius:18px;--line:rgba(255,255,255,0.075);--toolbar:rgba(9,20,34,0.96);--shadow:0 18px 42px rgba(0,0,0,0.24);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;background:#081422}
+body{font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;background-color:#081422;
+background-image:radial-gradient(circle at 12% 8%,rgba(119,183,255,0.15),transparent 26%),radial-gradient(circle at 88% 12%,rgba(247,161,209,0.11),transparent 24%),radial-gradient(circle at 78% 82%,rgba(117,226,200,0.10),transparent 26%),linear-gradient(135deg,#081422 0%,#101f32 46%,#07111e 100%);background-attachment:fixed}
+#neural-bg{position:fixed;inset:-16px;z-index:0;pointer-events:none;background:radial-gradient(circle at 18% 22%,rgba(119,183,255,0.08),transparent 24%),radial-gradient(circle at 82% 18%,rgba(247,161,209,0.06),transparent 22%)}
+#star-net{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#star-net .sn-line{fill:none;stroke-linecap:round;stroke-dasharray:6 22}
+#star-net .sn-line.a{stroke:rgba(119,183,255,0.16);stroke-width:.8;animation:snDash 16s linear infinite}
+#star-net .sn-line.b{stroke:rgba(247,161,209,0.13);stroke-width:.7;animation:snDash 20s linear infinite reverse}
+#star-net .sn-line.c{stroke:rgba(255,224,138,0.15);stroke-width:.8;animation:snDash 13s linear infinite}
+#star-net .sn-node{animation:snBlink 5s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes snDash{to{stroke-dashoffset:-120}}
+@keyframes snBlink{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.topbar{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 26px;height:62px;background:rgba(8,18,32,0.86);border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.back-btn{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.08em;display:flex;align-items:center;gap:6px;transition:color .15s}
+.back-btn:hover{color:var(--gold)}
+.topbar-title{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.topbar-title span{color:var(--gold)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.sync-status{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.05em;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted2)}
+.sync-status.ok{color:var(--green);border-color:rgba(117,226,200,0.3)}
+.sync-status.busy{color:var(--orange);border-color:rgba(255,195,106,0.3)}
+.sync-status.warn{color:var(--red);border-color:rgba(255,125,125,0.3)}
+.icon-btn{background:var(--panel-soft);border:1px solid var(--line);border-radius:9px;width:38px;height:38px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s}
+.icon-btn:hover{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-dim)}
+.btn-new{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;border:none;border-radius:9px;padding:9px 18px;cursor:pointer;letter-spacing:.03em;transition:all .15s}
+.btn-new:hover{opacity:.9;transform:translateY(-1px)}
+.container{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 24px}
+.tabs{display:flex;gap:6px;margin:22px 0 0;flex-wrap:wrap;position:relative;z-index:5}
+.tab{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px 10px 0 0;padding:11px 18px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--gold);border-color:var(--gold-dim);border-bottom-color:transparent;background:var(--panel-solid)}
+.tab-content{display:none;padding:24px 0 60px}
+.tab-content.active{display:block}
+.next-hero{background:linear-gradient(135deg,rgba(216,184,92,0.12),rgba(119,183,255,0.05));border:1px solid var(--gold-dim);border-radius:16px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden}
+.next-hero::before{content:'🧭';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:80px;opacity:0.08}
+.next-hero .nh-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.next-hero .nh-title{font-family:'Poppins',sans-serif;font-size:22px;font-weight:600;margin-bottom:6px}
+.next-hero .nh-module{font-size:13px;color:var(--muted);margin-bottom:6px}
+.next-hero .nh-ice{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);margin-bottom:14px}
+.next-hero .nh-actions{display:flex;gap:10px;flex-wrap:wrap}
+.nh-btn{font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 16px;border-radius:9px;cursor:pointer;border:1px solid var(--line);background:var(--panel-soft);color:var(--text);transition:all .15s;display:flex;align-items:center;gap:6px}
+.nh-btn:hover{background:var(--gold-dim);border-color:var(--gold-dim)}
+.nh-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-weight:700;border:none}
+.section-title{font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin:28px 0 16px;display:flex;align-items:center;gap:10px}
+.section-title::before{content:'';width:4px;height:18px;background:var(--gold);border-radius:2px;flex-shrink:0}
+.search-wrap{display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.search-box{flex:1;min-width:240px;position:relative}
+.search-box input{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px 12px 42px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:all .2s}
+.search-box input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(216,184,92,0.13)}
+.search-box::before{content:'🔍';position:absolute;left:15px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.6}
+.filter-chip{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.filter-chip:hover,.filter-chip.active{color:var(--gold);border-color:var(--gold-dim);background:var(--gold-dim)}
+.goal-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.goal-pill{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
+.goal-pill:hover{color:var(--text)}
+.goal-pill.active{color:var(--text);border-color:var(--gold-dim);background:var(--gold-dim)}
+.module-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.module-head{padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background .15s}
+.module-head:hover{background:var(--panel-soft)}
+.module-icon{width:40px;height:40px;border-radius:11px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.module-info{flex:1;min-width:0}
+.module-name{font-family:'Poppins',sans-serif;font-size:15px;font-weight:600}
+.module-meta{font-size:11px;color:var(--muted2);margin-top:3px;font-family:'DM Mono',monospace}
+.module-progress-ring{display:flex;align-items:center;gap:10px}
+.progress-bar-mini{width:80px;height:6px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .4s}
+.progress-pct{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);min-width:36px;text-align:right}
+.module-chevron{color:var(--muted);transition:transform .25s;font-size:12px}
+.module-card.open .module-chevron{transform:rotate(90deg)}
+.module-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.module-card.open .module-body{max-height:none}
+.module-aulas{padding:4px 20px 16px}
+.aula-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:9px;transition:background .15s;border:1px solid transparent;flex-wrap:wrap}
+.aula-item:hover{background:var(--panel-soft);border-color:var(--line)}
+.aula-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--muted2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.aula-check.done{background:var(--green);border-color:var(--green);color:#0d1b2a}
+.aula-check.watching{border-color:var(--orange);color:var(--orange)}
+.aula-main{flex:1;min-width:180px}
+.aula-title{font-size:13px;line-height:1.4}
+.aula-item.done .aula-title{color:var(--muted2);text-decoration:line-through}
+.aula-goals{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.aula-goal-tag{font-family:'DM Mono',monospace;font-size:8px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:3px}
+.ice-badge{font-family:'DM Mono',monospace;font-size:10px;padding:4px 9px;border-radius:7px;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,0.03);color:var(--muted);transition:all .15s;flex-shrink:0;white-space:nowrap}
+.ice-badge:hover{border-color:var(--gold-dim)}
+.ice-badge.has-score{color:var(--green);border-color:rgba(117,226,200,0.25);background:rgba(117,226,200,0.06)}
+.ice-badge.high{color:var(--gold);border-color:var(--gold-dim);background:rgba(216,184,92,0.08)}
+.aula-actions{display:flex;gap:5px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.aula-item:hover .aula-actions{opacity:1}
+.aula-mini-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:11px;transition:all .15s}
+.aula-mini-btn:hover{background:var(--gold-dim);color:var(--gold)}
+.aula-mini-btn.star.on{color:var(--gold)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.note-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;transition:all .15s;position:relative}
+.note-card:hover{border-color:var(--gold-dim);transform:translateY(-2px);box-shadow:var(--shadow)}
+.note-card .nc-type{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.note-card .nc-title{font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;margin-bottom:8px;line-height:1.3}
+.note-card .nc-body{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px;max-height:140px;overflow:hidden}
+.note-card .nc-body img{max-width:100%;border-radius:6px}
+.note-card .nc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.note-card .nc-source{font-size:10px;color:var(--muted2);font-family:'DM Mono',monospace;margin-bottom:12px;display:flex;align-items:center;gap:5px}
+.note-card .nc-actions{display:flex;gap:6px}
+.tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.05em;color:var(--gold);background:rgba(216,184,92,0.1);border:1px solid rgba(216,184,92,0.2);border-radius:4px;padding:2px 7px}
+.card-btn{flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:6px 0;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.card-btn:hover{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-dim)}
+.card-btn.copy:hover{background:rgba(119,183,255,0.12);color:var(--blue);border-color:rgba(119,183,255,0.3)}
+.card-btn.danger:hover{background:rgba(255,125,125,0.1);color:var(--red);border-color:rgba(255,125,125,0.3)}
+.empty-state{text-align:center;padding:50px 16px;color:var(--muted2);font-size:13px;line-height:1.7}
+.empty-state .emoji{font-size:32px;display:block;margin-bottom:12px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:24px}
+.stat-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center}
+.stat-box b{display:block;font-family:'Poppins',sans-serif;font-size:26px;color:var(--gold-light)}
+.stat-box span{font-size:11px;color:var(--muted)}
+.goals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:24px}
+.goal-card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:14px;padding:18px;position:relative;transition:all .15s}
+.goal-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.goal-card .gc-emoji{font-size:26px;margin-bottom:8px}
+.goal-card .gc-title{font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;line-height:1.3}
+.goal-card .gc-meta{font-size:11px;color:var(--muted2);font-family:'DM Mono',monospace;margin-bottom:12px}
+.goal-card .gc-progress{height:6px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.goal-card .gc-progress-fill{height:100%;border-radius:999px;transition:width .4s}
+.goal-card .gc-actions{display:flex;gap:6px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:500;align-items:flex-start;justify-content:center;padding:30px 20px;backdrop-filter:blur(5px);overflow-y:auto}
+.modal-overlay.open{display:flex}
+.modal{background:var(--panel-solid);border:1px solid var(--line);border-radius:20px;padding:30px;width:100%;max-width:620px;position:relative;margin:auto}
+.modal h2{font-family:'Poppins',sans-serif;font-size:17px;font-weight:700;margin-bottom:22px;display:flex;align-items:center;gap:8px}
+.modal h2 span{color:var(--gold)}
+.field{margin-bottom:16px}
+.field-row{display:flex;gap:12px}.field-row .field{flex:1}
+.field label{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.field label .opt{color:var(--muted2);text-transform:none;letter-spacing:0;font-size:9px}
+.field input,.field textarea,.field select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:9px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:all .2s;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(216,184,92,0.13)}
+.field select option{background:var(--panel-solid)}
+.desc-editor{min-height:100px;max-height:300px;overflow-y:auto;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--text);line-height:1.6;outline:none}
+.desc-editor:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(216,184,92,0.13)}
+.desc-editor img{max-width:100%;border-radius:8px;margin:6px 0}
+.desc-editor .img-resize-wrap{position:relative;display:inline-block}
+.desc-editor .img-resize-wrap.img-selected,.desc-editor img.img-selected{outline:2px solid var(--gold)}
+.desc-editor .resize-handle{position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;background:var(--gold);border:2px solid var(--bg);border-radius:50%;cursor:nwse-resize}
+.desc-hint{font-size:10px;color:var(--muted2);margin-top:5px}
+.tags-input-wrap{display:flex;gap:8px}.tags-input-wrap input{flex:1}
+.btn-add-tag{background:var(--gold-dim);border:1px solid var(--gold-dim);border-radius:9px;padding:0 14px;color:var(--gold);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;white-space:nowrap}
+.btn-add-tag:hover{background:rgba(216,184,92,0.25)}
+.tags-preview{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag-preview{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);background:rgba(216,184,92,0.1);border:1px solid rgba(216,184,92,0.2);border-radius:4px;padding:3px 8px;cursor:pointer}
+.tag-preview:hover{background:rgba(255,125,125,0.15);color:var(--red)}
+.modal-actions{display:flex;gap:10px;margin-top:24px}
+.btn-save{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;border:none;border-radius:9px;padding:12px;cursor:pointer}
+.btn-save:hover{opacity:.9}
+.btn-cancel{background:transparent;border:1px solid var(--line);border-radius:9px;padding:12px 20px;color:var(--muted);font-size:13px;cursor:pointer}
+.btn-cancel:hover{background:rgba(255,255,255,0.04)}
+.goal-select-list{display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto}
+.goal-select-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,0.03);cursor:pointer;transition:all .15s;font-size:13px}
+.goal-select-item:hover{border-color:var(--gold-dim)}
+.goal-select-item.selected{border-color:var(--gold);background:var(--gold-dim)}
+.goal-select-item .gsi-check{width:18px;height:18px;border-radius:5px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.goal-select-item.selected .gsi-check{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.ice-sliders{display:flex;flex-direction:column;gap:16px}
+.ice-slider-row label{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:none;letter-spacing:0}
+.ice-slider-row label b{color:var(--gold-light);font-size:13px}
+.ice-slider-row label .ice-desc{font-size:10px;color:var(--muted2);font-weight:400}
+.ice-slider-row input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer}
+.ice-result{background:linear-gradient(135deg,rgba(117,226,200,0.1),rgba(119,183,255,0.05));border:1px solid rgba(117,226,200,0.25);border-radius:11px;padding:14px;margin-top:16px;text-align:center}
+.ice-result .ice-score-big{font-family:'Poppins',sans-serif;font-size:30px;font-weight:700;color:var(--green)}
+.ice-result .ice-score-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+.color-picker-row{display:flex;gap:8px;flex-wrap:wrap}
+.color-opt{width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.color-opt.selected{border-color:#fff;transform:scale(1.1)}
+.emoji-picker-row{display:flex;gap:6px;flex-wrap:wrap}
+.emoji-opt{width:40px;height:40px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,0.03);cursor:pointer;font-size:20px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.emoji-opt:hover{border-color:var(--gold-dim)}
+.emoji-opt.selected{border-color:var(--gold);background:var(--gold-dim)}
+.floating-editor{position:fixed;z-index:800;transform:translate(-50%,-100%);background:var(--toolbar);border:1px solid var(--line);border-radius:11px;padding:6px;display:none;gap:3px;align-items:center;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+.floating-editor.open{display:flex}
+.fe-btn{background:transparent;border:none;color:var(--text);cursor:pointer;width:30px;height:30px;border-radius:7px;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background .12s}
+.fe-btn:hover{background:rgba(255,255,255,0.08)}
+.fe-sep{width:1px;height:20px;background:var(--line);margin:0 2px}
+.fe-select{background:rgba(255,255,255,0.05);border:1px solid var(--line);color:var(--text);border-radius:6px;font-size:11px;padding:4px 6px;cursor:pointer;outline:none}
+.fe-select option{background:var(--panel-solid)}
+.palette-wrap{position:relative}
+.palette-menu{position:absolute;top:38px;left:50%;transform:translateX(-50%);background:var(--toolbar);border:1px solid var(--line);border-radius:10px;padding:8px;display:none;grid-template-columns:repeat(6,1fr);gap:4px;box-shadow:var(--shadow);width:220px;z-index:810}
+.palette-menu.open{display:grid}
+.color-btn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px}
+.color-btn .swatch{width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,0.15)}
+.color-btn .hex{font-family:'DM Mono',monospace;font-size:6px;color:var(--muted2)}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:rgba(19,35,55,0.96);border:1px solid var(--gold-dim);border-radius:11px;padding:13px 20px;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold-light);backdrop-filter:blur(10px);transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:4px}
+@media print{@page{size:A4;margin:16mm}body{background:#fff!important;color:#000!important}#neural-bg,#star-net,.topbar,.tabs,.search-wrap,.btn-new,.icon-btn,.aula-actions,.modal-overlay,.toast,.next-hero .nh-actions,.goal-filter{display:none!important}.module-card{page-break-inside:avoid;border:1px solid #999!important;background:#fff!important}.module-name,.aula-title,.nc-title{color:#000!important}.module-body{max-height:none!important}}
+@media (max-width:760px){.field-row{flex-direction:column}.cards-grid{grid-template-columns:1fr}.goals-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="neural-bg" aria-hidden="true"></div>
+<svg id="star-net" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+<g>
+<line class="sn-line a" x1="80" y1="80" x2="280" y2="150"/><line class="sn-line b" x1="280" y1="150" x2="480" y2="90"/>
+<line class="sn-line c" x1="480" y1="90" x2="680" y2="170"/><line class="sn-line a" x1="680" y1="170" x2="880" y2="80"/>
+<line class="sn-line b" x1="880" y1="80" x2="1080" y2="160"/><line class="sn-line c" x1="1080" y1="160" x2="1280" y2="90"/>
+<line class="sn-line b" x1="120" y1="400" x2="340" y2="440"/><line class="sn-line c" x1="340" y1="440" x2="560" y2="380"/>
+<line class="sn-line a" x1="560" y1="380" x2="780" y2="460"/><line class="sn-line b" x1="780" y1="460" x2="980" y2="390"/>
+<line class="sn-line c" x1="980" y1="390" x2="1200" y2="470"/><line class="sn-line b" x1="100" y1="700" x2="340" y2="740"/>
+<line class="sn-line c" x1="340" y1="740" x2="560" y2="680"/><line class="sn-line a" x1="560" y1="680" x2="780" y2="760"/>
+<line class="sn-line c" x1="280" y1="150" x2="340" y2="440"/><line class="sn-line a" x1="680" y1="170" x2="560" y2="380"/>
+</g>
+<g fill="#eef6ff">
+<circle class="sn-node" cx="80" cy="80" r="2.6" opacity=".6"/><circle class="sn-node" cx="280" cy="150" r="3.2" opacity=".8" style="animation-delay:-1s"/>
+<circle class="sn-node" cx="480" cy="90" r="2.4" opacity=".55" style="animation-delay:-2s"/><circle class="sn-node" cx="680" cy="170" r="3" opacity=".75" style="animation-delay:-1.5s"/>
+<circle class="sn-node" cx="880" cy="80" r="2.6" opacity=".6" style="animation-delay:-2.5s"/><circle class="sn-node" cx="1080" cy="160" r="3.2" opacity=".8" style="animation-delay:-.5s"/>
+<circle class="sn-node" cx="1280" cy="90" r="2.4" opacity=".55" style="animation-delay:-3s"/><circle class="sn-node" cx="340" cy="440" r="3.4" opacity=".82" style="animation-delay:-1.2s"/>
+<circle class="sn-node" cx="560" cy="380" r="2.8" opacity=".68" style="animation-delay:-2.2s"/><circle class="sn-node" cx="780" cy="460" r="3" opacity=".75" style="animation-delay:-.8s"/>
+<circle class="sn-node" cx="980" cy="390" r="2.6" opacity=".6" style="animation-delay:-1.8s"/><circle class="sn-node" cx="1200" cy="470" r="3.2" opacity=".8" style="animation-delay:-2.8s"/>
+<circle class="sn-node" cx="340" cy="740" r="3" opacity=".72" style="animation-delay:-1.4s"/><circle class="sn-node" cx="560" cy="680" r="2.6" opacity=".6" style="animation-delay:-2.4s"/>
+<circle class="sn-node" cx="780" cy="760" r="3.2" opacity=".8" style="animation-delay:-.6s"/>
+</g>
+</svg>
+
+<header class="topbar">
+<div class="topbar-left">
+<a class="back-btn" href="index.html">← Hub</a>
+<div class="topbar-title">📚 <span>Estudos</span></div>
+</div>
+<div class="topbar-right">
+<span class="sync-status" id="sync-status">Conectando...</span>
+<button class="icon-btn" onclick="window.print()" title="Imprimir A4">🖨️</button>
+</div>
+</header>
+
+<div class="container">
+<div class="tabs">
+<div class="tab active" data-tab="trilha">🧭 Trilha</div>
+<div class="tab" data-tab="metas">🎯 Metas</div>
+<div class="tab" data-tab="anotacoes">📝 Anotações</div>
+<div class="tab" data-tab="prompts">✨ Prompts</div>
+<div class="tab" data-tab="conhecimentos">💡 Conhecimentos</div>
+</div>
+
+<!-- TRILHA -->
+<div class="tab-content active" id="tab-trilha">
+<div class="next-hero" id="next-hero">
+<div class="nh-label">🎯 Seu próximo passo</div>
+<div class="nh-title" id="next-title">Carregando...</div>
+<div class="nh-module" id="next-module"></div>
+<div class="nh-ice" id="next-ice"></div>
+<div class="nh-actions" id="next-actions"></div>
+</div>
+<div class="stats-row" id="stats-row"></div>
+<div class="goal-filter" id="goal-filter"></div>
+<div class="search-wrap">
+<div class="search-box"><input type="text" id="search-trilha" placeholder="Buscar aula, tópico..."/></div>
+<div class="filter-chip active" data-tfilter="all">Todas</div>
+<div class="filter-chip" data-tfilter="scored">📊 Com ICE</div>
+<div class="filter-chip" data-tfilter="priority">⭐ Destacadas</div>
+<div class="filter-chip" data-tfilter="pending">⏳ Pendentes</div>
+</div>
+<div id="modules-list"></div>
+</div>
+
+<!-- METAS -->
+<div class="tab-content" id="tab-metas">
+<div class="search-wrap">
+<div class="search-box"><input type="text" id="search-metas" placeholder="Buscar metas..."/></div>
+<button class="btn-new" onclick="openGoalModal()">+ Nova Meta</button>
+</div>
+<div class="goals-grid" id="goals-grid"></div>
+</div>
+
+<!-- ANOTAÇÕES -->
+<div class="tab-content" id="tab-anotacoes">
+<div class="search-wrap">
+<div class="search-box"><input type="text" id="search-anotacoes" placeholder="Buscar anotações..."/></div>
+<button class="btn-new" onclick="openNoteModal('anotacao')">+ Nova Anotação</button>
+</div>
+<div class="cards-grid" id="anotacoes-grid"></div>
+</div>
+
+<!-- PROMPTS -->
+<div class="tab-content" id="tab-prompts">
+<div class="search-wrap">
+<div class="search-box"><input type="text" id="search-prompts" placeholder="Buscar prompts..."/></div>
+<button class="btn-new" onclick="openNoteModal('prompt')">+ Novo Prompt</button>
+</div>
+<div class="cards-grid" id="prompts-grid"></div>
+</div>
+
+<!-- CONHECIMENTOS -->
+<div class="tab-content" id="tab-conhecimentos">
+<div class="search-wrap">
+<div class="search-box"><input type="text" id="search-conhecimentos" placeholder="Buscar conhecimentos..."/></div>
+<button class="btn-new" onclick="openNoteModal('conhecimento')">+ Novo Conhecimento</button>
+</div>
+<div class="cards-grid" id="conhecimentos-grid"></div>
+</div>
+</div>
+
+<!-- MODAL ICE + METAS (para aula) -->
+<div class="modal-overlay" id="ice-modal">
+<div class="modal">
+<h2>📊 Priorizar <span>Aula</span></h2>
+<div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5;" id="ice-aula-name"></div>
+<div class="ice-sliders">
+<div class="ice-slider-row">
+<label><span>💥 Impacto <span class="ice-desc">— quanto muda meu trabalho/carreira agora?</span></span><b id="ice-i-val">5</b></label>
+<input type="range" min="1" max="10" value="5" id="ice-impact"/>
+</div>
+<div class="ice-slider-row">
+<label><span>🎲 Confiança <span class="ice-desc">— quão certo estou de que vou usar?</span></span><b id="ice-c-val">5</b></label>
+<input type="range" min="1" max="10" value="5" id="ice-confidence"/>
+</div>
+<div class="ice-slider-row">
+<label><span>🪶 Facilidade <span class="ice-desc">— quão fácil absorver agora?</span></span><b id="ice-e-val">5</b></label>
+<input type="range" min="1" max="10" value="5" id="ice-ease"/>
+</div>
+</div>
+<div class="ice-result">
+<div class="ice-score-big" id="ice-score-big">125</div>
+<div class="ice-score-label">ICE Score (Impacto × Confiança × Facilidade)</div>
+</div>
+<div class="field" style="margin-top:20px">
+<label>🎯 Vincular a metas <span class="opt">(a quais objetivos essa aula serve?)</span></label>
+<div class="goal-select-list" id="ice-goal-list"></div>
+</div>
+<div class="modal-actions">
+<button class="btn-cancel" onclick="closeIceModal()">Cancelar</button>
+<button class="btn-save" onclick="saveIce()">Salvar Prioridade</button>
+</div>
+</div>
+</div>
+
+<!-- MODAL META -->
+<div class="modal-overlay" id="goal-modal">
+<div class="modal">
+<h2 id="goal-modal-title">🎯 Nova <span>Meta</span></h2>
+<div class="field">
+<label>Título da meta</label>
+<input type="text" id="gf-title" placeholder="Ex: Dominar a Reforma Tributária"/>
+</div>
+<div class="field">
+<label>Por quê? <span class="opt">(o propósito por trás)</span></label>
+<textarea id="gf-why" rows="2" placeholder="Ex: Virar referência e abrir portas para empresas industriais"></textarea>
+</div>
+<div class="field">
+<label>Ícone</label>
+<div class="emoji-picker-row" id="gf-emoji-row"></div>
+</div>
+<div class="field">
+<label>Cor</label>
+<div class="color-picker-row" id="gf-color-row"></div>
+</div>
+<div class="modal-actions">
+<button class="btn-cancel" onclick="closeGoalModal()">Cancelar</button>
+<button class="btn-save" onclick="saveGoal()">Salvar Meta</button>
+</div>
+</div>
+</div>
+
+<!-- MODAL NOTE -->
+<div class="modal-overlay" id="note-modal">
+<div class="modal">
+<h2 id="note-modal-title">📝 Nova <span>Anotação</span></h2>
+<div class="field">
+<label>Título</label>
+<input type="text" id="nf-title" placeholder="Ex: Resumo Simples Nacional - dentro x fora"/>
+</div>
+<div class="field">
+<label>Conteúdo <span class="opt">(selecione texto para formatar · cole imagens)</span></label>
+<div class="desc-editor" id="nf-body" contenteditable="true"></div>
+<div class="desc-hint">💡 Selecione texto para formatar. Clique numa imagem para redimensionar.</div>
+</div>
+<div class="field" id="source-field">
+<label>Fonte <span class="opt">(de onde veio?)</span></label>
+<input type="text" id="nf-source" placeholder="Ex: Livro X p.42 / Claude / Maestria módulo Y"/>
+</div>
+<div class="field">
+<label>🎯 Vincular a metas <span class="opt">(opcional)</span></label>
+<div class="goal-select-list" id="nf-goal-list"></div>
+</div>
+<div class="field">
+<label>Tags</label>
+<div class="tags-input-wrap">
+<input type="text" id="nf-tag-input" placeholder="Ex: Fiscal" onkeydown="if(event.key==='Enter'){addNoteTag();event.preventDefault()}"/>
+<button class="btn-add-tag" onclick="addNoteTag()">+ Tag</button>
+</div>
+<div class="tags-preview" id="nf-tags-preview"></div>
+</div>
+<div class="modal-actions">
+<button class="btn-cancel" onclick="closeNoteModal()">Cancelar</button>
+<button class="btn-save" onclick="saveNote()">Salvar</button>
+</div>
+</div>
+</div>
+
+<!-- FLOATING EDITOR -->
+<div class="floating-editor" id="floatingEditor">
+<button class="fe-btn" data-cmd="bold" title="Negrito"><b>B</b></button>
+<button class="fe-btn" data-cmd="italic" title="Itálico"><i>I</i></button>
+<button class="fe-btn" data-cmd="underline" title="Sublinhado"><u>U</u></button>
+<button class="fe-btn" data-cmd="strikeThrough" title="Riscado"><s>S</s></button>
+<div class="fe-sep"></div>
+<select class="fe-select" id="fontFamilySel" title="Fonte">
+<option value="">Fonte</option><option value="'DM Sans', sans-serif">DM Sans</option>
+<option value="'Poppins', sans-serif">Poppins</option><option value="'DM Mono', monospace">DM Mono</option>
+<option value="Georgia, serif">Georgia</option>
+</select>
+<select class="fe-select" id="fontSizeSel" title="Tamanho">
+<option value="">Tam.</option><option value="11px">11</option><option value="13px">13</option>
+<option value="16px">16</option><option value="20px">20</option><option value="26px">26</option>
+</select>
+<div class="fe-sep"></div>
+<div class="palette-wrap">
+<button class="fe-btn" id="textPaletteBtn" title="Cor do texto" style="color:var(--gold-light)">A</button>
+<div class="palette-menu" id="textPaletteMenu"></div>
+</div>
+<div class="palette-wrap">
+<button class="fe-btn" id="bgPaletteBtn" title="Cor de fundo">🖍️</button>
+<div class="palette-menu" id="bgPaletteMenu"></div>
+</div>
+<div class="fe-sep"></div>
+<button class="fe-btn" id="insertDescImageBtn" title="Inserir imagem">🖼️</button>
+<input type="file" id="descImageInput" accept="image/*" multiple style="display:none"/>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GRADE_MAESTRIA = {"Simples nacional": ["Fiscal: onboarding", "Fiscal: obrigações acessórias - simples nacional (parte i)", "Fiscal: obrigações acessórias - simples nacional (parte ii)", "Fiscal: conceitos simples nacional", "Fiscal: limites e sublimites simples nacional", "Fiscal: rbt x rba", "Fiscal: cfop e csosn simples nacional", "Fiscal: regime de caixa e competência simples nacional", "Fiscal: apuração empresas comerciais", "Fiscal: início de atividade", "Fiscal: substituição tributária - simples nacional", "Fiscal: apuração simples nacional produtos monofásicos", "Fiscal: difal - simples nacional - entradas interestaduais", "Fiscal: difal - uso e consumo e imobilizado", "Fiscal: difal - venda consumidor final", "Fiscal: ganho de capital simples nacional", "Fiscal: apuração empresas anexo ii", "Fiscal: apuração empresas anexo iii", "Fiscal: apuração empresas anexo iii - iss retido na fonte", "Fiscal: apuração transportadora simples nacional", "Fiscal: apuração anexo iv empresas construção civil", "Fiscal: empresas construção civil - retenção na fonte de inss", "Fiscal: fator r - anexo v", "Fiscal: apuração empresas anexo v", "Fiscal: distribuição de lucros presunção - simples nacional", "Fiscal: defis - simples nacional", "Fiscal: reinf", "Fiscal: motivos exclusão simples nacional", "Contábil: livro caixa simples nacional", "Contábil: plano de contas simples nacional", "Contábil: itg 1000 - micro e pequenas empresas", "Contábil: balanço de abertura / balanço perguntado", "Contábil: principais lançamentos contábeis - capital social", "Contábil: folha de pagto - 01", "Contábil: folha de pagto - 02", "Contábil: folha de pagto - 03", "Contábil: folha de pagto - 04", "Contábil: folha de pagto - 05", "Contábil: contabilizações diversas", "Contábil: depreciação contábil x depreciação fiscal", "Contábil: contrato de mútuo", "Contábil: dre - demonstração do resultado", "Pessoal: passos iniciais esocial", "Pessoal: aula 01", "Pessoal: aula 02", "Pessoal: aula 03", "Pessoal: aula 04", "Pessoal: aula 05", "Pessoal: aula 06", "Pessoal: aula 07", "Pessoal: aula 08 - obrigatoriedade pró labore", "Pessoal: aula 09 - eventos esocial parte i", "Pessoal: aula 10 - eventos esocial parte ii", "Pessoal: aula 11 - 13º salário parte i", "Pessoal: aula 12 - 13º salário parte ii", "Pessoal: aula 13 - rescisão trabalhista - parte i", "Pessoal: aula 14 - rescisão trabalhista - parte ii", "Carteira de clientes"], "Lucro Presumido": ["Onboarding", "Fiscal: obrigações acessórias lucro presumido", "Fiscal: conceitos lucro presumido - empresas industriais e de serviços", "Fiscal: conceitos lucro presumido e percentuais de presunção", "Fiscal: apuração lucro presumido empresa comercial", "Fiscal: apuração lucro presumido clínicas médicas odontológicas e afins", "Fiscal: apuração lucro presumido transportadora", "Fiscal: legislações importantes lucro presumido - retenções na fonte irpf", "Fiscal: legislações importantes lucro presumido - retenções na fonte iss e pis e cofins e csll", "Fiscal: legislações importantes lucro presumido - retenções na fonte inss", "Fiscal: empresa simples nacional desenquadrou... e agora no lucro presumido?", "Fiscal: regime de caixa e regime de competência", "Fiscal: conceitos icms - aula 01", "Fiscal: conceitos icms - aula 02", "Fiscal: cfop e cst icms", "Fiscal: substituição tributária - aula 01", "Fiscal: substituição tributária - aula 02", "Fiscal: cálculo icms st - mva", "Fiscal: difal - uso e consumo e imobilizado", "Fiscal: difal - venda consumidor final", "Fiscal: apuração icms", "Contábil: balanço de abertura / balanço perguntado", "Contábil: principais lançamentos contábeis - capital social", "Contábil: folha de pagto - 01", "Contábil: folha de pagto - 02", "Contábil: folha de pagto - 03", "Contábil: folha de pagto - 04", "Contábil: folha de pagto - 05", "Contábil: contabilizações diversas", "Contábil: depreciação contábil x depreciação fiscal", "Contábil: contrato de mútuo", "Contábil: dre - demonstração do resultado", "Pessoal: passos iniciais esocial", "Pessoal: aula 01", "Pessoal: aula 02", "Pessoal: aula 03", "Pessoal: aula 04", "Pessoal: aula 05", "Pessoal: aula 06", "Pessoal: aula 07", "Pessoal: aula 08 - obrigatoriedade pró labore", "Pessoal: aula 09 - eventos esocial parte i", "Pessoal: aula 10 - eventos esocial parte ii", "Pessoal: aula 11 - 13º salário parte i", "Pessoal: aula 12 - 13º salário parte ii", "Lucro real"], "Lucro Real": ["Fiscal: prejuízos fiscais exercícios anteriores", "Fiscal: conceitos icms parte i", "Fiscal: conceitos icms parte ii", "Fiscal: substituição tributária - parte i", "Fiscal: substituição tributária - parte ii", "Fiscal: cálculo icms st - mva", "Fiscal: difal - uso e consumo e imobilizado", "Fiscal: difal - venda consumidor final", "Fiscal: benefícios fiscais icms", "Fiscal: apuração icms", "Fiscal: efd icms/ipi", "Fiscal: pis e cofins não cumulativo", "Fiscal: parametrização pis e cofins na prática", "Fiscal: produtos monofásicos e produtos alíquota zero pis e cofins", "Fiscal: apuração pis e cofins", "Fiscal: efd contribuições", "Fiscal: apuração iss - prestadores de serviços", "Fiscal: iss retido na fonte", "Fiscal: retenção na fonte inss", "Fiscal: retenção na fonte irrf", "Fiscal: retenção pis cofins csll", "Fiscal: dctf", "Fiscal: reinf", "Aula 01 - empresas obrigadas ao lucro real", "Aula 02 - rotinas fiscais", "Aula 03 - rotinas trabalhistas", "Aula 04 - rotinas contábeis", "Aula 05 - benefícios fiscais", "Aula 06 - apuração lucro real trimestral - despesas dedutíveis", "Aula 07 - apuração lucro real trimestral - despesas indedutíveis", "Aula 08 - lucro real trimestral", "Aula 09 - apuração lucro real anual", "Aula 10 - apuração lucro real na prática", "Aula 11 - ecf lucro real", "Aula 12 - ecf lucro real", "Aula 13 - ecf lucro real", "Aula 14 - ecf lucro real", "Aula 15 - ecf lucro real", "Contábil: balanço de abertura / balanço perguntado", "Contábil: principais lançamentos contábeis - capital social", "Contábil: folha de pagto - 01", "Contábil: folha de pagto - 02", "Contábil: folha de pagto - 03", "Contábil: folha de pagto - 04", "Contábil: folha de pagto - 05", "Contábil: contabilizações diversas", "Contábil: depreciação contábil x depreciação fiscal", "Contábil: contrato de mútuo", "Contábil: dre - demonstração do resultado", "Pessoal: passos iniciais esocial", "Pessoal: aula 01", "Pessoal: aula 02", "Pessoal: aula 03", "Pessoal: aula 04", "Pessoal: aula 05", "Pessoal: aula 06", "Pessoal: aula 07", "Pessoal: aula 08 - obrigatoriedade pró labore", "Pessoal: aula 09 - eventos esocial parte i", "Pessoal: aula 10 - eventos esocial parte ii", "Pessoal: aula 11 - 13º salário parte i", "Pessoal: aula 12 - 13º salário parte ii", "Mentoria lucro arbitrado", "Planejamento tributário"], "Reforma Tributária": ["Reforma tributária ibs/cbs 2023", "Aula 01 - reforma tributária", "Aula 02 - reforma tributária", "Aula 03 - reforma tributária", "Aula 04 - reforma tributária", "Reforma tributária - emenda constitucional 132", "Reforma tributária - material explicativo p/ clientes", "Reforma tributária 2024 - aula 01", "Reforma tributária 2024 - aula 02", "Reforma tributária - construção civil e patrimonial", "Reforma tributária - impactos contabilidade", "Reforma tributária - área saúde", "Reforma tributária - drogarias e autopeças", "Atualização: fiscalização pix e reforma tributária 2025", "Holding"], "Temas Especiais": ["Reforma tributária: aula 01", "Reforma tributária: aula 02", "Reforma tributária: aula 03", "Reforma tributária: aula 04", "Reinf: introdução", "Reinf: prazo de envio e multas", "Reinf: r-1000 e r-1070", "Reinf: r-2010", "Reinf: r-2020", "Reinf: r-2030 e r-2040", "Reinf: r-2050", "Reinf: r-2055", "Reinf: r-2060", "Reinf: r-3010", "Reinf: r-4010", "Reinf: r-4020", "Reinf: r-4040", "Reinf: r-4080", "Legalização"], "Planejamento Tributário": ["Mentoria planejamento para clínicas médicas e odontológicas: de 32% para 8%", "Planejamento tributário cases reais", "Planejamento tributário prático - empresa produtos informática", "Planejamento tributário - utilização planilha", "Planejamento tributário prático - cases reais 2021", "Clinicas médicas, odontológicas e afins de a à z - aula 01", "Clinicas médicas, odontológicas - planejamento tributário - aula 02", "Transportadoras de a a z (2024) - parte 01", "Transportadora de a à z (2024) - parte ii (planejamento tributário)", "Construtoras de a à z", "Planejamento tributário construtoras de a à z (2024)", "Reforma tributária"], "Departamento Contábil": ["Módulo 01: conceitos e objetivos", "Módulo 01: obrigatoriedade simples nacional", "Módulo 01: convergência das normas", "Módulo 01: usuários da informação contábil", "Módulo 02: responsabilidade criminal do contador", "Módulo 02: responsabilidade civil e tributária", "Módulo 02: responsabilidade do contador: ética", "Módulo 03: lei 12.973 e instrução n. 1700", "Módulo 03: lei 12.973 parte ii", "Módulo 03: plano de contas, classificação das contas", "Módulo 04: operações com a conta caixa", "Módulo 04: operações com a conta banco", "Módulo 04: operações com a conta mercadoria", "Módulo 04: operações de provisionamento", "Módulo 04: operações com a conta capital", "Módulo 04: abatimentos e descontos", "Módulo 04: icms, ipi, pis e cofins - vendedor", "Módulo 04: icms, ipi, pis e cofins - comprador", "Módulo 04: contabilização de impostos, outros", "Módulo 04: livro caixa na prática", "Módulo 05: estoques, critérios de avaliação", "Módulo 05: estoques, contabilização", "Módulo 05: controle de estoques", "Módulo 05: imobilizado", "Módulo 05: imobilizado, depreciação e taxas", "Módulo 05: imobilizado, depreciação contábil x depreciação fiscal", "Módulo 05: contabilização: depreciação contábil x depreciação fiscal", "Módulo 05: intangível", "Módulo 06: demonstração contábeis (balanço patrimonial)", "Módulo 06: demonstração contábeis (dre)", "Módulo 06: demonstração contábeis (dfc)", "Módulo 06: introdução a análises", "Módulo 06: fluxo de caixa direto", "Módulo 06: lalur", "Módulo 07: conciliação contábil, introdução", "Módulo 07: conciliação x análise contábil", "Módulo 07: dúvidas gerais", "Módulo 07: contas que devem ser analisadas/conciliadas", "Módulo 07: formas de retificação de lançamentos", "Módulo 07: ajustes de exercícios anteriores", "Módulo 07: contrato de mútuo", "Módulo 07: dúvidas gerais part. 2", "Módulo 08: encerramento do exercício", "Módulo 08: distribuição de lucros - parte 1", "Módulo 08: distribuição de lucros - parte 2", "Módulo 09: capital de giro", "Módulo 09: índices de liquidez", "Módulo 09: índices de atividade (giro)", "Módulo 09: índices de endividamento", "Módulo 09: índices de alavancagem financeira", "Módulo 10: indicadores parte 1", "Módulo 10: indicadores parte 2", "Módulo 10: indicadores parte 3", "Módulo 10: indicadores parte 4", "Módulo 10: indicadores parte 5", "Módulo 10: indicadores parte 6", "Departamento pessoal"], "Departamento Pessoal": ["Módulo 01: princípios trabalhistas", "Módulo 01: reforma trabalhista de 2017 - parte i", "Módulo 01: reforma trabalhista de 2017 - parte ii", "Módulo 02: acordo coletivo x convenção coletiva", "Módulo 02: cbo", "Módulo 02: fpas", "Módulo 02: fap e rat", "Módulo 02: salário família", "Módulo 02: dependentes do ir", "Módulo 02: banco de horas", "Módulo 02: dsr - descanso semanal remunerado", "Módulo 02: ponto eletrônico", "Módulo 02: pensão alimentícia", "Módulo 02: vale transporte", "Módulo 03: conceito contrato de trabalho", "Módulo 03: tipos de contrato de trabalho", "Módulo 03: contrato de trabalho intermitente e temporário", "Módulo 03: homeoffice e aprendizagem", "Módulo 03: contrato de estagio e pcd", "Módulo 03: jornada de trabalho", "Módulo 03: contrato em tempo parcial", "Módulo 03: jornada 12 x 36", "Módulo 03: trabalho noturno", "Módulo 03: turno ininterrupto de revezamento", "Módulo 03: descanso semanal", "Módulo 03: faltas justificadas", "Módulo 03: periculosidade e insalubridade", "Módulo 03: exames médicos", "Módulo 03: participação lucros e resultados", "Módulo 03: comissões", "Módulo 03: prêmios e abonos", "Módulo 03: pat", "Módulo 03: salário, piso salarial e remuneração", "Módulo 04: folha de pagamento - proventos", "Módulo 04: folha de pagamento - descontos", "Módulo 04: folha de pagamento - processo de admissão", "Módulo 04: folha de pagamento - rescisão", "Módulo 04: folha de pagamento - rescisão - saque fgts", "Módulo 04: folha de pagamento - rescisão - seguro desemprego", "Módulo 04: como funciona a seguridade social", "Módulo 04: entendendo a ctps digital", "Módulo 04: documentos para admissão", "Módulo 04: ficha de registro (livro)", "Módulo 04: declaração de opção do fgts", "Módulo 04: declaração de encargos de família para fins de imposto de renda", "Módulo 04: caged", "Módulo 04: autorização de desconto de vale alimentação ou refeição", "Módulo 04: termo de opção de plano de saúde", "Módulo 04: dirf 2021", "Módulo 05: mei e o esocial (informações importantes)", "Módulo 05: ctps digital no esocial", "Módulo 05: cadastro inicial da empresa no esocial - evento s-1000", "Módulo 05: rat e fap - evento s-1005", "Módulo 05: rubricas - evento s-1010", "Módulo 05: lotação tributária (definição do fpas) - evento s-1020", "Módulo 05: processos administrativos e judiciais - evento s-1070", "Módulo 05: eventos periódicos esocial", "Módulo 05: remuneração do trabalhador - evento s-1200", "Módulo 05: pagamento ao trabalhador - evento s-1210", "Módulo 05: comercialização da produção rural produtor pf - evento s-1260", "Módulo 05: contratação do trabalhador avulso - evento s1270", "Módulo 05: informações sobre a cprb - evento s-1280", "Módulo 05: cadastro de funcionários - evento s-2200", "Módulo 06: 13º salário", "🚀 mentoria 2022"], "Legalização": ["01 - natureza jurídica", "02 - cnae", "03 - razão social e nome fantasia", "04 - contrato social", "05 - uso do solo", "06 - redesim", "07 - aula processo abertura", "08 -fcn", "09 - dbe", "11 - alvará de funcionamento", "12 - inscrição estadual", "13 - regimes tributários", "14 - prazos opção simples", "15 - contrato prestação de serviços contábeis", "Simples nacional"], "Holding": ["Mentoria holding - aula 1", "Mentoria holding - aula 2 (itbi e gcap)", "Mentoria holding - aula 3", "Mentoria holding - aula 4", "Mentoria holding - aula 5 (modelos de contratos holding)", "Mentoria holding - parte i - conceitos e legislação", "Holding 2024 - aula 02", "Departamento contábil"], "Carteira de Clientes": ["Precificação contábil - aula 1", "Precificação contábil - aula 2", "Precificação contábil - aula 3", "Reforma tributária - material explicativo p/ clientes", "Lucro presumido"], "Oportunidades": ["Esocial doméstico: boas vindas", "Esocial doméstico: bases legais empregado doméstico", "Esocial doméstico: direitos do empregado doméstico", "Esocial doméstico: analisando direitos do empregado doméstico", "Esocial doméstico: acordo de compensação de jornada", "Esocial doméstico: férias", "Esocial doméstico: salário maternidade", "Esocial doméstico: afastamento por doença", "Esocial doméstico: tipos de demissão", "Esocial doméstico: procuração na prática", "Esocial doméstico: esocial na prática", "Esocial doméstico: esocial", "Esocial doméstico: gestão de empregados", "Esocial doméstico: substituição empregador doméstico", "Esocial doméstico: fechamento mensal folha de pagamento", "Esocial doméstico: edição da guia empregador doméstico", "Esocial doméstico: afastamento", "Esocial doméstico: rescisão", "Esocial doméstico: rescisão contrato de trabalho", "Esocial doméstico: finalização trilha empregado doméstico", "Declaração irpf: aula 01", "Declaração irpf: aula 02", "Declaração irpf: aula 03", "Declaração irpf: aula 04", "Declaração irpf: aula 05", "Declaração irpf: aula 06", "Declaração irpf: aula 07", "Declaração irpf: aula 08", "Regularização de obras e reformas - pj e pf", "Regularização de obras e reformas - pj e pf (sero)", "Marcas e patentes", "Temas especiais"], "Maratona Regimes Tributários - Janeiro 2025": ["Aula 1: simples nacional do a ao z", "Aula 2: apurando o lucro presumido", "Aula 3: descomplicando o lucro real", "Aula 4: planejamento tributário na prática", "Atualização diária - contabil 818"], "Operação Reforma Tributária": ["Estruturação reforma tributária"], "Estruturação Reforma Tributária": ["Aula 01 - estruturação reforma tributária - 19/01", "Aula 02 - estruturação reforma tributária - 20/01", "Aula 03 - estruturação reforma tributária - 21/01", "Aula 04 - estruturação reforma tributária - 22/01", "Aula 05 - estruturação reforma tributária - 23/01"], "Mentorias 2026": ["Mentoria - prepare seus clientes para reforma tributária", "Devedor contumaz: impactos da lc 225/2026", "Mentoria cbs e ibs na prática", "Mentoria cclasstrib na prática", "Mentoria - como transformar a reforma tributária em novos serviços de alto valor e construir receita", "Mentoria - fim da dirf - efd reinf e e-social uma nova era", "Mentoria - mei de a a z", "Mentoria - recuperação tributária e o fim da efd contribuições", "Mentoria - apuração assistida na prática", "Mentoria - irpf espólio", "Mentoria - irpf investimentos", "Mentoria - irpf de a a z", "Mentoria - lc 224/2025 redução linear de 10% nos benefícios fiscais federais", "Mentoria - e-bef formulário digital de beneficiários finais", "Mentoria - imposto seletivo: quem paga, quanto paga e o que seu cliente precisa saber", "Mentoria - resolução cgibs nº6, de 30 de abril de 2026", "Mentoria - preparando empresas do simples nacional para reforma tributária", "Mentoria - reforma tributária: fim do pis e cofins e impactos no estoque", "Mentoria - reforma tributária: lc 227", "Mentorias 2025"], "Mentorias 2025": ["Orientações sobre \"fiscalização pix\" - in 2219", "Atualização: fiscalização pix e reforma tributária 2025", "Dominando o simples nacional 2025", "Dirf - dmed - dimob", "Perdcomp na prática 2025", "Dctfweb - mit 2025", "Dctfweb mit pratico", "Mentoria sero e cno - parte 1", "Mentoria sero e cno - regularização de obras - parte 2", "Atualização nr 01 - riscos psicossociais", "Irpf 2025 - mei e servidores públicos (ia - assistente irpf 2025)", "Irpf 2025 - autônomos deduções livro caixa e carne leão", "Irpf 2025 - gcap", "Irpf 2025 - produtor rural", "Irpf 2025 - investimentos", "Irpf 2025 - rra", "Irpf 2025 - espólio", "Reforma tributária - fim dos benefícios fiscais - substituição tributária e prod. monofásicos", "Reforma tributária - split payment e o fim da st e produtos monofásicos", "Reforma tributária - lei complementar 214/2025", "Reforma tributária - lei complementar 214/2025 - parte ii", "Reforma tributária - produtor rural", "Ecf 2025 - lucro presumido igrejas e associações", "Ecf lucro real - aula 2", "Atualização 2025 - módulo administração tributária", "Atualizações dp 2025", "Layout split payment", "Reforma tributária - parametrização cbs ibs nfe", "Conciliação contábil 2025", "Oportunidades no setor societário", "Legalização abertura e encerramento de empresa 2025", "Oportunidades recuperação de créditos tributários", "Reforma tributária comércios e serviços", "Tributação dos lucros 2025", "E-commerce 2025", "Reforma tributária - mudanças simples nacional 2025", "Desenquadramento do mei e transformação para ltda", "Reforma tributária - locação e alienação de imóveis", "Reforma tributária - tributação dos lucros", "Mentoria - importações e exportações 2025", "Mentoria - cclasstrib", "Reforma tributária - construção civil e incorporação", "Irpf saída definitiva do brasil - 11/12/25", "Mentorias 2024"], "Mentorias 2024": ["Parcelamento e autorregularização incentivada 2024", "Prática mei", "Dirf, demed e dimob", "Inventário - bloco h efd - icms ipi", "Implementação simples nacional na prática", "Defis 2024", "Irpf 2024 - carnê leão e livro caixa", "Irpf 2024 - ganho de capital", "Fgts digital na prática", "Irpf 2024 - parte 3", "Irpf 2024 - parte 4", "Irpf 2024 - parte 5 - espólio", "Irpf 2024 - parte 6 - rra", "Irpf 2024 - parte 7 - investimentos", "Mentoria ecd 2024 (simples nacional - lucro presumido - lucro real)", "Lucro presumido - rotinas fiscal - contábil e pessoal", "Mentoria holding - parte i - conceitos e legislação", "Lucro real de a à z (2024)", "Igrejas de a à z (2024)", "Lanchonetes, bares e restaurantes de a à z", "Ecf - lucro presumido 2024", "Ecf 02 - lucro real - imunes e isentas", "Clinicas médicas, odontológicas e afins de a à z - aula 01", "Clinicas médicas, odontológicas - planejamento tributário - aula 02", "Dirbi - declarar incentivos, renúncias, benefícios e imunidades", "Drogarias de a à z - 2024", "Holding 2024 - aula 02", "Transportadoras de a a z (2024) - parte 01", "Transportadora de a à z (2024) - parte ii (planejamento tributário)", "Autopeças de a à z - 2024", "Construtoras de a à z", "Planejamento tributário construtoras de a à z (2024)", "Efd icms ipi 2024", "Efd contribuições - 2024", "Postos de combustíveis de a à z - 2024", "Reforma tributária 2024 - aula 01", "Reforma tributária - impactos contabilidade", "Reforma tributária - área saúde", "Reforma tributária - construção civil e patrimonial", "Reforma tributária - drogarias e autopeças", "Encerramento contábil - boas práticas", "Iss retido na fonte aspectos práticos do fim da dedução dos materiais", "Conselheiro contábil - analise de viabilidade econômica do cliente", "Conselheiro contábil - analise de viabilidade econômica do cliente - parte ii", "Gestão de crise financeira - endividamento do cliente", "Check-up empresarial - diagnóstico 360º para novos clientes", "Conselheiro contábil - inteligência artificial", "Conselheiro contábil - inteligência artificial - parte ii", "Oportunidades"], "🚀 Mentoria 2022": ["Mentoria - checklist simples nacional comércio", "Mentoria - checklist simples nacional serviço", "Mentoria sucatas e reciclagem", "🎬 mentoria maestria contábil 2021"], "🎬 Mentoria Maestria Contábil 2021": ["Cooperativas - itg 2004", "Farmácia e drogarias do a ao z na prática.", "Supermercados - do a ao z.", "Autopeças de a a z na prática (recuperação tributária simples nacional).", "Mentoria - condomínios do a ao z.", "Ganho de capital.", "Bares restaurantes e lanchonetes.", "Contabilidade consultiva", "Investidor anjo.", "Maratona regimes tributários - janeiro 2025"], "Atualização Diária - Contabil 818": ["Live contador referência 818 | 15/07/2024 - #01", "Live contador referência 818 | 16/07/2024 - #02", "Live contador referência 818 | 17/07/2024 - #03", "Live contador referência 818 | 18/07/2024 - #04", "Live contador referência 818 | 22/07/2024 - #06", "Live contador referência 818 | 23/07/2024 - #07", "Live contador referência 818 | 24/07/2024 - #08", "Live contador referência 818 | 25/07/2024 - #09", "Live contador referência 818 | 26/07/2024 - #10", "Live contador referência 818 | 29/07/2024 - #11", "Live contador referência 818 | 30/07/2024 - #12", "Live contador referência 818 | 31/07/2024 - #13", "Live contador referência 818 | 02/08/2024 - #15", "Live contador referência 818 | 05/08/2024 - #16", "Live contador referência 818 | 06/08/2024 - #17", "Live contador referência 818 | 07/08/2024 - #18", "Live contador referência 818 | 08/08/2024 - #19", "Live contador referência 818 | 09/08/2024 - #20", "Live contador referência 818 | 12/08/2024 - #21", "Live contador referência 818 | 13/08/2024 - #22", "Live contador referência 818 | 14/08/2024 - #23", "Live contador referência 818 | 15/08/2024 - #24", "Live contador referência 818 | 16/08/2024 - #25", "Live contador referência 818 | 19/08/2024 - #26", "Live contador referência 818 | 20/08/2024 - #27", "Live contador referência 818 | 21/08/2024 - #28", "Live contador referência 818 | 22/08/2024 - #29", "Live contador referência 818 | 23/08/2024 - #30", "Live contador referência 818 | 26/08/2024 - #31", "Live contador referência 818 | 27/08/2024 - #32", "Live contador referência 818 | 28/08/2024 - #33", "Live contador referência 818 | 29/08/2024 - #34", "Live contador referência 818 | 30/08/2024 - #35", "Live contador referência 818 | 02/09/2024 - #36", "Live contador referência 818 | 03/09/2024 - #37", "Live contador referência 818 | 04/09/2024 - #38", "Live contador referência 818 | 05/09/2024 - #39", "Live contador referência 818 | 06/09/2024 - #40", "Live contador referência 818 | 09/09/2024 - #41", "Live contador referência 818 | 10/09/2024 - #42", "Live contador referência 818 | 11/09/2024 - #43", "Live contador referência 818 | 12/09/2024 - #44", "Live contador referência 818 | 13/09/2024 - #45", "Live contador referência 818 | 16/09/2024 - #46", "Live contador referência 818 | 17/09/2024 - #47", "Live contador referência 818 | 18/09/2024 - #48", "Live contador referência 818 | 19/09/2024 - #49", "Live contador referência 818 | 20/09/2024 - #50", "Live contador referência 818 | 23/09/2024 - #51", "Live contador referência 818 | 30/09/2024 - #52", "Live contador referência 818 | 01/10/2024 - #53", "Live contador referência 818 | 02/10/2024 - #54", "Live contador referência 818 | 03/10/2024 - #55", "Live contador referência 818 | 04/10/2024 - #56", "Live contador referência 818 | 07/10/2024 - #57", "Live contador referência 818 | 08/10/2024 - #58", "Live contador referência 818 | 09/10/2024 - #59", "Live contador referência 818 | 10/10/2024 - #60", "Live contador referência 818 | 11/10/2024 - #61", "Live contador referência 818 | 14/10/2024 - #62", "Live contador referência 818 |15/10/2024 - #63", "Live contador referência 818 |16/10/2024 - #64", "Live contador referência 818 |17/10/2024 - #65", "Live contador referência 818 |21/10/2024 - #66", "Live contador referência 818 |22/10/2024 - #67", "Live contador referência 818 |23/10/2024 - #68", "Live contador referência 818 |24/10/2024 - #69", "Live contador referência 818 |25/10/2024 - #70", "Live contador referência 818 |28/10/2024 - #71", "Live contador referência 818 |30/10/2024 - #73", "Live contador referência 818 |31/10/2024 - #74", "Live contador referência 818 |01/11/2024 - #75", "Live contador referência 818 |04/11/2024 - #76", "Live contador referência 818 |05/11/2024 - #77", "Live contador referência 818 |06/11/2024 - #78", "Live contador referência 818 |08/11/2024 - #80", "Live contador referência 818 |11/11/2024 - #81", "Operação reforma tributária"]};
+const PROMPTS_SEED = [{"title": "🎴 Gerar Flashcards", "tech": "Active Recall", "body": "A partir do texto/assunto abaixo, gere 15 flashcards no formato Q: [pergunta] / R: [resposta]. Misture perguntas fáceis de recordação com perguntas mais difíceis de aplicação e análise. Para cada card, adicione uma linha 'por que importa' conectando a um resultado real.\n\n[COLE O TEXTO OU TEMA AQUI]"}, {"title": "🧒 Técnica Feynman", "tech": "Compreensão profunda", "body": "Explique [TEMA] como se eu tivesse 12 anos. Use uma analogia simples. Depois da explicação, me faça 3 perguntas de acompanhamento para testar se eu entendi de verdade o conceito central."}, {"title": "🔍 Active Recall (me interrogue)", "tech": "Retrieval practice", "body": "Você é meu tutor. Em vez de me dar respostas, me interrogue sobre [TEMA]. Me peça para explicar o conceito com minhas próprias palavras e depois critique quaisquer lacunas no meu entendimento. Não me entregue a resposta pronta."}, {"title": "💬 Diálogo Socrático", "tech": "Exposição de lacunas", "body": "Conduza um diálogo socrático comigo sobre [TEMA]. Faça perguntas guiadas, uma de cada vez, como 'Que evidência sustenta isso?' ou 'Qual suposição você está fazendo aqui?'. O objetivo é me fazer pensar, não me dar respostas."}, {"title": "📝 Simulado de Prova", "tech": "Preparação para exame", "body": "Crie 5 questões de múltipla escolha e 2 questões dissertativas sobre [TEMA], no nível [iniciante/intermediário/avançado]. Para as de múltipla escolha, inclua a explicação da resposta correta. Inclua 3-4 questões difíceis que mirem em erros comuns."}, {"title": "🗓️ Plano de Estudos Estruturado", "tech": "Sequenciamento", "body": "Crie um plano de estudos para [OBJETIVO], cobrindo [TEMAS], em [PRAZO]. Meu nível atual é [NÍVEL]. Sugira um cronograma semana a semana que priorize os tópicos certos na ordem certa, incorporando active recall, exercícios práticos e pausas curtas."}, {"title": "🕸️ Mapa Conceitual", "tech": "Conexões", "body": "Liste os conceitos-chave relacionados a [TEMA] e descreva as relações entre eles de forma que possa formar um mapa conceitual textual. Mostre o que conecta com o quê e por quê."}, {"title": "🍳 Analogia Sob Medida", "tech": "Fixação", "body": "Explique [CONCEITO DIFÍCIL] usando uma analogia do domínio de [contabilidade/cotidiano/futebol/culinária]. Quero algo que conecte com algo que eu já conheço para fixar mais rápido."}, {"title": "📖 Resumo de Aula/Capítulo", "tech": "Síntese", "body": "Transforme o conteúdo abaixo em um resumo estruturado: 1) os 3-5 pontos centrais, 2) os termos técnicos com definição curta, 3) um exemplo prático de aplicação, 4) os erros mais comuns sobre o tema.\n\n[COLE O CONTEÚDO]"}, {"title": "⚖️ Comparação em Tabela", "tech": "Diferenciação", "body": "Compare [TEMA A] e [TEMA B] em uma tabela simples, destacando as diferenças práticas que importam no dia a dia. No final, me diga em que situação eu uso cada um."}];
+const GOALS_SEED = [{"emoji": "🏛️", "title": "Dominar a Reforma Tributária", "color": "#77b7ff"}, {"emoji": "🏭", "title": "Transição para empresas industriais", "color": "#75e2c8"}, {"emoji": "💼", "title": "Estruturar o Fluignos", "color": "#d8b85c"}, {"emoji": "📊", "title": "Fechar competência sem erros", "color": "#f7a1d1"}];
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, push, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8",
+  authDomain:"sistema-de-vida-e6c68.firebaseapp.com",
+  databaseURL:"https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com",
+  projectId:"sistema-de-vida-e6c68",
+  storageBucket:"sistema-de-vida-e6c68.firebasestorage.app",
+  messagingSenderId:"590218702063",
+  appId:"1:590218702063:web:4586798cf9925edacb7f1a"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+
+let currentUser=null, basePath=null;
+let _progress={}, _notes=[], _goals=[];
+let _searchTrilha='', _tfilter='all', _goalFilter='all';
+let _searchNotes={anotacao:'',prompt:'',conhecimento:''}, _searchMetas='';
+let _seeded=false;
+
+function esc(s){return String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function keyFor(m,a){return (m+'::'+a).replace(/[.#$/\[\]]/g,'_');}
+function setSync(s,m){const e=document.getElementById('sync-status');e.className='sync-status '+s;e.textContent=m;}
+function iceScore(p){if(!p||!p.impact)return 0;return (p.impact||0)*(p.confidence||0)*(p.ease||0);}
+
+onAuthStateChanged(auth,user=>{
+  if(!user){window.location.href='index.html';return;}
+  currentUser=user;
+  basePath=`users/${user.uid}/modulos/estudos`;
+  listenData();
+});
+
+function listenData(){
+  setSync('busy','Carregando...');
+  onValue(ref(db,basePath+'/progress'),snap=>{
+    _progress=snap.val()||{};
+    renderTrilha();renderNextStep();renderStats();renderGoalFilter();
+    setSync('ok','Sincronizado ✓');
+  },err=>{console.error(err);setSync('warn','Offline');});
+  onValue(ref(db,basePath+'/notes'),snap=>{
+    const items=[];snap.forEach(c=>items.push({id:c.key,...c.val()}));
+    _notes=items;renderNotes();maybeSeed();
+  });
+  onValue(ref(db,basePath+'/goals'),snap=>{
+    const items=[];snap.forEach(c=>items.push({id:c.key,...c.val()}));
+    _goals=items;renderGoals();renderGoalFilter();renderTrilha();maybeSeed();
+  });
+}
+
+// Semear prompts e metas na primeira vez
+async function maybeSeed(){
+  if(_seeded)return;
+  _seeded=true;
+  // só semeia se não houver nada ainda
+  setTimeout(async()=>{
+    if(_goals.length===0){
+      for(const g of GOALS_SEED){
+        await push(ref(db,basePath+'/goals'),{...g,createdAt:Date.now()});
+      }
+    }
+    const hasPrompts=_notes.some(n=>n.type==='prompt');
+    if(!hasPrompts){
+      for(const p of PROMPTS_SEED){
+        await push(ref(db,basePath+'/notes'),{type:'prompt',title:p.title,body:p.body,
+          source:p.tech?('Técnica: '+p.tech):'',tags:p.tech?[p.tech]:[],createdAt:Date.now(),seeded:true});
+      }
+    }
+  },800);
+}
+
+// ═══ METAS ═══
+function goalById(id){return _goals.find(g=>g.id===id);}
+
+function renderGoals(){
+  const grid=document.getElementById('goals-grid');
+  const term=_searchMetas.toLowerCase();
+  let items=_goals.filter(g=>!term||(g.title||'').toLowerCase().includes(term));
+  grid.innerHTML='';
+  if(!items.length){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><span class="emoji">🎯</span>Crie metas para dar propósito aos seus estudos.<br>Cada aula pode ser vinculada a uma meta.</div>';
+    return;
+  }
+  items.forEach(g=>{
+    // contar aulas vinculadas e progresso
+    let linked=0,done=0;
+    Object.entries(_progress).forEach(([k,p])=>{
+      if(p.goals&&p.goals.includes(g.id)){linked++;if(p.done)done++;}
+    });
+    const pct=linked?Math.round(done/linked*100):0;
+    const div=document.createElement('div');
+    div.className='goal-card';
+    div.style.borderLeftColor=g.color||'#d8b85c';
+    div.innerHTML=`
+      <div class="gc-emoji">${g.emoji||'🎯'}</div>
+      <div class="gc-title">${esc(g.title)}</div>
+      <div class="gc-meta">${linked} aula(s) · ${done} concluída(s)</div>
+      <div class="gc-progress"><div class="gc-progress-fill" style="width:${pct}%;background:${g.color||'#d8b85c'}"></div></div>
+      ${g.why?`<div style="font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:12px;font-style:italic">${esc(g.why)}</div>`:''}
+      <div class="gc-actions">
+        <button class="card-btn" data-edit-goal="${g.id}">✏️ Editar</button>
+        <button class="card-btn" data-view-goal="${g.id}">👁️ Ver aulas</button>
+        <button class="card-btn danger" data-del-goal="${g.id}">🗑️</button>
+      </div>`;
+    div.querySelector('[data-edit-goal]').addEventListener('click',()=>openGoalEdit(g));
+    div.querySelector('[data-view-goal]').addEventListener('click',()=>{
+      _goalFilter=g.id;
+      document.querySelector('.tab[data-tab="trilha"]').click();
+      renderGoalFilter();renderTrilha();
+    });
+    div.querySelector('[data-del-goal]').addEventListener('click',()=>deleteGoal(g.id));
+    grid.appendChild(div);
+  });
+}
+
+function renderGoalFilter(){
+  const bar=document.getElementById('goal-filter');
+  if(!_goals.length){bar.innerHTML='';return;}
+  let html=`<div class="goal-pill ${_goalFilter==='all'?'active':''}" data-gf="all">📚 Todas as metas</div>`;
+  _goals.forEach(g=>{
+    html+=`<div class="goal-pill ${_goalFilter===g.id?'active':''}" data-gf="${g.id}" style="${_goalFilter===g.id?'border-color:'+(g.color||'#d8b85c'):''}">${g.emoji||'🎯'} ${esc(g.title)}</div>`;
+  });
+  bar.innerHTML=html;
+  bar.querySelectorAll('[data-gf]').forEach(p=>{
+    p.addEventListener('click',()=>{_goalFilter=p.dataset.gf;renderGoalFilter();renderTrilha();});
+  });
+}
+
+// ═══ MODAL META ═══
+const EMOJI_OPTS=['🎯','🏛️','🏭','💼','📊','🧠','🚀','⚖️','💰','📈','🏆','🔑','🌱','🧩','📚','💡'];
+const COLOR_OPTS=['#d8b85c','#77b7ff','#75e2c8','#f7a1d1','#b8a4ff','#ffc36a','#ff7d7d','#ffe08a'];
+let goalEmoji='🎯', goalColor='#d8b85c', editingGoalId=null;
+
+window.openGoalModal=function(){
+  editingGoalId=null;goalEmoji='🎯';goalColor='#d8b85c';
+  document.getElementById('goal-modal-title').innerHTML='🎯 Nova <span>Meta</span>';
+  document.getElementById('gf-title').value='';
+  document.getElementById('gf-why').value='';
+  renderEmojiPicker();renderColorPicker();
+  document.getElementById('goal-modal').classList.add('open');
+};
+function openGoalEdit(g){
+  editingGoalId=g.id;goalEmoji=g.emoji||'🎯';goalColor=g.color||'#d8b85c';
+  document.getElementById('goal-modal-title').innerHTML='✏️ Editar <span>Meta</span>';
+  document.getElementById('gf-title').value=g.title||'';
+  document.getElementById('gf-why').value=g.why||'';
+  renderEmojiPicker();renderColorPicker();
+  document.getElementById('goal-modal').classList.add('open');
+}
+window.closeGoalModal=function(){document.getElementById('goal-modal').classList.remove('open');};
+function renderEmojiPicker(){
+  document.getElementById('gf-emoji-row').innerHTML=EMOJI_OPTS.map(e=>
+    `<div class="emoji-opt ${e===goalEmoji?'selected':''}" data-emoji="${e}">${e}</div>`).join('');
+  document.querySelectorAll('[data-emoji]').forEach(el=>el.addEventListener('click',()=>{goalEmoji=el.dataset.emoji;renderEmojiPicker();}));
+}
+function renderColorPicker(){
+  document.getElementById('gf-color-row').innerHTML=COLOR_OPTS.map(c=>
+    `<div class="color-opt ${c===goalColor?'selected':''}" data-color="${c}" style="background:${c}"></div>`).join('');
+  document.querySelectorAll('[data-color]').forEach(el=>el.addEventListener('click',()=>{goalColor=el.dataset.color;renderColorPicker();}));
+}
+window.saveGoal=async function(){
+  const title=document.getElementById('gf-title').value.trim();
+  if(!title){showToast('Título obrigatório');return;}
+  const data={title,why:document.getElementById('gf-why').value.trim(),emoji:goalEmoji,color:goalColor,updatedAt:Date.now()};
+  closeGoalModal();
+  try{
+    if(!editingGoalId){data.createdAt=Date.now();await push(ref(db,basePath+'/goals'),data);}
+    else await update(ref(db,basePath+'/goals/'+editingGoalId),data);
+    showToast(editingGoalId?'Meta atualizada ✓':'Meta criada ✓');
+  }catch(e){showToast('Erro ao salvar');}
+};
+async function deleteGoal(id){
+  if(!confirm('Remover esta meta? As aulas vinculadas perderão o vínculo.'))return;
+  try{await remove(ref(db,basePath+'/goals/'+id));showToast('Meta removida');}catch(e){}
+}
+
+// ═══ TRILHA ═══
+const MODULE_ICONS={'Simples nacional':'📘','Lucro Presumido':'📗','Lucro Real':'📕','Reforma Tributária':'🏛️','Temas Especiais':'⭐','Planejamento Tributário':'🎯','Departamento Contábil':'📊','Departamento Pessoal':'👥','Legalização':'📜','Holding':'🏢','Carteira de Clientes':'🤝','Oportunidades':'🚀'};
+
+function renderTrilha(){
+  const list=document.getElementById('modules-list');
+  list.innerHTML='';
+  const term=_searchTrilha.toLowerCase();
+  Object.entries(GRADE_MAESTRIA).forEach(([mod,aulas])=>{
+    let visible=aulas.map((a,i)=>({a,i})).filter(({a})=>{
+      const k=keyFor(mod,a);const p=_progress[k]||{};
+      if(term&&!a.toLowerCase().includes(term)&&!mod.toLowerCase().includes(term))return false;
+      if(_tfilter==='scored'&&!iceScore(p))return false;
+      if(_tfilter==='priority'&&!p.star)return false;
+      if(_tfilter==='pending'&&p.done)return false;
+      if(_goalFilter!=='all'&&!(p.goals&&p.goals.includes(_goalFilter)))return false;
+      return true;
+    });
+    if(!visible.length)return;
+    // ordenar por ICE desc dentro do módulo
+    visible.sort((x,y)=>iceScore(_progress[keyFor(mod,y.a)])-iceScore(_progress[keyFor(mod,x.a)]));
+    const total=aulas.length;
+    const done=aulas.filter(a=>(_progress[keyFor(mod,a)]||{}).done).length;
+    const pct=Math.round(done/total*100);
+    const icon=MODULE_ICONS[mod]||'📖';
+    const card=document.createElement('div');
+    card.className='module-card';
+    card.innerHTML=`
+      <div class="module-head">
+        <div class="module-icon">${icon}</div>
+        <div class="module-info">
+          <div class="module-name">${esc(mod)}</div>
+          <div class="module-meta">${done}/${total} aulas · ${visible.length} visíveis</div>
+        </div>
+        <div class="module-progress-ring">
+          <div class="progress-bar-mini"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+          <span class="progress-pct">${pct}%</span>
+        </div>
+        <span class="module-chevron">▶</span>
+      </div>
+      <div class="module-body"><div class="module-aulas"></div></div>`;
+    const cont=card.querySelector('.module-aulas');
+    visible.forEach(({a,i})=>cont.appendChild(renderAula(mod,a,i)));
+    card.querySelector('.module-head').addEventListener('click',()=>card.classList.toggle('open'));
+    list.appendChild(card);
+    if(term||_tfilter!=='all'||_goalFilter!=='all')card.classList.add('open');
+  });
+  if(!list.children.length)list.innerHTML='<div class="empty-state"><span class="emoji">🔍</span>Nenhuma aula encontrada com esse filtro.</div>';
+}
+
+function renderAula(mod,aula,idx){
+  const k=keyFor(mod,aula);const p=_progress[k]||{};
+  const div=document.createElement('div');
+  div.className='aula-item'+(p.done?' done':'');
+  const checkCls=p.done?'done':(p.watching?'watching':'');
+  const checkIcon=p.done?'✓':(p.watching?'◐':'');
+  const score=iceScore(p);
+  const iceCls=score>=200?'high':(score>0?'has-score':'');
+  const iceTxt=score>0?('ICE '+score):'+ ICE';
+  // tags de metas vinculadas
+  let goalTags='';
+  if(p.goals&&p.goals.length){
+    goalTags='<div class="aula-goals">'+p.goals.map(gid=>{
+      const g=goalById(gid);if(!g)return '';
+      return `<span class="aula-goal-tag" style="color:${g.color};background:${g.color}1a;border:1px solid ${g.color}33">${g.emoji} ${esc(g.title)}</span>`;
+    }).join('')+'</div>';
+  }
+  div.innerHTML=`
+    <div class="aula-check ${checkCls}" title="Marcar progresso">${checkIcon}</div>
+    <div class="aula-main">
+      <div class="aula-title">${esc(aula)}</div>
+      ${goalTags}
+    </div>
+    <div class="ice-badge ${iceCls}" title="Definir prioridade ICE e metas">${iceTxt}</div>
+    <div class="aula-actions">
+      <button class="aula-mini-btn star ${p.star?'on':''}" title="Destacar">${p.star?'⭐':'☆'}</button>
+    </div>`;
+  div.querySelector('.aula-check').addEventListener('click',e=>{
+    e.stopPropagation();
+    const cur=_progress[k]||{};let next;
+    if(!cur.watching&&!cur.done)next={...cur,watching:true,done:false};
+    else if(cur.watching&&!cur.done)next={...cur,watching:false,done:true};
+    else next={...cur,watching:false,done:false};
+    saveProgress(k,next);if(next.done)celebrate();
+  });
+  div.querySelector('.ice-badge').addEventListener('click',e=>{e.stopPropagation();openIceModal(mod,aula,k);});
+  div.querySelector('.star').addEventListener('click',e=>{e.stopPropagation();const cur=_progress[k]||{};saveProgress(k,{...cur,star:!cur.star});});
+  return div;
+}
+
+async function saveProgress(k,val){
+  _progress[k]=val;
+  renderTrilha();renderNextStep();renderStats();renderGoals();
+  setSync('busy','Salvando...');
+  try{await set(ref(db,basePath+'/progress/'+k),val);setSync('ok','Sincronizado ✓');}catch(e){setSync('warn','Erro');}
+}
+
+// ═══ MODAL ICE ═══
+let iceKey=null;
+let iceGoals=[];
+window.openIceModal=function(mod,aula,k){
+  iceKey=k;
+  const p=_progress[k]||{};
+  iceGoals=p.goals?[...p.goals]:[];
+  document.getElementById('ice-aula-name').textContent=aula;
+  document.getElementById('ice-impact').value=p.impact||5;
+  document.getElementById('ice-confidence').value=p.confidence||5;
+  document.getElementById('ice-ease').value=p.ease||5;
+  updateIceDisplay();
+  renderIceGoalList();
+  document.getElementById('ice-modal').classList.add('open');
+};
+window.closeIceModal=function(){document.getElementById('ice-modal').classList.remove('open');};
+function updateIceDisplay(){
+  const i=+document.getElementById('ice-impact').value;
+  const c=+document.getElementById('ice-confidence').value;
+  const e=+document.getElementById('ice-ease').value;
+  document.getElementById('ice-i-val').textContent=i;
+  document.getElementById('ice-c-val').textContent=c;
+  document.getElementById('ice-e-val').textContent=e;
+  document.getElementById('ice-score-big').textContent=i*c*e;
+}
+['ice-impact','ice-confidence','ice-ease'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',updateIceDisplay);
+});
+function renderIceGoalList(){
+  const el=document.getElementById('ice-goal-list');
+  if(!_goals.length){el.innerHTML='<div style="font-size:12px;color:var(--muted2)">Crie metas na aba 🎯 Metas para poder vincular.</div>';return;}
+  el.innerHTML=_goals.map(g=>`
+    <div class="goal-select-item ${iceGoals.includes(g.id)?'selected':''}" data-goal="${g.id}">
+      <div class="gsi-check">${iceGoals.includes(g.id)?'✓':''}</div>
+      <span>${g.emoji} ${esc(g.title)}</span>
+    </div>`).join('');
+  el.querySelectorAll('[data-goal]').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const id=item.dataset.goal;
+      if(iceGoals.includes(id))iceGoals=iceGoals.filter(x=>x!==id);
+      else iceGoals.push(id);
+      renderIceGoalList();
+    });
+  });
+}
+window.saveIce=async function(){
+  const cur=_progress[iceKey]||{};
+  const next={...cur,
+    impact:+document.getElementById('ice-impact').value,
+    confidence:+document.getElementById('ice-confidence').value,
+    ease:+document.getElementById('ice-ease').value,
+    goals:[...iceGoals]};
+  closeIceModal();
+  await saveProgress(iceKey,next);
+  showToast('Prioridade salva ✓ ICE '+iceScore(next));
+};
+
+// ═══ PRÓXIMO PASSO (por maior ICE) ═══
+function renderNextStep(){
+  let best=null,bestScore=-1,bestMod=null;
+  Object.entries(GRADE_MAESTRIA).forEach(([mod,aulas])=>{
+    aulas.forEach(a=>{
+      const k=keyFor(mod,a);const p=_progress[k]||{};
+      if(p.done)return;
+      if(_goalFilter!=='all'&&!(p.goals&&p.goals.includes(_goalFilter)))return;
+      const s=iceScore(p);
+      // priorizar: ICE > 0, depois star, depois watching
+      let weight=s;
+      if(p.star)weight+=1000;
+      if(p.watching)weight+=500;
+      if(weight>bestScore){bestScore=weight;best=a;bestMod=mod;}
+    });
+  });
+  if(!best){
+    // se nada tem ICE, pega primeira pendente
+    for(const [mod,aulas] of Object.entries(GRADE_MAESTRIA)){
+      for(const a of aulas){const p=_progress[keyFor(mod,a)]||{};if(!p.done){best=a;bestMod=mod;break;}}
+      if(best)break;
+    }
+  }
+  if(!best){
+    document.getElementById('next-title').textContent='🎉 Tudo concluído!';
+    document.getElementById('next-module').textContent='Você completou a grade. Que máquina.';
+    document.getElementById('next-ice').textContent='';
+    document.getElementById('next-actions').innerHTML='';
+    return;
+  }
+  const k=keyFor(bestMod,best);const p=_progress[k]||{};
+  const score=iceScore(p);
+  document.getElementById('next-title').textContent=best;
+  document.getElementById('next-module').textContent='📖 '+bestMod;
+  let iceInfo=score>0?('ICE '+score+' (I'+p.impact+'×C'+p.confidence+'×F'+p.ease+')'):'Sem ICE ainda — clique em "Priorizar" para definir';
+  if(p.goals&&p.goals.length){
+    const gnames=p.goals.map(gid=>{const g=goalById(gid);return g?g.emoji+' '+g.title:'';}).filter(Boolean).join(' · ');
+    if(gnames)iceInfo+=' · '+gnames;
+  }
+  document.getElementById('next-ice').textContent=iceInfo;
+  document.getElementById('next-actions').innerHTML=`
+    <button class="nh-btn primary" id="nh-start">▶ Comecei a assistir</button>
+    <button class="nh-btn" id="nh-done">✓ Já concluí</button>
+    <button class="nh-btn" id="nh-prio">📊 Priorizar (ICE)</button>`;
+  document.getElementById('nh-start').onclick=()=>{saveProgress(k,{..._progress[k],watching:true});showToast('🎉 Você começou! Isso já é uma vitória.');};
+  document.getElementById('nh-done').onclick=()=>{saveProgress(k,{..._progress[k],done:true,watching:false});celebrate();};
+  document.getElementById('nh-prio').onclick=()=>openIceModal(bestMod,best,k);
+}
+
+// ═══ STATS ═══
+function renderStats(){
+  let total=0,done=0,watching=0,scored=0;
+  Object.entries(GRADE_MAESTRIA).forEach(([mod,aulas])=>{
+    aulas.forEach(a=>{total++;const p=_progress[keyFor(mod,a)]||{};if(p.done)done++;if(p.watching)watching++;if(iceScore(p)>0)scored++;});
+  });
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('stats-row').innerHTML=`
+    <div class="stat-box"><b>${pct}%</b><span>concluído</span></div>
+    <div class="stat-box"><b>${done}</b><span>aulas vistas</span></div>
+    <div class="stat-box"><b>${watching}</b><span>assistindo</span></div>
+    <div class="stat-box"><b>${scored}</b><span>priorizadas</span></div>
+    <div class="stat-box"><b>${_goals.length}</b><span>metas</span></div>`;
+}
+
+// ═══ NOTES ═══
+function renderNotes(){
+  ['anotacao','prompt','conhecimento'].forEach(type=>{
+    const grid=document.getElementById(type==='anotacao'?'anotacoes-grid':type==='prompt'?'prompts-grid':'conhecimentos-grid');
+    const term=(_searchNotes[type]||'').toLowerCase();
+    let items=_notes.filter(n=>n.type===type);
+    if(term)items=items.filter(n=>(n.title||'').toLowerCase().includes(term)||(n.tags||[]).some(t=>t.toLowerCase().includes(term))||(n.source||'').toLowerCase().includes(term));
+    items.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    grid.innerHTML='';
+    if(!items.length){
+      const lbl={anotacao:'suas anotações de livros e estudos',prompt:'prompts do Claude para estudar',conhecimento:'conhecimentos diversos que quer guardar'};
+      grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="emoji">✨</span>Ainda sem ${lbl[type]}.<br>Clique em "+ Novo" para começar.</div>`;
+      return;
+    }
+    items.forEach(n=>grid.appendChild(renderNoteCard(n)));
+  });
+}
+function renderNoteCard(n){
+  const tl={anotacao:'Anotação',prompt:'Prompt',conhecimento:'Conhecimento'};
+  const div=document.createElement('div');
+  div.className='note-card';
+  const tags=(n.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+  // metas vinculadas
+  let goalLine='';
+  if(n.goals&&n.goals.length){
+    const gn=n.goals.map(gid=>{const g=goalById(gid);return g?g.emoji+' '+esc(g.title):'';}).filter(Boolean).join(' · ');
+    if(gn)goalLine=`<div class="nc-source">🎯 ${gn}</div>`;
+  }
+  div.innerHTML=`
+    <div class="nc-type">${tl[n.type]||''}</div>
+    <div class="nc-title">${esc(n.title)}</div>
+    <div class="nc-body">${n.body||''}</div>
+    ${n.source?`<div class="nc-source">📎 ${esc(n.source)}</div>`:''}
+    ${goalLine}
+    ${tags?`<div class="nc-tags">${tags}</div>`:''}
+    <div class="nc-actions">
+      ${n.type==='prompt'?'<button class="card-btn copy" data-copy>📋 Copiar</button>':''}
+      <button class="card-btn" data-edit>✏️ Editar</button>
+      <button class="card-btn danger" data-del>🗑️</button>
+    </div>`;
+  div.querySelector('[data-edit]').addEventListener('click',()=>openNoteEdit(n));
+  div.querySelector('[data-del]').addEventListener('click',()=>deleteNote(n.id));
+  const cp=div.querySelector('[data-copy]');
+  if(cp)cp.addEventListener('click',()=>{const t=document.createElement('div');t.innerHTML=n.body||'';navigator.clipboard.writeText(t.innerText||n.title);showToast('Prompt copiado ✓');});
+  return div;
+}
+
+// ═══ MODAL NOTE ═══
+let noteTags=[],noteGoals=[],editingNoteId=null,noteType='anotacao';
+window.openNoteModal=function(type){
+  noteType=type;editingNoteId=null;noteTags=[];noteGoals=[];
+  const lbl={anotacao:'📝 Nova <span>Anotação</span>',prompt:'✨ Novo <span>Prompt</span>',conhecimento:'💡 Novo <span>Conhecimento</span>'};
+  document.getElementById('note-modal-title').innerHTML=lbl[type];
+  document.getElementById('nf-title').value='';
+  document.getElementById('nf-body').innerHTML='';
+  document.getElementById('nf-source').value='';
+  document.getElementById('source-field').style.display=type==='prompt'?'none':'block';
+  renderNoteTags();renderNoteGoalList();
+  document.getElementById('note-modal').classList.add('open');
+};
+function openNoteEdit(n){
+  noteType=n.type;editingNoteId=n.id;noteTags=[...(n.tags||[])];noteGoals=n.goals?[...n.goals]:[];
+  const lbl={anotacao:'✏️ Editar <span>Anotação</span>',prompt:'✏️ Editar <span>Prompt</span>',conhecimento:'✏️ Editar <span>Conhecimento</span>'};
+  document.getElementById('note-modal-title').innerHTML=lbl[n.type];
+  document.getElementById('nf-title').value=n.title||'';
+  document.getElementById('nf-body').innerHTML=n.body||'';
+  document.getElementById('nf-source').value=n.source||'';
+  document.getElementById('source-field').style.display=n.type==='prompt'?'none':'block';
+  renderNoteTags();renderNoteGoalList();
+  document.getElementById('note-modal').classList.add('open');
+}
+window.closeNoteModal=function(){document.getElementById('note-modal').classList.remove('open');editingNoteId=null;};
+function renderNoteGoalList(){
+  const el=document.getElementById('nf-goal-list');
+  if(!_goals.length){el.innerHTML='<div style="font-size:12px;color:var(--muted2)">Crie metas na aba 🎯 para vincular.</div>';return;}
+  el.innerHTML=_goals.map(g=>`
+    <div class="goal-select-item ${noteGoals.includes(g.id)?'selected':''}" data-ngoal="${g.id}">
+      <div class="gsi-check">${noteGoals.includes(g.id)?'✓':''}</div>
+      <span>${g.emoji} ${esc(g.title)}</span>
+    </div>`).join('');
+  el.querySelectorAll('[data-ngoal]').forEach(item=>{
+    item.addEventListener('click',()=>{const id=item.dataset.ngoal;if(noteGoals.includes(id))noteGoals=noteGoals.filter(x=>x!==id);else noteGoals.push(id);renderNoteGoalList();});
+  });
+}
+window.addNoteTag=function(){const i=document.getElementById('nf-tag-input');const v=i.value.trim();if(v&&!noteTags.includes(v)){noteTags.push(v);renderNoteTags();}i.value='';};
+function renderNoteTags(){
+  document.getElementById('nf-tags-preview').innerHTML=noteTags.map(t=>`<span class="tag-preview" data-rmtag="${esc(t)}">${esc(t)} ×</span>`).join('');
+  document.querySelectorAll('[data-rmtag]').forEach(x=>x.addEventListener('click',()=>{noteTags=noteTags.filter(t=>t!==x.dataset.rmtag);renderNoteTags();}));
+}
+window.saveNote=async function(){
+  const title=document.getElementById('nf-title').value.trim();
+  if(!title){showToast('Título obrigatório');return;}
+  const data={type:noteType,title,body:document.getElementById('nf-body').innerHTML.trim(),source:document.getElementById('nf-source').value.trim(),goals:[...noteGoals],tags:[...noteTags],updatedAt:Date.now()};
+  closeNoteModal();
+  try{
+    if(!editingNoteId){data.createdAt=Date.now();await push(ref(db,basePath+'/notes'),data);}
+    else await update(ref(db,basePath+'/notes/'+editingNoteId),data);
+    showToast(editingNoteId?'Atualizado ✓':'Salvo ✓');
+  }catch(e){showToast('Erro ao salvar');}
+};
+async function deleteNote(id){if(!confirm('Remover?'))return;try{await remove(ref(db,basePath+'/notes/'+id));showToast('Removido');}catch(e){}}
+
+// ═══ TABS ═══
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ═══ BUSCA & FILTROS ═══
+document.getElementById('search-trilha').addEventListener('input',e=>{_searchTrilha=e.target.value;renderTrilha();});
+document.querySelectorAll('[data-tfilter]').forEach(f=>f.addEventListener('click',()=>{document.querySelectorAll('[data-tfilter]').forEach(x=>x.classList.remove('active'));f.classList.add('active');_tfilter=f.dataset.tfilter;renderTrilha();}));
+document.getElementById('search-metas').addEventListener('input',e=>{_searchMetas=e.target.value;renderGoals();});
+document.getElementById('search-anotacoes').addEventListener('input',e=>{_searchNotes.anotacao=e.target.value;renderNotes();});
+document.getElementById('search-prompts').addEventListener('input',e=>{_searchNotes.prompt=e.target.value;renderNotes();});
+document.getElementById('search-conhecimentos').addEventListener('input',e=>{_searchNotes.conhecimento=e.target.value;renderNotes();});
+
+// fechar modais clicando fora
+['ice-modal','goal-modal','note-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',e=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('open');});
+});
+
+// ═══ TOAST + CELEBRAÇÃO ═══
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+window.showToast=showToast;
+function celebrate(){const cols=['#d8b85c','#ffe08a','#77b7ff','#75e2c8','#f7a1d1','#b8a4ff'];for(let i=0;i<30;i++){const c=document.createElement('div');c.style.cssText=`position:fixed;width:8px;height:8px;z-index:950;pointer-events:none;top:-20px;left:${Math.random()*100}vw;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation:cf 2.6s ease-in forwards;animation-delay:${Math.random()*.4}s`;document.body.appendChild(c);setTimeout(()=>c.remove(),3000);}}
+const st=document.createElement('style');st.textContent='@keyframes cf{to{transform:translateY(105vh) rotate(720deg);opacity:0}}';document.head.appendChild(st);
+window.celebrate=celebrate;
+
+// ═══ EDITOR FLUTUANTE ═══
+let savedRange=null;
+const descEditor=document.getElementById('nf-body');
+const floatingEditor=document.getElementById('floatingEditor');
+const descImageInput=document.getElementById('descImageInput');
+function getRange(){const s=window.getSelection();if(!s||!s.rangeCount||s.isCollapsed)return null;const r=s.getRangeAt(0);const root=r.commonAncestorContainer.nodeType===1?r.commonAncestorContainer:r.commonAncestorContainer.parentElement;return root&&root.closest&&root.closest('#nf-body')?r:null;}
+function saveSel(){const r=getRange();if(r)savedRange=r.cloneRange();return !!r;}
+function restoreSel(){if(!savedRange)return;const s=window.getSelection();s.removeAllRanges();s.addRange(savedRange);descEditor.focus({preventScroll:true});}
+function positionTB(){const r=getRange();if(!r){floatingEditor.classList.remove('open');return;}saveSel();const rect=r.getBoundingClientRect();if(!rect||(!rect.width&&!rect.height))return;floatingEditor.classList.add('open');requestAnimationFrame(()=>{const tb=floatingEditor.getBoundingClientRect();let l=rect.left+rect.width/2,t=rect.top-12;const p=12;l=Math.max(p+tb.width/2,Math.min(window.innerWidth-p-tb.width/2,l));if(t-tb.height<p)t=rect.bottom+tb.height+18;floatingEditor.style.left=l+'px';floatingEditor.style.top=t+'px';});}
+function wrapSel(st){restoreSel();const s=window.getSelection();if(!s||!s.rangeCount||s.isCollapsed)return;const r=s.getRangeAt(0);const sp=document.createElement('span');Object.assign(sp.style,st);try{r.surroundContents(sp);}catch(e){sp.appendChild(r.extractContents());r.insertNode(sp);}r.selectNodeContents(sp);s.removeAllRanges();s.addRange(r);savedRange=r.cloneRange();}
+function execD(cmd){restoreSel();document.execCommand(cmd,false,null);saveSel();}
+floatingEditor.addEventListener('mousedown',e=>e.preventDefault());
+floatingEditor.querySelectorAll('[data-cmd]').forEach(b=>b.addEventListener('click',()=>{execD(b.dataset.cmd);positionTB();}));
+document.getElementById('fontFamilySel').addEventListener('change',e=>{if(e.target.value)wrapSel({fontFamily:e.target.value});e.target.value='';positionTB();});
+document.getElementById('fontSizeSel').addEventListener('change',e=>{if(e.target.value)wrapSel({fontSize:e.target.value});e.target.value='';positionTB();});
+const TC=['#edf4fb','#d8b85c','#ff7d7d','#ffc36a','#ffe08a','#75e2c8','#77b7ff','#b8a4ff','#f7a1d1','#ffffff','#96aac0','#0d1b2a'];
+const BC=['#fff3bf','#fde68a','#fecaca','#fed7aa','#bbf7d0','#a7f3d0','#bfdbfe','#ddd6fe','#fbcfe8','#e5e7eb','#ffffff','#1b2e42'];
+function buildPal(id,colors,kind){const el=document.getElementById(id);el.innerHTML=colors.map(h=>`<button type="button" class="color-btn" data-hex="${h}"><span class="swatch" style="background:${h}"></span><span class="hex">${h}</span></button>`).join('');el.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{wrapSel(kind==='text'?{color:b.dataset.hex}:{backgroundColor:b.dataset.hex});document.querySelectorAll('.palette-menu').forEach(m=>m.classList.remove('open'));positionTB();}));}
+buildPal('textPaletteMenu',TC,'text');buildPal('bgPaletteMenu',BC,'bg');
+document.getElementById('textPaletteBtn').addEventListener('click',()=>{document.getElementById('textPaletteMenu').classList.toggle('open');document.getElementById('bgPaletteMenu').classList.remove('open');});
+document.getElementById('bgPaletteBtn').addEventListener('click',()=>{document.getElementById('bgPaletteMenu').classList.toggle('open');document.getElementById('textPaletteMenu').classList.remove('open');});
+document.addEventListener('selectionchange',()=>{clearTimeout(window.__tb);window.__tb=setTimeout(positionTB,70);});
+document.addEventListener('mousedown',e=>{if(floatingEditor.contains(e.target))return;document.querySelectorAll('.palette-menu').forEach(m=>m.classList.remove('open'));if(!e.target.closest('#nf-body'))floatingEditor.classList.remove('open');});
+document.getElementById('insertDescImageBtn').addEventListener('click',()=>{restoreSel();descImageInput.click();});
+descImageInput.addEventListener('change',e=>insImgs(Array.from(e.target.files||[])));
+function insImgs(files){if(!files.length)return;restoreSel();files.filter(f=>f.type.startsWith('image/')).forEach(file=>{const rd=new FileReader();rd.onload=ev=>{const img=document.createElement('img');img.src=ev.target.result;insNode(img);};rd.readAsDataURL(file);});descImageInput.value='';}
+function insNode(node){restoreSel();const s=window.getSelection();if(s&&s.rangeCount){const r=s.getRangeAt(0);r.deleteContents();r.insertNode(node);r.setStartAfter(node);r.collapse(true);s.removeAllRanges();s.addRange(r);savedRange=r.cloneRange();}else descEditor.appendChild(node);}
+descEditor.addEventListener('paste',e=>{const items=e.clipboardData?.items;if(!items)return;const imgs=Array.from(items).filter(i=>i.type.startsWith('image/'));if(!imgs.length)return;e.preventDefault();imgs.forEach(it=>{const f=it.getAsFile();if(!f)return;const rd=new FileReader();rd.onload=ev=>{const img=document.createElement('img');img.src=ev.target.result;insNode(img);};rd.readAsDataURL(f);});});
+descEditor.addEventListener('click',e=>{if(e.target.tagName==='IMG')selImg(e.target);else descEditor.querySelectorAll('.img-resize-wrap').forEach(unwrap);});
+function unwrap(w){const img=w.querySelector('img');if(!img)return;img.classList.remove('img-selected');w.parentNode.insertBefore(img,w);w.remove();}
+function selImg(img){descEditor.querySelectorAll('.img-resize-wrap').forEach(w=>{if(!w.contains(img))unwrap(w);});img.classList.add('img-selected');if(img.parentNode.classList.contains('img-resize-wrap'))return;const w=document.createElement('span');w.className='img-resize-wrap';w.contentEditable='false';img.parentNode.insertBefore(w,img);w.appendChild(img);const h=document.createElement('span');h.className='resize-handle';w.appendChild(h);let sx=0,sw=0;h.addEventListener('mousedown',ev=>{ev.preventDefault();ev.stopPropagation();sx=ev.clientX;sw=img.offsetWidth;const mv=m=>{img.style.width=Math.max(60,sw+m.clientX-sx)+'px';img.style.maxWidth='none';};const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);});}
+</script>
+</body>
+</html>
