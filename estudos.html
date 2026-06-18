@@ -206,6 +206,62 @@ background-image:radial-gradient(circle at 12% 8%,rgba(119,183,255,0.15),transpa
 ::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:4px}
 @media print{@page{size:A4;margin:16mm}body{background:#fff!important;color:#000!important}#neural-bg,#star-net,.topbar,.tabs,.search-wrap,.btn-new,.icon-btn,.aula-actions,.modal-overlay,.toast,.next-hero .nh-actions,.goal-filter{display:none!important}.module-card{page-break-inside:avoid;border:1px solid #999!important;background:#fff!important}.module-name,.aula-title,.nc-title{color:#000!important}.module-body{max-height:none!important}}
 @media (max-width:760px){.field-row{flex-direction:column}.cards-grid{grid-template-columns:1fr}.goals-grid{grid-template-columns:1fr}}
+
+.brain-hero{background:linear-gradient(135deg,rgba(184,164,255,0.12),rgba(119,183,255,0.06));border:1px solid rgba(184,164,255,0.25);border-radius:16px;padding:26px;margin-bottom:24px;position:relative;overflow:hidden}
+.brain-hero::before{content:'🧠';position:absolute;right:24px;top:24px;font-size:90px;opacity:0.08}
+.brain-hero h2{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;margin-bottom:10px}
+.brain-hero h2 span{color:var(--purple)}
+.brain-hero p{font-size:14px;color:var(--muted);line-height:1.7;max-width:680px}
+.concept-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:16px}
+.concept-card h3{font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+.concept-card h3 .badge-evidence{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);background:rgba(117,226,200,0.1);border:1px solid rgba(117,226,200,0.25);border-radius:5px;padding:2px 8px;text-transform:uppercase;letter-spacing:.05em}
+.concept-card p{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:10px}
+.concept-card .concept-key{font-size:13px;color:var(--text);background:rgba(255,255,255,0.03);border-left:3px solid var(--purple);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;line-height:1.6}
+.pinch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-top:14px}
+.pinch-item{background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+.pinch-item .pinch-letter{font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;color:var(--purple)}
+.pinch-item .pinch-name{font-size:12px;color:var(--text);font-weight:600;margin-top:4px}
+.pinch-item .pinch-desc{font-size:10px;color:var(--muted2);margin-top:3px;line-height:1.4}
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin-top:8px}
+.tech-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;transition:all .15s;display:flex;flex-direction:column}
+.tech-card:hover{border-color:var(--purple);box-shadow:var(--shadow)}
+.tech-card .tc-icon{font-size:28px;margin-bottom:10px}
+.tech-card .tc-name{font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;margin-bottom:4px}
+.tech-card .tc-evidence{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-bottom:10px;letter-spacing:.04em}
+.tech-card .tc-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;flex:1}
+.tech-card .tc-how{font-size:11px;color:var(--text);background:rgba(184,164,255,0.06);border:1px solid rgba(184,164,255,0.18);border-radius:9px;padding:10px 12px;line-height:1.55;margin-bottom:14px}
+.tech-card .tc-how b{color:var(--purple)}
+.tech-card .tc-action{display:flex;gap:8px;flex-wrap:wrap}
+.tech-btn{font-family:'DM Sans',sans-serif;font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--line);background:var(--panel-soft);color:var(--text);transition:all .15s;display:flex;align-items:center;gap:5px;text-decoration:none}
+.tech-btn:hover{background:rgba(184,164,255,0.12);border-color:rgba(184,164,255,0.3)}
+.tech-btn.primary{background:linear-gradient(135deg,var(--purple),var(--blue));color:#0d1b2a;font-weight:600;border:none}
+.tech-active-badge{font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-dim);border-radius:5px;padding:3px 8px;margin-left:auto}
+/* Timer 10 min flutuante */
+.mini-timer-overlay{display:none;position:fixed;inset:0;background:rgba(5,12,22,0.96);z-index:900;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center}
+.mini-timer-overlay.open{display:flex}
+.mini-timer-title{font-family:'Poppins',sans-serif;font-size:20px;font-weight:600;margin-bottom:6px;max-width:560px}
+.mini-timer-sub{font-size:14px;color:var(--purple);margin-bottom:30px}
+.mini-timer-clock{font-family:'DM Mono',monospace;font-size:84px;font-weight:500;color:var(--gold-light);line-height:1;margin-bottom:24px}
+.mini-timer-controls{display:flex;gap:12px;margin-bottom:20px}
+.mini-timer-btn{background:var(--panel-soft);border:1px solid var(--line);border-radius:11px;padding:12px 22px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all .15s}
+.mini-timer-btn:hover{background:var(--gold-dim);border-color:var(--gold-dim)}
+.mini-timer-btn.primary{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#0d1b2a;font-weight:700;border:none}
+.mini-timer-close{position:absolute;top:24px;right:28px;background:none;border:none;color:var(--muted);font-size:26px;cursor:pointer}
+.mini-timer-msg{font-size:15px;color:var(--green);min-height:24px;margin-top:8px}
+.mini-timer-presets{display:flex;gap:8px;margin-bottom:24px}
+.mtp{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);background:var(--panel-soft);border:1px solid var(--line);border-radius:8px;padding:7px 14px;cursor:pointer;transition:all .15s}
+.mtp:hover,.mtp.active{color:var(--gold);border-color:var(--gold-dim);background:var(--gold-dim)}
+/* Dopamenu */
+.dopamenu-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.dopamenu-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:9px;padding:10px 14px;font-size:13px}
+.dopamenu-item .dm-emoji{font-size:18px}
+.dopamenu-item .dm-text{flex:1}
+.dopamenu-item .dm-del{cursor:pointer;color:var(--muted2);font-size:16px}
+.dopamenu-item .dm-del:hover{color:var(--red)}
+.dopamenu-add{display:flex;gap:8px;margin-top:10px}
+.dopamenu-add input{flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:9px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none}
+.dopamenu-add input:focus{border-color:var(--gold)}
+
 </style>
 </head>
 <body>
@@ -247,6 +303,7 @@ background-image:radial-gradient(circle at 12% 8%,rgba(119,183,255,0.15),transpa
 <div class="container">
 <div class="tabs">
 <div class="tab active" data-tab="trilha">🧭 Trilha</div>
+<div class="tab" data-tab="cerebro">🧠 Meu Cérebro</div>
 <div class="tab" data-tab="metas">🎯 Metas</div>
 <div class="tab" data-tab="anotacoes">📝 Anotações</div>
 <div class="tab" data-tab="prompts">✨ Prompts</div>
@@ -274,6 +331,154 @@ background-image:radial-gradient(circle at 12% 8%,rgba(119,183,255,0.15),transpa
 <div id="modules-list"></div>
 </div>
 
+
+<!-- MEU CÉREBRO -->
+<div class="tab-content" id="tab-cerebro">
+
+<div class="brain-hero">
+<h2>Como seu <span>cérebro TDAH</span> funciona</h2>
+<p>Seu cérebro não é movido por <b>importância</b> — é movido por <b>interesse</b>. Isso não é falha de força de vontade, é como seu sistema nervoso processa dopamina. Entender isso muda tudo: em vez de lutar contra seu cérebro, você aprende a trabalhar com ele. Abaixo estão os conceitos e as 7 técnicas com base científica que fazem isso acontecer.</p>
+</div>
+
+<!-- CONCEITO 1: IBNS -->
+<div class="concept-card">
+<h3>🧭 Sistema Nervoso Baseado em Interesse (IBNS) <span class="badge-evidence">Dr. Dodson</span></h3>
+<p>A maioria das pessoas funciona num sistema baseado em <b>importância</b> — fazem porque é importante, tem prazo, ou alguém cobra. O cérebro TDAH funciona diferente: ele entende que algo é importante, mas não consegue <b>iniciar</b> até que aquilo gere interesse suficiente. É por isso que "só usar um planner" não funciona — o planner sinaliza importância, mas não fornece o interesse que seu cérebro precisa para dar a partida.</p>
+<div class="concept-key">💡 A virada de chave: pare de se cobrar por "não conseguir fazer o que é importante". Comece a desenhar seus estudos para que sejam <b>interessantes</b>, e a importância vem de carona.</div>
+</div>
+
+<!-- CONCEITO 2: PINCH -->
+<div class="concept-card">
+<h3>🤏 O modelo PINCH — os 5 gatilhos da sua dopamina</h3>
+<p>O Dr. William Dodson identificou os 5 ativadores que ligam o cérebro TDAH. Quando um estudo tem pelo menos um deles, a iniciação fica muito mais fácil:</p>
+<div class="pinch-grid">
+<div class="pinch-item"><div class="pinch-letter">P</div><div class="pinch-name">Paixão / Play</div><div class="pinch-desc">prazer, algo que te empolga</div></div>
+<div class="pinch-item"><div class="pinch-letter">I</div><div class="pinch-name">Interesse</div><div class="pinch-desc">curiosidade genuína</div></div>
+<div class="pinch-item"><div class="pinch-letter">N</div><div class="pinch-name">Novidade</div><div class="pinch-desc">algo novo, fresco, diferente</div></div>
+<div class="pinch-item"><div class="pinch-letter">C</div><div class="pinch-name">Competição</div><div class="pinch-desc">desafio, superar a si mesmo</div></div>
+<div class="pinch-item"><div class="pinch-letter">H</div><div class="pinch-name">Hurry (urgência)</div><div class="pinch-desc">prazo, conta-regressiva</div></div>
+</div>
+<div class="concept-key" style="margin-top:14px">🎯 Ao escolher o que estudar, pergunte: <b>qual gatilho PINCH essa aula tem?</b> Se não tem nenhum, adicione um — transforme em jogo (Play), use um timer (Hurry), ou conecte ao que te fascina (Interesse).</div>
+</div>
+
+<!-- SELETOR DE TÉCNICA -->
+<div class="section-title">⚙️ Modo de estudo ativo</div>
+<div class="concept-card">
+<p>Escolha uma técnica como seu <b>modo ativo</b>. A trilha vai se adaptar para apoiar essa técnica — mostrando dicas e lembretes alinhados a ela enquanto você estuda.</p>
+<div style="margin-top:14px">
+<label style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:8px">Técnica ativa agora</label>
+<select id="active-technique" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--line);border-radius:9px;padding:12px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none">
+<option value="">Nenhuma — modo livre</option>
+<option value="pomodoro">🍅 Pomodoro / sprints cronometrados</option>
+<option value="bodydouble">👥 Body Doubling</option>
+<option value="tenmin">⏱️ Regra dos 10 minutos</option>
+<option value="chunking">🧩 Chunking + recompensa</option>
+<option value="recall">🎴 Active Recall</option>
+<option value="sensory">🎨 Âncora sensorial</option>
+<option value="reframe">💭 Reframe cognitivo</option>
+</select>
+<div id="active-tech-hint" style="font-size:12px;color:var(--purple);margin-top:10px;line-height:1.6;display:none"></div>
+</div>
+</div>
+
+<!-- AS 7 TÉCNICAS -->
+<div class="section-title">🛠️ As 7 técnicas com base científica</div>
+<div class="tech-grid">
+
+<div class="tech-card">
+<div class="tc-icon">🍅</div>
+<div class="tc-name">Pomodoro adaptado</div>
+<div class="tc-evidence">Externaliza o tempo · reduz carga executiva</div>
+<div class="tc-desc">Sprints curtos de foco com pausas. Para o cérebro TDAH, um timer visível transforma o tempo (abstrato) em algo concreto e controlável. Cria urgência (o "H" do PINCH) sem pressão.</div>
+<div class="tc-how"><b>Como usar:</b> 25 min de foco + 5 de pausa. Mas adapte: 10-15 min se a energia está baixa. Antes da pausa, escreva a próxima linha para facilitar o recomeço.</div>
+<div class="tc-action">
+<button class="tech-btn primary" onclick="openMiniTimer(25,'Pomodoro')">▶ Iniciar timer</button>
+</div>
+</div>
+
+<div class="tech-card">
+<div class="tc-icon">👥</div>
+<div class="tc-name">Body Doubling</div>
+<div class="tc-evidence">+27-30% velocidade · estudo VR 2025</div>
+<div class="tc-desc">Estudar na presença (real ou virtual) de outra pessoa. Ela não precisa interagir — só a presença calma reduz a procrastinação e a barreira emocional de começar. Declarar sua tarefa eleva a conclusão a 95%.</div>
+<div class="tc-how"><b>Como usar:</b> entre numa sessão "study with me" no YouTube, ou use o Focusmate para parear com alguém. Diga em voz alta o que vai fazer antes de começar.</div>
+<div class="tc-action">
+<a class="tech-btn primary" href="https://www.youtube.com/results?search_query=study+with+me+pomodoro" target="_blank" rel="noopener">▶ Study with me</a>
+<a class="tech-btn" href="https://www.focusmate.com" target="_blank" rel="noopener">Focusmate</a>
+</div>
+</div>
+
+<div class="tech-card">
+<div class="tc-icon">⏱️</div>
+<div class="tc-name">Regra dos 10 minutos</div>
+<div class="tc-evidence">Efeito Zeigarnik (1927)</div>
+<div class="tc-desc">Quando estiver evitando algo, comprometa-se a fazer por só 10 minutos. Depois pode parar. O segredo: a maioria não para — tarefas começadas mas inacabadas "grudam" no cérebro e puxam você a continuar.</div>
+<div class="tc-how"><b>Como usar:</b> escolha a aula que está evitando. Diga "só 10 minutos". Inicie o timer. Quando tocar, você decide: parar (tudo bem) ou seguir (provável).</div>
+<div class="tc-action">
+<button class="tech-btn primary" onclick="openMiniTimer(10,'Regra dos 10 minutos')">▶ Só 10 minutos</button>
+</div>
+</div>
+
+<div class="tech-card">
+<div class="tc-icon">🧩</div>
+<div class="tc-name">Chunking + recompensa</div>
+<div class="tc-evidence">Dopamina por feedback frequente</div>
+<div class="tc-desc">Quebrar o estudo em pedaços pequenos E parear cada pedaço com uma recompensa curta e tangível. A recompensa é o que falta na maioria dos sistemas — ela cria o hit de dopamina que move para o próximo passo.</div>
+<div class="tc-how"><b>Como usar:</b> terminou uma aula? Caminhe 2 min, tome um café, marque o ✓. Use o seu <b>Dopamenu</b> abaixo para escolher a recompensa. Cada pequena vitória alimenta a próxima.</div>
+<div class="tc-action">
+<button class="tech-btn" onclick="document.getElementById('dopamenu-section').scrollIntoView({behavior:'smooth'})">Ver meu Dopamenu ↓</button>
+</div>
+</div>
+
+<div class="tech-card">
+<div class="tc-icon">🎴</div>
+<div class="tc-name">Active Recall</div>
+<div class="tc-evidence">2-3× mais eficaz que reler</div>
+<div class="tc-desc">Em vez de reler (passivo), você se testa — puxa a informação da memória. O feedback imediato "certo/errado" dá o hit de dopamina que mantém o cérebro TDAH engajado. Flashcards são a aplicação clássica.</div>
+<div class="tc-how"><b>Como usar:</b> peça ao Claude para gerar flashcards da aula (tem prompt pronto na aba ✨ Prompts). Depois se teste em vez de só reler o material.</div>
+<div class="tc-action">
+<button class="tech-btn primary" onclick="document.querySelector('.tab[data-tab=&quot;prompts&quot;]').click()">Ver prompts de flashcard</button>
+</div>
+</div>
+
+<div class="tech-card">
+<div class="tc-icon">🎨</div>
+<div class="tc-name">Âncora sensorial</div>
+<div class="tc-evidence">Novidade sensorial ativa dopamina</div>
+<div class="tc-desc">Pequenas mudanças sensoriais criam novidade (o "N" do PINCH) e re-engajam o foco. Canetas coloridas, papel escuro com letra brilhante, soundscapes (sons sem letra, não música cantada).</div>
+<div class="tc-how"><b>Como usar:</b> use canetas/destaques coloridos nas anotações. Coloque um soundscape de fundo. Mude de lugar para estudar. Pequenas trocas mantêm o cérebro fresco.</div>
+<div class="tc-action">
+<a class="tech-btn primary" href="https://www.youtube.com/results?search_query=focus+soundscape+brown+noise" target="_blank" rel="noopener">▶ Soundscape de foco</a>
+</div>
+</div>
+
+<div class="tech-card">
+<div class="tc-icon">💭</div>
+<div class="tc-name">Reframe cognitivo</div>
+<div class="tc-evidence">Base em TCC · combate o "Wall of Awful"</div>
+<div class="tc-desc">Identificar um pensamento negativo ("estou atrasado demais para alcançar") e substituí-lo por um realista, sem vergonha. A vergonha alimenta a paralisia; o reframe a desarma.</div>
+<div class="tc-how"><b>Como usar:</b> notou um pensamento que trava? Reescreva: "estou atrasado" → "comecei hoje, e hoje conta". "Sou preguiçoso" → "meu cérebro precisa de um gatilho, vou criar um".</div>
+<div class="tc-action">
+<button class="tech-btn primary" onclick="cycleReframe()">💭 Me dê um reframe</button>
+</div>
+<div id="reframe-output" style="font-size:12px;color:var(--green);margin-top:10px;line-height:1.6;display:none"></div>
+</div>
+
+</div>
+
+<!-- DOPAMENU -->
+<div class="section-title" id="dopamenu-section">🍽️ Seu Dopamenu</div>
+<div class="concept-card">
+<p>Um <b>cardápio de dopamina</b>: uma lista pré-feita de atividades que te dão prazer rápido e saudável. Quando seu cérebro estiver sub-estimulado e a tentação for cair no celular sem fim, você consulta o cardápio e escolhe uma recompensa de propósito. Use como recompensa entre os chunks de estudo.</p>
+<div class="dopamenu-list" id="dopamenu-list"></div>
+<div class="dopamenu-add">
+<input type="text" id="dopamenu-input" placeholder="Ex: 5 min de violão / um episódio / café especial" onkeydown="if(event.key==='Enter')addDopamine()"/>
+<button class="btn-add-tag" onclick="addDopamine()">+ Adicionar</button>
+</div>
+</div>
+
+</div>
+
 <!-- METAS -->
 <div class="tab-content" id="tab-metas">
 <div class="search-wrap">
@@ -296,6 +501,7 @@ background-image:radial-gradient(circle at 12% 8%,rgba(119,183,255,0.15),transpa
 <div class="tab-content" id="tab-prompts">
 <div class="search-wrap">
 <div class="search-box"><input type="text" id="search-prompts" placeholder="Buscar prompts..."/></div>
+<button class="icon-btn" onclick="reloadPrompts()" title="Recarregar prompts de estudo" style="width:auto;padding:0 14px;gap:6px;font-size:12px">🔄 Técnicas</button>
 <button class="btn-new" onclick="openNoteModal('prompt')">+ Novo Prompt</button>
 </div>
 <div class="cards-grid" id="prompts-grid"></div>
@@ -438,6 +644,25 @@ background-image:radial-gradient(circle at 12% 8%,rgba(119,183,255,0.15),transpa
 <input type="file" id="descImageInput" accept="image/*" multiple style="display:none"/>
 </div>
 
+
+<!-- MINI TIMER (10min / Pomodoro) -->
+<div class="mini-timer-overlay" id="miniTimer">
+<button class="mini-timer-close" onclick="closeMiniTimer()">×</button>
+<div class="mini-timer-title" id="mt-title">Foco</div>
+<div class="mini-timer-sub" id="mt-sub"></div>
+<div class="mini-timer-clock" id="mt-clock">10:00</div>
+<div class="mini-timer-presets">
+<div class="mtp" data-min="10">10 min</div>
+<div class="mtp active" data-min="25">25 min</div>
+<div class="mtp" data-min="45">45 min</div>
+</div>
+<div class="mini-timer-controls">
+<button class="mini-timer-btn primary" id="mt-toggle" onclick="toggleMiniTimer()">▶ Começar</button>
+<button class="mini-timer-btn" onclick="resetMiniTimer()">↺ Resetar</button>
+</div>
+<div class="mini-timer-msg" id="mt-msg"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -491,25 +716,38 @@ function listenData(){
   },err=>{console.error(err);setSync('warn','Offline');});
   onValue(ref(db,basePath+'/notes'),snap=>{
     const items=[];snap.forEach(c=>items.push({id:c.key,...c.val()}));
-    _notes=items;renderNotes();maybeSeed();
+    _notes=items;_notesLoaded=true;renderNotes();maybeSeed();
+  });
+  onValue(ref(db,basePath+'/dopamenu'),snap=>{_dopamenu=snap.val()||[];renderDopamenu();});
+  onValue(ref(db,basePath+'/activeTechnique'),snap=>{
+    const v=snap.val();const sel=document.getElementById('active-technique');
+    if(sel&&v){sel.value=v;const hint=document.getElementById('active-tech-hint');if(TECH_HINTS[v]){hint.textContent=TECH_HINTS[v];hint.style.display='block';}}
   });
   onValue(ref(db,basePath+'/goals'),snap=>{
     const items=[];snap.forEach(c=>items.push({id:c.key,...c.val()}));
-    _goals=items;renderGoals();renderGoalFilter();renderTrilha();maybeSeed();
+    _goals=items;_goalsLoaded=true;renderGoals();renderGoalFilter();renderTrilha();maybeSeed();
   });
 }
 
-// Semear prompts e metas na primeira vez
+// Semear prompts e metas na primeira vez (robusto: usa flag no próprio banco)
+let _notesLoaded=false, _goalsLoaded=false, _seedDone=false;
 async function maybeSeed(){
-  if(_seeded)return;
-  _seeded=true;
-  // só semeia se não houver nada ainda
-  setTimeout(async()=>{
+  // só roda quando AMBOS notes e goals já carregaram pelo menos uma vez
+  if(!_notesLoaded||!_goalsLoaded||_seedDone)return;
+  _seedDone=true;
+  try{
+    // checar flag de seed no banco para nunca duplicar
+    const flagSnap=await new Promise(res=>{
+      onValue(ref(db,basePath+'/_seeded'),s=>res(s.val()),{onlyOnce:true});
+    });
+    if(flagSnap)return; // já semeado antes
+    // semear metas se vazio
     if(_goals.length===0){
       for(const g of GOALS_SEED){
         await push(ref(db,basePath+'/goals'),{...g,createdAt:Date.now()});
       }
     }
+    // semear prompts se não houver nenhum
     const hasPrompts=_notes.some(n=>n.type==='prompt');
     if(!hasPrompts){
       for(const p of PROMPTS_SEED){
@@ -517,8 +755,23 @@ async function maybeSeed(){
           source:p.tech?('Técnica: '+p.tech):'',tags:p.tech?[p.tech]:[],createdAt:Date.now(),seeded:true});
       }
     }
-  },800);
+    // marcar como semeado
+    await set(ref(db,basePath+'/_seeded'),Date.now());
+  }catch(e){console.error('Seed error:',e);}
 }
+// botão manual para recarregar prompts (caso falhe)
+window.reloadPrompts=async function(){
+  const existing=_notes.filter(n=>n.type==='prompt'&&n.seeded).map(n=>n.title);
+  let added=0;
+  for(const p of PROMPTS_SEED){
+    if(!existing.includes(p.title)){
+      await push(ref(db,basePath+'/notes'),{type:'prompt',title:p.title,body:p.body,
+        source:p.tech?('Técnica: '+p.tech):'',tags:p.tech?[p.tech]:[],createdAt:Date.now(),seeded:true});
+      added++;
+    }
+  }
+  showToast(added>0?('+'+added+' prompts adicionados ✓'):'Todos os prompts já estão aqui ✓');
+};
 
 // ═══ METAS ═══
 function goalById(id){return _goals.find(g=>g.id===id);}
@@ -973,6 +1226,116 @@ window.showToast=showToast;
 function celebrate(){const cols=['#d8b85c','#ffe08a','#77b7ff','#75e2c8','#f7a1d1','#b8a4ff'];for(let i=0;i<30;i++){const c=document.createElement('div');c.style.cssText=`position:fixed;width:8px;height:8px;z-index:950;pointer-events:none;top:-20px;left:${Math.random()*100}vw;background:${cols[Math.floor(Math.random()*cols.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation:cf 2.6s ease-in forwards;animation-delay:${Math.random()*.4}s`;document.body.appendChild(c);setTimeout(()=>c.remove(),3000);}}
 const st=document.createElement('style');st.textContent='@keyframes cf{to{transform:translateY(105vh) rotate(720deg);opacity:0}}';document.head.appendChild(st);
 window.celebrate=celebrate;
+
+
+
+// ════════════════════════════════════════════
+//  MEU CÉREBRO — técnicas ativas
+// ════════════════════════════════════════════
+
+// ── MINI TIMER (10min / Pomodoro) ──
+let mtInterval=null, mtRemaining=600, mtDuration=600, mtRunning=false;
+window.openMiniTimer=function(min,label){
+  mtDuration=min*60; mtRemaining=mtDuration;
+  document.getElementById('mt-title').textContent=label||'Foco';
+  document.getElementById('mt-sub').textContent=min===10?'Só 10 minutos. Depois você decide.':'Foco total até o timer tocar.';
+  document.getElementById('mt-msg').textContent='';
+  document.querySelectorAll('.mtp').forEach(p=>p.classList.toggle('active',+p.dataset.min===min));
+  updateMtDisplay();
+  document.getElementById('mt-toggle').textContent='▶ Começar';
+  document.getElementById('miniTimer').classList.add('open');
+};
+window.closeMiniTimer=function(){stopMt();document.getElementById('miniTimer').classList.remove('open');};
+window.toggleMiniTimer=function(){
+  if(mtRunning){stopMt();document.getElementById('mt-toggle').textContent='▶ Continuar';}
+  else{startMt();document.getElementById('mt-toggle').textContent='⏸ Pausar';}
+};
+function startMt(){
+  mtRunning=true;
+  if(mtRemaining===mtDuration)document.getElementById('mt-msg').textContent='🎉 Você começou! Isso já é uma vitória.';
+  mtInterval=setInterval(()=>{
+    mtRemaining--;updateMtDisplay();
+    if(mtRemaining<=0){stopMt();document.getElementById('mt-msg').textContent='⏰ Tempo! Continue ou faça uma pausa.';if(navigator.vibrate)navigator.vibrate([200,100,200]);}
+  },1000);
+}
+function stopMt(){mtRunning=false;clearInterval(mtInterval);}
+window.resetMiniTimer=function(){stopMt();mtRemaining=mtDuration;updateMtDisplay();document.getElementById('mt-toggle').textContent='▶ Começar';document.getElementById('mt-msg').textContent='';};
+function updateMtDisplay(){const m=Math.floor(mtRemaining/60),s=mtRemaining%60;document.getElementById('mt-clock').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;}
+document.querySelectorAll('.mtp').forEach(p=>p.addEventListener('click',()=>{document.querySelectorAll('.mtp').forEach(x=>x.classList.remove('active'));p.classList.add('active');mtDuration=+p.dataset.min*60;resetMiniTimer();}));
+
+// ── TÉCNICA ATIVA ──
+const TECH_HINTS={
+  pomodoro:'🍅 Modo Pomodoro ativo: use o timer antes de cada bloco de estudo. Sprints curtos com pausas. O botão ▶ Focar nas aulas abre o timer.',
+  bodydouble:'👥 Modo Body Doubling ativo: abra uma sessão "study with me" e declare em voz alta a aula que vai estudar antes de começar.',
+  tenmin:'⏱️ Modo 10 minutos ativo: para qualquer aula que estiver evitando, comprometa-se a só 10 minutos. Depois decide.',
+  chunking:'🧩 Modo Chunking ativo: cada aula concluída merece uma recompensa do seu Dopamenu. Pequenas vitórias alimentam as próximas.',
+  recall:'🎴 Modo Active Recall ativo: depois de cada aula, gere flashcards com o Claude e se teste em vez de só reler.',
+  sensory:'🎨 Modo Sensorial ativo: canetas coloridas, soundscape de fundo, mude de ambiente. Novidade sensorial mantém o foco.',
+  reframe:'💭 Modo Reframe ativo: notou um pensamento que trava? Reescreva sem vergonha. "Atrasado" vira "comecei hoje".'
+};
+const techSel=document.getElementById('active-technique');
+if(techSel){
+  // carregar técnica salva
+  techSel.addEventListener('change',async()=>{
+    const v=techSel.value;
+    const hint=document.getElementById('active-tech-hint');
+    if(v&&TECH_HINTS[v]){hint.textContent=TECH_HINTS[v];hint.style.display='block';}
+    else hint.style.display='none';
+    if(basePath)await set(ref(db,basePath+'/activeTechnique'),v||null);
+    showToast(v?'Modo ativo definido ✓':'Modo livre');
+  });
+}
+
+// ── DOPAMENU ──
+let _dopamenu=[];
+function renderDopamenu(){
+  const list=document.getElementById('dopamenu-list');
+  if(!list)return;
+  if(!_dopamenu.length){
+    list.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:8px 0">Adicione atividades de dopamina rápida e saudável. Ex: 5 min de violão, um episódio, café especial, alongar.</div>';
+    return;
+  }
+  list.innerHTML=_dopamenu.map((d,i)=>`
+    <div class="dopamenu-item">
+      <span class="dm-emoji">${d.emoji||'⚡'}</span>
+      <span class="dm-text">${esc(d.text)}</span>
+      <span class="dm-del" data-dm="${i}">×</span>
+    </div>`).join('');
+  list.querySelectorAll('[data-dm]').forEach(x=>x.addEventListener('click',()=>{_dopamenu.splice(+x.dataset.dm,1);saveDopamenu();}));
+}
+const DM_EMOJIS=['🎸','☕','🚶','🎮','🍫','🎧','🌿','📱','🛋️','🏃','🍪','🎬'];
+window.addDopamine=function(){
+  const inp=document.getElementById('dopamenu-input');
+  const v=inp.value.trim();
+  if(!v)return;
+  _dopamenu.push({text:v,emoji:DM_EMOJIS[_dopamenu.length%DM_EMOJIS.length]});
+  inp.value='';
+  saveDopamenu();
+};
+async function saveDopamenu(){
+  renderDopamenu();
+  if(basePath)try{await set(ref(db,basePath+'/dopamenu'),_dopamenu);}catch(e){}
+}
+
+// ── REFRAME COGNITIVO ──
+const REFRAMES=[
+  ['"Estou atrasado demais para alcançar."','"Comecei hoje. E hoje conta. O progresso não tem prazo de validade."'],
+  ['"Sou preguiçoso, não consigo me concentrar."','"Meu cérebro precisa de um gatilho de interesse. Vou criar um, não me culpar."'],
+  ['"Não adianta, sempre desisto no meio."','"Cada vez que começo, treino o músculo de começar. Recomeçar também é progresso."'],
+  ['"Isso é importante, eu deveria conseguir."','"Importância não liga meu cérebro. Interesse sim. Como torno isso interessante?"'],
+  ['"Já perdi tempo demais hoje."','"O dia ainda tem agora. Um bloco de 10 minutos muda a história do dia."'],
+  ['"Todo mundo aprende mais rápido que eu."','"Meu ritmo é meu. Comparação rouba a energia que eu poderia usar pra estudar."'],
+  ['"Se eu não fizer tudo, não vale a pena."','"Uma aula é infinitamente melhor que nenhuma. Feito imperfeito vence perfeito não-feito."'],
+  ['"Não estou no clima de estudar."','"Não preciso estar no clima. Preciso só começar 2 minutos. O clima costuma vir depois."']
+];
+let _reframeIdx=-1;
+window.cycleReframe=function(){
+  _reframeIdx=(_reframeIdx+1)%REFRAMES.length;
+  const [neg,pos]=REFRAMES[_reframeIdx];
+  const el=document.getElementById('reframe-output');
+  el.innerHTML=`<div style="color:var(--muted);margin-bottom:6px">❌ ${neg}</div><div style="color:var(--green)">✅ ${pos}</div>`;
+  el.style.display='block';
+};
 
 // ═══ EDITOR FLUTUANTE ═══
 let savedRange=null;
