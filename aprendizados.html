@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aprendizados TDAH — Sistema de Estudo</title>
+  <style>
+    :root{
+      --bg:#07121f;
+      --bg2:#0b1828;
+      --panel:#10253a;
+      --panel2:#132c46;
+      --card:#172f4a;
+      --card2:#0f2237;
+      --text:#eef5fb;
+      --muted:#a7b8ca;
+      --muted2:#758ba2;
+      --line:rgba(255,255,255,.105);
+      --gold:#d7b45a;
+      --gold2:#ffe08a;
+      --blue:#79b7ff;
+      --green:#72e0c4;
+      --red:#ff8b8b;
+      --orange:#ffc46d;
+      --purple:#c8a6ff;
+      --shadow:0 18px 54px rgba(0,0,0,.28);
+      --r:22px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;min-height:100%}
+    body{
+      margin:0;min-height:100vh;color:var(--text);
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 14% 10%,rgba(215,180,90,.18),transparent 28%),
+        radial-gradient(circle at 82% 8%,rgba(121,183,255,.13),transparent 25%),
+        radial-gradient(circle at 75% 86%,rgba(114,224,196,.09),transparent 32%),
+        linear-gradient(135deg,#07121f 0%,#0b1828 46%,#07101b 100%);
+      overflow-x:hidden;
+    }
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.17;background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:46px 46px;mask-image:linear-gradient(to bottom,black,transparent 82%)}
+    a{color:inherit}
+    button,input,select,textarea{font:inherit}
+    button{touch-action:manipulation}
+    .topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px clamp(12px,3vw,28px);background:rgba(7,18,31,.86);border-bottom:1px solid var(--line);backdrop-filter:blur(16px)}
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}
+    .mark{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(215,180,90,.25),rgba(121,183,255,.12));border:1px solid rgba(255,224,138,.22);box-shadow:0 12px 30px rgba(0,0,0,.18)}
+    .brand b{display:block;letter-spacing:-.03em}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.08em}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.status{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.045);padding:7px 10px;font-weight:850;white-space:nowrap}.status.ok{color:var(--green);border-color:rgba(114,224,196,.26)}
+    .btn{border:1px solid var(--line);border-radius:14px;min-height:40px;padding:0 14px;cursor:pointer;font-weight:850;color:var(--text);background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035));transition:transform .15s ease,border-color .15s ease,background .15s ease,box-shadow .15s ease}.btn:hover{transform:translateY(-1px);border-color:rgba(255,224,138,.32);box-shadow:0 10px 22px rgba(0,0,0,.16)}.btn:active{transform:translateY(0)}.btn.primary{border:0;color:#0b1828;background:linear-gradient(135deg,var(--gold),var(--gold2));box-shadow:0 13px 28px rgba(215,180,90,.22)}.btn.soft{background:rgba(215,180,90,.105);border-color:rgba(255,224,138,.18);color:var(--gold2)}.btn.danger{background:rgba(255,139,139,.08);border-color:rgba(255,139,139,.2);color:#ffcaca}.btn.icon{width:40px;padding:0;display:grid;place-items:center}.btn.small{min-height:32px;padding:0 10px;border-radius:11px;font-size:12px}
+    .shell{position:relative;z-index:1;width:min(1240px,100%);margin:0 auto;padding:22px clamp(12px,3vw,28px) 80px}.layout{display:grid;grid-template-columns:292px minmax(0,1fr);gap:16px}.side{position:sticky;top:76px;align-self:start;border:1px solid var(--line);border-radius:26px;background:linear-gradient(180deg,rgba(16,37,58,.82),rgba(12,28,46,.76));box-shadow:var(--shadow);padding:14px}.side h2{margin:6px 8px 10px;font-size:13px;color:var(--gold2);text-transform:uppercase;letter-spacing:.11em}.nav{display:grid;gap:7px}.nav a{text-decoration:none;color:var(--muted);border:1px solid transparent;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:820;display:flex;align-items:center;justify-content:space-between;gap:8px}.nav a:hover,.nav a.active{color:var(--text);background:rgba(255,255,255,.055);border-color:var(--line)}.nav span{color:var(--gold2)}.science-note{margin-top:12px;border:1px solid rgba(255,224,138,.14);border-radius:18px;background:rgba(215,180,90,.075);padding:12px;color:var(--muted);font-size:12px;line-height:1.55}.science-note b{color:var(--gold2)}
+    .hero{border:1px solid var(--line);border-radius:30px;background:linear-gradient(135deg,rgba(23,47,74,.97),rgba(14,31,50,.91));box-shadow:var(--shadow);padding:24px;position:relative;overflow:hidden;margin-bottom:16px}.hero::after{content:"";position:absolute;right:-80px;bottom:-96px;width:270px;height:270px;border-radius:50%;background:radial-gradient(circle,rgba(255,224,138,.20),transparent 68%)}.eyebrow{color:var(--gold2);font-weight:900;letter-spacing:.12em;text-transform:uppercase;font-size:11px}.hero h1{font-size:clamp(28px,4vw,48px);line-height:.98;letter-spacing:-.05em;margin:9px 0}.hero p{max-width:820px;color:var(--muted);line-height:1.65;margin:0}.hero-grid{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:end}.hero-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;position:relative;z-index:2}.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.pill{border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.05);padding:7px 10px;font-size:12px;color:var(--muted);font-weight:800}.pill.gold{color:var(--gold2);background:rgba(215,180,90,.10);border-color:rgba(255,224,138,.18)}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}.stat{border:1px solid var(--line);border-radius:20px;background:rgba(16,37,58,.72);padding:14px;min-height:86px;position:relative;overflow:hidden}.stat::after{content:"";position:absolute;right:-22px;top:-35px;width:85px;height:85px;border-radius:50%;background:rgba(255,224,138,.07)}.stat b{font-size:27px;display:block;line-height:1}.stat span{display:block;margin-top:6px;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.stat em{font-style:normal;color:var(--muted2);font-size:11px}
+    .panel{border:1px solid var(--line);border-radius:26px;background:linear-gradient(180deg,rgba(16,37,58,.82),rgba(12,28,46,.78));box-shadow:var(--shadow);padding:18px;margin-bottom:16px}.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}.panel h2{font-size:19px;margin:0;letter-spacing:-.02em}.panel p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.55}.subtle{color:var(--muted);font-size:12px;line-height:1.5}
+    .form-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}.field{grid-column:span 3}.field.wide{grid-column:span 6}.field.full{grid-column:1/-1}.field label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.field label small{text-transform:none;letter-spacing:0;color:var(--gold2);font-weight:850}.field input,.field select,.field textarea{width:100%;border:1px solid rgba(255,255,255,.12);border-radius:15px;background:rgba(255,255,255,.055);color:var(--text);outline:none;padding:0 12px}.field input,.field select{height:43px}.field textarea{min-height:106px;resize:vertical;padding:12px;line-height:1.55}.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(255,224,138,.46);box-shadow:0 0 0 4px rgba(215,180,90,.11)}select option{background:#102237;color:var(--text)}.range-row{display:grid;grid-template-columns:1fr 44px;gap:9px;align-items:center}.range-row input{accent-color:var(--gold);height:auto;padding:0}.range-num{height:36px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;background:rgba(255,255,255,.055);font-weight:900;color:var(--gold2)}
+    .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sprint-box{border:1px solid rgba(255,224,138,.15);border-radius:22px;background:rgba(215,180,90,.07);padding:14px}.sprint-title{font-weight:950;color:var(--gold2);margin-bottom:8px}.sprint-plan{display:grid;gap:7px;margin-top:10px}.sprint-step{display:flex;gap:9px;align-items:flex-start;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.04);padding:9px;color:var(--muted);font-size:13px;line-height:1.45}.sprint-step b{color:var(--text)}.step-no{width:24px;height:24px;border-radius:9px;background:rgba(255,224,138,.15);color:var(--gold2);display:grid;place-items:center;flex:0 0 auto;font-weight:950;font-size:12px}
+    .scale-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.scale-card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(23,47,74,.76),rgba(14,31,50,.73));padding:15px;position:relative;overflow:hidden}.scale-card h3{margin:0 0 8px;font-size:15px}.scale-card p{font-size:12px}.scale-tag{display:inline-flex;border:1px solid rgba(255,224,138,.18);background:rgba(215,180,90,.09);color:var(--gold2);padding:5px 8px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}.scale-list{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:7px}.scale-list li{font-size:12px;color:var(--muted);line-height:1.45;display:flex;gap:8px}.scale-list li::before{content:"✦";color:var(--gold2);font-size:11px;margin-top:1px}.matrix{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}.quad{border-radius:14px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.04);padding:9px;min-height:76px}.quad b{display:block;font-size:12px}.quad small{display:block;color:var(--muted);line-height:1.35;margin-top:4px}.quad.hot{background:rgba(255,139,139,.08);border-color:rgba(255,139,139,.17)}.quad.gold{background:rgba(215,180,90,.08);border-color:rgba(255,224,138,.18)}.quad.green{background:rgba(114,224,196,.07);border-color:rgba(114,224,196,.16)}.quad.gray{background:rgba(255,255,255,.035)}
+    .toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}.search{flex:1;min-width:min(100%,300px);height:43px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.055);color:var(--text);padding:0 13px;outline:0}.filters{display:flex;gap:7px;flex-wrap:wrap}.filter-btn{border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--muted);border-radius:999px;padding:9px 11px;font-weight:900;font-size:12px;cursor:pointer}.filter-btn.active{color:#0b1828;background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent}.view-toggle{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden}.view-toggle button{border:0;border-right:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);min-height:38px;padding:0 11px;font-size:12px;font-weight:900;cursor:pointer}.view-toggle button:last-child{border-right:0}.view-toggle button.active{background:rgba(215,180,90,.14);color:var(--gold2)}
+    .items{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:13px}.item-card{border:1px solid var(--line);border-radius:23px;background:linear-gradient(180deg,rgba(23,47,74,.86),rgba(13,31,50,.82));padding:15px;position:relative;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.16)}.item-card::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--gold2),var(--blue));opacity:.88}.item-card.due::before{background:linear-gradient(180deg,var(--red),var(--orange))}.item-head{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}.item-title{margin:0;font-size:16px;line-height:1.3;letter-spacing:-.01em}.score{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;border:1px solid rgba(255,224,138,.18);background:rgba(215,180,90,.09);color:var(--gold2);font-weight:950;flex:0 0 auto}.meta{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.badge{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);border-radius:999px;padding:5px 8px;font-size:11px;color:var(--muted);font-weight:850}.badge.gold{color:var(--gold2);border-color:rgba(255,224,138,.22);background:rgba(215,180,90,.09)}.badge.red{color:#ffcaca;border-color:rgba(255,139,139,.22);background:rgba(255,139,139,.08)}.badge.green{color:var(--green);border-color:rgba(114,224,196,.2);background:rgba(114,224,196,.07)}.snippet{color:var(--muted);font-size:13px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:42px}.progress{height:9px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;margin:12px 0 4px}.progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--green));width:0}.tiny{display:flex;justify-content:space-between;gap:8px;color:var(--muted2);font-size:11px}.card-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.card-actions button{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.045);color:var(--text);font-size:12px;font-weight:900;min-height:35px;cursor:pointer}.card-actions button:hover{border-color:rgba(255,224,138,.3);color:var(--gold2)}.details{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;color:var(--muted);font-size:13px;line-height:1.62}.details h4{margin:10px 0 4px;color:var(--text);font-size:13px}.details ul{margin:6px 0 0;padding-left:20px}.empty{grid-column:1/-1;border:1px dashed rgba(255,255,255,.16);border-radius:24px;background:rgba(255,255,255,.035);padding:30px;text-align:center;color:var(--muted);line-height:1.6}.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.lane{border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.035);padding:10px;min-height:180px}.lane h3{font-size:13px;margin:0 0 10px;color:var(--gold2);letter-spacing:.05em;text-transform:uppercase}.lane-list{display:grid;gap:9px}.mini-card{border:1px solid var(--line);border-radius:16px;background:rgba(23,47,74,.78);padding:10px}.mini-card b{display:block;font-size:13px;line-height:1.3}.mini-card small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}
+    .weekly{overflow:auto}.week-table{width:100%;border-collapse:separate;border-spacing:0 8px;min-width:740px}.week-table th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;padding:0 10px}.week-table td{background:rgba(255,255,255,.045);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px;color:var(--muted);font-size:13px}.week-table td:first-child{border-left:1px solid var(--line);border-radius:14px 0 0 14px;color:var(--gold2);font-weight:900}.week-table td:last-child{border-right:1px solid var(--line);border-radius:0 14px 14px 0}.today-mark{display:inline-flex;align-items:center;gap:6px;color:#0b1828;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:999px;padding:4px 8px;font-size:11px;font-weight:950}.toast{position:fixed;right:18px;bottom:18px;z-index:100;background:rgba(14,31,50,.98);border:1px solid rgba(255,224,138,.22);border-radius:16px;color:var(--gold2);box-shadow:0 16px 42px rgba(0,0,0,.3);padding:12px 16px;font-size:13px;font-weight:900;transform:translateY(80px);opacity:0;transition:.25s;pointer-events:none}.toast.show{transform:translateY(0);opacity:1}.hidden{display:none!important}
+    dialog{border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,#10253a,#0c1c2e);color:var(--text);box-shadow:0 26px 90px rgba(0,0,0,.58);width:min(720px,calc(100% - 24px));padding:0}dialog::backdrop{background:rgba(0,0,0,.58);backdrop-filter:blur(4px)}.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:18px;border-bottom:1px solid var(--line)}.modal-head h2{margin:0;font-size:18px}.modal-body{padding:18px}.modal-actions{display:flex;gap:8px;justify-content:flex-end;padding:0 18px 18px}
+    .references{font-size:12px;color:var(--muted);line-height:1.6}.references li{margin-bottom:7px}.references a{color:var(--gold2);text-decoration:none}.references a:hover{text-decoration:underline}.print-only{display:none}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}.side{position:relative;top:auto}.nav{grid-template-columns:repeat(2,1fr)}.hero-grid,.quick-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.scale-grid{grid-template-columns:1fr 1fr}.kanban{grid-template-columns:1fr 1fr}}
+    @media(max-width:700px){.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between}.field,.field.wide{grid-column:1/-1}.scale-grid,.kanban{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.hero-actions{justify-content:flex-start}.card-actions{grid-template-columns:repeat(2,1fr)}.nav{grid-template-columns:1fr}}
+    @media print{body{background:#fff;color:#111}.topbar,.side,.hero-actions,.toolbar,.card-actions,.btn,.toast{display:none!important}.shell{padding:0;width:100%}.layout{display:block}.panel,.hero,.item-card,.stat{box-shadow:none;background:#fff;border-color:#ddd;color:#111}.item-card::before{display:none}.muted,.subtle,.snippet,.badge,.panel p,.hero p{color:#333!important}.print-only{display:block}.items{grid-template-columns:1fr 1fr}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">🧠</div>
+      <div><b>Aprendizados TDAH</b><small>planejar · priorizar · revisar · consolidar</small></div>
+    </div>
+    <div class="top-actions">
+      <span id="saveStatus" class="status ok">Autosave local ✓</span>
+      <button class="btn soft" id="exportBtn" type="button">Exportar</button>
+      <button class="btn" id="importBtn" type="button">Importar</button>
+      <button class="btn primary" type="button" data-scroll="#captura">+ Novo aprendizado</button>
+      <input id="importFile" class="hidden" type="file" accept="application/json" />
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="layout">
+      <aside class="side">
+        <h2>Mapa rápido</h2>
+        <nav class="nav" id="navLinks">
+          <a href="#painel">Painel <span>01</span></a>
+          <a href="#sprint">Sprint de estudo <span>02</span></a>
+          <a href="#captura">Captura <span>03</span></a>
+          <a href="#escalas">Escalas <span>04</span></a>
+          <a href="#lista">Aprendizados <span>05</span></a>
+          <a href="#semana">Semana <span>06</span></a>
+          <a href="#base">Base científica <span>07</span></a>
+        </nav>
+        <div class="science-note">
+          <b>Regra do painel:</b> estudar não é “ficar lendo”. É transformar conteúdo em pergunta, recuperar sem olhar, espaçar revisão e aplicar em caso real.
+        </div>
+      </aside>
+
+      <section class="content">
+        <section class="hero" id="painel">
+          <div class="hero-grid">
+            <div>
+              <span class="eyebrow">Sistema externo para função executiva</span>
+              <h1>Estudo com menos caos mental e mais recuperação ativa.</h1>
+              <p>Uma página para capturar conteúdos, calcular prioridade, escolher o próximo passo e revisar no momento certo. Foi pensada para TDAH: menos tela decorativa, mais decisão pronta, fricção baixa e feedback imediato.</p>
+              <div class="pill-row">
+                <span class="pill gold">Recuperação ativa</span>
+                <span class="pill">Repetição espaçada</span>
+                <span class="pill">Intercalação</span>
+                <span class="pill">Matriz Eisenhower</span>
+                <span class="pill">RICE adaptado</span>
+                <span class="pill">Bloom + Feynman</span>
+              </div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn primary" type="button" data-scroll="#sprint">Montar sessão agora</button>
+              <button class="btn" type="button" id="printBtn">Imprimir plano</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="stats" id="stats"></section>
+
+        <section class="panel" id="sprint">
+          <div class="panel-head">
+            <div>
+              <h2>Sprint de estudo antitravamento</h2>
+              <p>Escolha energia e tempo. O sistema monta um bloco de estudo que começa pequeno e termina com prova de memória.</p>
+            </div>
+            <button class="btn soft" type="button" id="randomSprintBtn">Estou travada(o)</button>
+          </div>
+          <div class="quick-grid">
+            <div class="form-grid">
+              <div class="field wide"><label for="sprintGoal">Objetivo da sessão</label><input id="sprintGoal" placeholder="Ex: entender crédito de IBS/CBS, revisar aula 4, montar flashcards..." /></div>
+              <div class="field"><label for="sprintMinutes">Tempo</label><select id="sprintMinutes"><option value="10">10 min</option><option value="15">15 min</option><option value="25" selected>25 min</option><option value="45">45 min</option><option value="60">60 min</option><option value="90">90 min</option></select></div>
+              <div class="field"><label>Energia <small id="energyVal">3</small></label><div class="range-row"><input id="energy" type="range" min="1" max="5" value="3" /><div class="range-num" id="energyNum">3</div></div></div>
+              <div class="field"><label>Clareza <small id="clarityVal">2</small></label><div class="range-row"><input id="clarity" type="range" min="1" max="5" value="2" /><div class="range-num" id="clarityNum">2</div></div></div>
+              <div class="field"><label>Dificuldade <small id="difficultySprintVal">3</small></label><div class="range-row"><input id="difficultySprint" type="range" min="1" max="5" value="3" /><div class="range-num" id="difficultySprintNum">3</div></div></div>
+              <div class="field full"><button class="btn primary" type="button" id="buildSprintBtn">Gerar plano de sessão</button></div>
+            </div>
+            <div class="sprint-box" id="sprintResult">
+              <div class="sprint-title">Plano sugerido</div>
+              <div class="subtle">Preencha o objetivo e gere uma sessão. O foco é sair da inércia, não “estudar perfeito”.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="captura">
+          <div class="panel-head">
+            <div>
+              <h2>Capturar aprendizado</h2>
+              <p>Registre o que precisa estudar, por que importa e qual escala de prioridade ele ocupa agora.</p>
+            </div>
+            <button class="btn" type="button" id="clearFormBtn">Limpar</button>
+          </div>
+          <form id="learningForm">
+            <div class="form-grid">
+              <div class="field wide"><label for="title">Tema / aprendizado</label><input id="title" required placeholder="Ex: Reforma Tributária — CBS, IBS e crédito" autocomplete="off" /></div>
+              <div class="field"><label for="area">Área</label><select id="area"><option>Fiscal</option><option>Contábil</option><option>Departamento Pessoal</option><option>Societário</option><option>Atendimento</option><option>Tecnologia</option><option>Carreira</option><option>Outro</option></select></div>
+              <div class="field"><label for="status">Status</label><select id="status"><option value="capturar">Capturar</option><option value="estudar">Estudar</option><option value="revisar">Revisar</option><option value="aplicar">Aplicar</option><option value="consolidado">Consolidado</option><option value="pausado">Pausado</option></select></div>
+              <div class="field wide"><label for="source">Fonte / material</label><input id="source" placeholder="Curso, aula, livro, legislação, vídeo, artigo..." /></div>
+              <div class="field wide"><label for="link">Link</label><input id="link" type="url" placeholder="https://..." /></div>
+              <div class="field"><label for="deadline">Prazo / prova</label><input id="deadline" type="date" /></div>
+              <div class="field"><label for="nextReview">Próxima revisão</label><input id="nextReview" type="date" /></div>
+              <div class="field"><label for="minutes">Tempo estimado</label><select id="minutes"><option value="15">15 min</option><option value="25">25 min</option><option value="45" selected>45 min</option><option value="60">1 hora</option><option value="90">1h30</option><option value="120">2 horas</option></select></div>
+              <div class="field"><label>Importância <small>impacto real</small></label><div class="range-row"><input id="importance" type="range" min="1" max="5" value="4" /><div class="range-num" id="importanceNum">4</div></div></div>
+              <div class="field"><label>Urgência <small>tempo</small></label><div class="range-row"><input id="urgency" type="range" min="1" max="5" value="3" /><div class="range-num" id="urgencyNum">3</div></div></div>
+              <div class="field"><label>Dificuldade <small>carga</small></label><div class="range-row"><input id="difficulty" type="range" min="1" max="5" value="3" /><div class="range-num" id="difficultyNum">3</div></div></div>
+              <div class="field"><label>Domínio <small>0 a 5</small></label><div class="range-row"><input id="mastery" type="range" min="0" max="5" value="1" /><div class="range-num" id="masteryNum">1</div></div></div>
+              <div class="field"><label>Confiança <small>RICE</small></label><div class="range-row"><input id="confidence" type="range" min="1" max="5" value="3" /><div class="range-num" id="confidenceNum">3</div></div></div>
+              <div class="field"><label>Alcance <small>RICE</small></label><div class="range-row"><input id="reach" type="range" min="1" max="5" value="3" /><div class="range-num" id="reachNum">3</div></div></div>
+              <div class="field full"><label for="why">Por que isso importa?</label><textarea id="why" placeholder="Qual problema isso resolve? Onde vou aplicar? O que muda se eu dominar esse tema?"></textarea></div>
+              <div class="field wide"><label for="questions">Perguntas de recuperação ativa</label><textarea id="questions" placeholder="Transforme o conteúdo em perguntas. Ex: Quando há crédito? Qual exceção? Como explicar para cliente?"></textarea></div>
+              <div class="field wide"><label for="notes">Notas, exemplo concreto e teste Feynman</label><textarea id="notes" placeholder="Explique em linguagem simples, crie exemplo real, registre pontos confusos..."></textarea></div>
+              <div class="field full"><button class="btn primary" type="submit" id="submitBtn">Salvar aprendizado</button> <button class="btn hidden" type="button" id="cancelEditBtn">Cancelar edição</button></div>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel" id="escalas">
+          <div class="panel-head">
+            <div>
+              <h2>Escalas e métodos que viraram sistema</h2>
+              <p>Não é para virar teoria decorativa. É para tomar decisão quando o cérebro não quer decidir.</p>
+            </div>
+          </div>
+          <div class="scale-grid">
+            <article class="scale-card">
+              <span class="scale-tag">Prioridade</span>
+              <h3>Matriz Eisenhower</h3>
+              <p>Separa urgência de importância. Para TDAH, ajuda a não confundir ansiedade com prioridade.</p>
+              <div class="matrix">
+                <div class="quad hot"><b>Urgente + importante</b><small>Faça hoje com bloco curto.</small></div>
+                <div class="quad gold"><b>Importante, não urgente</b><small>Agende antes de virar incêndio.</small></div>
+                <div class="quad gray"><b>Urgente, pouco importante</b><small>Delegue, limite ou resolva rápido.</small></div>
+                <div class="quad green"><b>Pouco impacto</b><small>Estacione sem culpa.</small></div>
+              </div>
+            </article>
+            <article class="scale-card">
+              <span class="scale-tag">Decisão</span>
+              <h3>RICE adaptado para estudo</h3>
+              <p>Score = Alcance × Impacto × Confiança ÷ Esforço. Use para escolher o que estudar primeiro.</p>
+              <ul class="scale-list"><li><b>Alcance:</b> quantas áreas/clientes/provas isso afeta?</li><li><b>Impacto:</b> quanto muda sua entrega?</li><li><b>Confiança:</b> você sabe avaliar o tamanho?</li><li><b>Esforço:</b> quanto custa começar?</li></ul>
+            </article>
+            <article class="scale-card">
+              <span class="scale-tag">Aprendizagem</span>
+              <h3>Bloom + Feynman</h3>
+              <p>Suba a régua: lembrar → entender → aplicar → analisar → avaliar → criar. Se não consegue explicar simples, ainda não consolidou.</p>
+              <ul class="scale-list"><li>Explique sem olhar.</li><li>Crie um exemplo real.</li><li>Compare com exceções.</li><li>Ensine como se fosse para uma pessoa nova.</li></ul>
+            </article>
+            <article class="scale-card">
+              <span class="scale-tag">Memória</span>
+              <h3>Leitner / repetição espaçada</h3>
+              <p>Revisar tudo todos os dias vira bagunça. O sistema joga para frente o que você acertou e puxa para perto o que você errou.</p>
+              <ul class="scale-list"><li>Errei: revisar hoje/amanhã.</li><li>Quase: revisar em 2–3 dias.</li><li>Acertei: revisar em 7–14 dias.</li><li>Dominei: revisar mensalmente.</li></ul>
+            </article>
+            <article class="scale-card">
+              <span class="scale-tag">Execução</span>
+              <h3>Timebox flexível</h3>
+              <p>Em TDAH, o tamanho da porta de entrada importa. Comece com 5, 10 ou 25 minutos conforme energia.</p>
+              <ul class="scale-list"><li>Energia baixa: 5–10 min, tarefa ridiculamente pequena.</li><li>Energia média: 25/5 com pergunta final.</li><li>Energia alta: 45–50 min com aplicação prática.</li></ul>
+            </article>
+            <article class="scale-card">
+              <span class="scale-tag">Metacognição</span>
+              <h3>Escala de domínio</h3>
+              <p>0 = não sei começar. 5 = aplico e ensino. O objetivo do estudo é subir nível, não acumular material.</p>
+              <ul class="scale-list"><li>0–1: mapear vocabulário.</li><li>2: entender com exemplos.</li><li>3: resolver questões/casos.</li><li>4–5: explicar, aplicar e revisar espaçado.</li></ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel toolbar" id="lista">
+          <input id="searchInput" class="search" type="search" placeholder="Buscar por tema, área, pergunta, fonte..." />
+          <div class="filters" id="filters"></div>
+          <div class="view-toggle"><button type="button" class="active" data-view="cards">Cards</button><button type="button" data-view="kanban">Kanban</button></div>
+        </section>
+        <section id="items" class="items" aria-live="polite"></section>
+        <section id="kanban" class="kanban hidden" aria-live="polite"></section>
+
+        <section class="panel" id="semana">
+          <div class="panel-head">
+            <div><h2>Plano da semana</h2><p>Baseado nas próximas revisões e prioridades. Refaça quando sentir que virou bagunça.</p></div>
+            <button class="btn soft" type="button" id="rebuildWeekBtn">Reorganizar semana</button>
+          </div>
+          <div class="weekly" id="weeklyPlan"></div>
+        </section>
+
+        <section class="panel" id="base">
+          <div class="panel-head"><div><h2>Base científica usada no desenho da página</h2><p>Resumo prático, sem prometer milagre.</p></div></div>
+          <ul class="references">
+            <li><b>TDAH e função executiva:</b> o sistema usa estrutura externa, metas claras e planejamento porque TDAH envolve dificuldades de atenção, impulsividade e organização na vida diária.</li>
+            <li><b>Aprendizagem:</b> prioriza teste prático/recuperação ativa e prática distribuída, estratégias consideradas de alta utilidade em revisões da ciência da aprendizagem.</li>
+            <li><b>Estratégias modernas:</b> intercalação, elaboração, exemplos concretos e dupla codificação aparecem como estratégias úteis quando combinadas com planejamento e recuperação ativa.</li>
+            <li><b>Triagem não é diagnóstico:</b> escalas como ASRS são instrumentos de rastreio para adultos e devem ser discutidas com profissional de saúde; esta página não diagnostica nem substitui tratamento.</li>
+          </ul>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="reviewDialog">
+    <div class="modal-head"><div><h2>Registrar revisão</h2><p class="subtle" id="reviewTitle"></p></div><button class="btn icon" type="button" id="closeReview">×</button></div>
+    <div class="modal-body">
+      <div class="field full"><label>Como foi lembrar sem olhar?</label><select id="recallScore"><option value="0">0 · Travei / não lembrei</option><option value="1">1 · Lembrei muito pouco</option><option value="2">2 · Lembrei com muita ajuda</option><option value="3" selected>3 · Lembrei o essencial</option><option value="4">4 · Lembrei bem</option><option value="5">5 · Expliquei e aplicaria</option></select></div>
+      <div class="field full" style="margin-top:12px"><label for="reviewNote">Nota da revisão</label><textarea id="reviewNote" placeholder="O que errei? Qual pergunta precisa voltar? O que ficou claro?"></textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn" type="button" id="cancelReview">Cancelar</button><button class="btn primary" type="button" id="saveReview">Salvar revisão</button></div>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  (()=>{
+    'use strict';
+    const STORAGE_KEY = 'aprendizados_tdah_navy_gold_v1';
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+    const todayISO = () => {
+      const d = new Date(); d.setHours(0,0,0,0);
+      return d.toISOString().slice(0,10);
+    };
+    const addDaysISO = (days) => {
+      const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+days);
+      return d.toISOString().slice(0,10);
+    };
+    const toDate = (iso) => {
+      if(!iso) return null;
+      const [y,m,d] = String(iso).split('-').map(Number);
+      if(!y||!m||!d) return null;
+      return new Date(y,m-1,d);
+    };
+    const daysUntil = (iso) => {
+      const d = toDate(iso); if(!d) return null;
+      const now = toDate(todayISO());
+      return Math.round((d-now)/(1000*60*60*24));
+    };
+    const escapeHtml = (v) => String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(16).slice(2));
+    const state = { items: [], filter: 'all', search: '', editingId: null, expanded: new Set(), view: 'cards', reviewId: null };
+    const defaultItems = [
+      {id:uid(),title:'Reforma Tributária — mapa IBS/CBS',area:'Fiscal',status:'estudar',source:'Curso / legislação / anotações',link:'',deadline:'',nextReview:todayISO(),minutes:'45',importance:5,urgency:4,difficulty:4,mastery:1,confidence:3,reach:5,why:'Tema estratégico para aprofundamento e diferenciação profissional.',questions:'O que muda no crédito? Quais exceções? Como explicar para uma empresa simples?',notes:'Criar mapa visual e exemplos com compras de uso e consumo, serviços e revenda.',createdAt:Date.now()-86400000*2,updatedAt:Date.now()-86400000*2,reviews:[]},
+      {id:uid(),title:'Rotina de revisão fiscal semanal',area:'Fiscal',status:'revisar',source:'Procedimentos internos',link:'',deadline:'',nextReview:addDaysISO(2),minutes:'25',importance:4,urgency:2,difficulty:2,mastery:2,confidence:4,reach:4,why:'Reduz retrabalho e esquecimento de pontos recorrentes.',questions:'Quais erros mais voltam? O que precisa virar checklist?',notes:'Transformar erros reais em flashcards e mini-checklists.',createdAt:Date.now()-86400000,updatedAt:Date.now()-86400000,reviews:[]}
+    ];
+    const filters = [['all','Todos'],['hoje','Revisar hoje'],['capturar','Capturar'],['estudar','Estudar'],['revisar','Revisar'],['aplicar','Aplicar'],['consolidado','Consolidado'],['pausado','Pausado']];
+    const lanes = [['capturar','Capturar'],['estudar','Estudar'],['revisar','Revisar'],['aplicar','Aplicar'],['consolidado','Consolidado']];
+    function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),2300); }
+    function setStatus(msg){ $('#saveStatus').textContent = msg; $('#saveStatus').className = 'status ok'; }
+    function load(){
+      try{ const raw = localStorage.getItem(STORAGE_KEY); state.items = raw ? JSON.parse(raw) : defaultItems; }
+      catch{ state.items = defaultItems; }
+      save(false); renderAll();
+    }
+    function save(show=true){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items)); setStatus('Autosave local ✓'); if(show) toast('Salvo ✓'); }
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, Number(n)||0)); }
+    function getFormData(){
+      const title = $('#title').value.trim();
+      if(!title){ $('#title').focus(); toast('Dê um título para não perder o aprendizado.'); return null; }
+      const data = {
+        title,
+        area: $('#area').value,
+        status: $('#status').value,
+        source: $('#source').value.trim(),
+        link: $('#link').value.trim(),
+        deadline: $('#deadline').value,
+        nextReview: $('#nextReview').value || todayISO(),
+        minutes: $('#minutes').value,
+        importance: clamp($('#importance').value,1,5),
+        urgency: clamp($('#urgency').value,1,5),
+        difficulty: clamp($('#difficulty').value,1,5),
+        mastery: clamp($('#mastery').value,0,5),
+        confidence: clamp($('#confidence').value,1,5),
+        reach: clamp($('#reach').value,1,5),
+        why: $('#why').value.trim(),
+        questions: $('#questions').value.trim(),
+        notes: $('#notes').value.trim(),
+        updatedAt: Date.now()
+      };
+      if(state.editingId){
+        const old = state.items.find(x=>x.id===state.editingId) || {};
+        return {...old, ...data, id: state.editingId};
+      }
+      return {...data, id: uid(), createdAt: Date.now(), reviews: []};
+    }
+    function resetForm(){
+      state.editingId = null;
+      $('#learningForm').reset();
+      $('#importance').value=4; $('#urgency').value=3; $('#difficulty').value=3; $('#mastery').value=1; $('#confidence').value=3; $('#reach').value=3;
+      $('#nextReview').value = todayISO();
+      $('#submitBtn').textContent='Salvar aprendizado'; $('#cancelEditBtn').classList.add('hidden');
+      syncRangeLabels();
+    }
+    function fillForm(item){
+      state.editingId = item.id;
+      ['title','area','status','source','link','deadline','nextReview','minutes','importance','urgency','difficulty','mastery','confidence','reach','why','questions','notes'].forEach(k=>{ const el=$('#'+k); if(el) el.value = item[k] ?? ''; });
+      $('#submitBtn').textContent='Atualizar aprendizado'; $('#cancelEditBtn').classList.remove('hidden'); syncRangeLabels();
+      $('#captura').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    function priorityScore(item){
+      const deadlineDays = daysUntil(item.deadline);
+      let deadlineBoost = 0;
+      if(deadlineDays !== null){
+        if(deadlineDays < 0) deadlineBoost = 35;
+        else if(deadlineDays <= 1) deadlineBoost = 32;
+        else if(deadlineDays <= 3) deadlineBoost = 24;
+        else if(deadlineDays <= 7) deadlineBoost = 14;
+      }
+      const due = daysUntil(item.nextReview);
+      const reviewBoost = due !== null && due <= 0 ? 18 : 0;
+      const masteryGap = 5 - Number(item.mastery||0);
+      const rice = (Number(item.reach||1) * Number(item.importance||1) * Number(item.confidence||1)) / Math.max(1, Number(item.difficulty||1));
+      return Math.round(Number(item.importance||1)*22 + Number(item.urgency||1)*14 + masteryGap*13 + deadlineBoost + reviewBoost + rice*3 - Number(item.difficulty||1)*4);
+    }
+    function priorityLabel(score){
+      if(score >= 165) return ['Faça hoje','red'];
+      if(score >= 130) return ['Alta prioridade','gold'];
+      if(score >= 96) return ['Agendar','green'];
+      return ['Estacionar',''];
+    }
+    function statusLabel(s){
+      return ({capturar:'Capturar',estudar:'Estudar',revisar:'Revisar',aplicar:'Aplicar',consolidado:'Consolidado',pausado:'Pausado'}[s]||s);
+    }
+    function formatDate(iso){ if(!iso) return '—'; const [y,m,d]=String(iso).split('-'); return y&&m&&d ? `${d}/${m}/${y}` : iso; }
+    function isDue(item){ const d=daysUntil(item.nextReview); return d !== null && d <= 0 && item.status !== 'consolidado' && item.status !== 'pausado'; }
+    function itemMatches(item){
+      if(state.filter === 'hoje' && !isDue(item)) return false;
+      if(state.filter !== 'all' && state.filter !== 'hoje' && item.status !== state.filter) return false;
+      const q = state.search.trim().toLowerCase();
+      if(!q) return true;
+      return [item.title,item.area,item.status,item.source,item.why,item.questions,item.notes].join(' ').toLowerCase().includes(q);
+    }
+    function sortedItems(){ return [...state.items].sort((a,b)=>priorityScore(b)-priorityScore(a) || (b.updatedAt||0)-(a.updatedAt||0)); }
+    function renderStats(){
+      const items = state.items;
+      const due = items.filter(isDue).length;
+      const high = items.filter(x=>priorityScore(x)>=130 && !['consolidado','pausado'].includes(x.status)).length;
+      const active = items.filter(x=>!['consolidado','pausado'].includes(x.status)).length;
+      const avgMastery = items.length ? (items.reduce((s,x)=>s+Number(x.mastery||0),0)/items.length).toFixed(1) : '0.0';
+      $('#stats').innerHTML = `
+        <div class="stat"><b>${items.length}</b><span>Aprendizados</span><em>Total registrado</em></div>
+        <div class="stat"><b>${due}</b><span>Revisar hoje</span><em>Memória chamando</em></div>
+        <div class="stat"><b>${high}</b><span>Alta prioridade</span><em>Score acima de 130</em></div>
+        <div class="stat"><b>${avgMastery}</b><span>Domínio médio</span><em>${active} ativos</em></div>`;
+    }
+    function renderFilters(){
+      $('#filters').innerHTML = filters.map(([key,label]) => `<button class="filter-btn ${state.filter===key?'active':''}" type="button" data-filter="${key}">${label}</button>`).join('');
+    }
+    function renderItems(){
+      const list = sortedItems().filter(itemMatches);
+      const box = $('#items');
+      if(state.view !== 'cards'){ box.classList.add('hidden'); return; }
+      $('#kanban').classList.add('hidden'); box.classList.remove('hidden');
+      if(!list.length){ box.innerHTML = `<div class="empty">✨ Nada encontrado. Capture um aprendizado pequeno ou limpe os filtros.</div>`; return; }
+      box.innerHTML = list.map(item=>{
+        const score = priorityScore(item); const [label,kind]=priorityLabel(score); const expanded=state.expanded.has(item.id); const due=isDue(item);
+        const masteryPct = Math.max(0,Math.min(100,Number(item.mastery||0)*20));
+        const deadlineDays=daysUntil(item.deadline); const deadlineBadge = item.deadline ? `<span class="badge ${deadlineDays!==null&&deadlineDays<=3?'red':''}">Prazo: ${formatDate(item.deadline)}</span>` : '';
+        const reviewBadge = item.nextReview ? `<span class="badge ${due?'red':'green'}">Revisão: ${formatDate(item.nextReview)}</span>` : '';
+        const link = item.link && /^https?:\/\//i.test(item.link) ? `<a class="badge gold" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">🔗 abrir</a>` : '';
+        const details = expanded ? `<div class="details">
+          <h4>Por que importa</h4><div>${escapeHtml(item.why || 'Sem justificativa registrada.')}</div>
+          <h4>Perguntas de recuperação ativa</h4><div>${escapeHtml(item.questions || 'Sem perguntas ainda. Transforme o conteúdo em perguntas para revisar melhor.')}</div>
+          <h4>Notas / Feynman / exemplo concreto</h4><div>${escapeHtml(item.notes || 'Sem notas.')}</div>
+          ${renderReviews(item)}
+        </div>` : '';
+        return `<article class="item-card ${due?'due':''}" data-id="${item.id}">
+          <div class="item-head"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="score" title="Score de prioridade">${score}</div></div>
+          <div class="meta"><span class="badge gold">${escapeHtml(label)}</span><span class="badge">${escapeHtml(item.area)}</span><span class="badge">${statusLabel(item.status)}</span>${deadlineBadge}${reviewBadge}${link}</div>
+          <div class="snippet">${escapeHtml(item.why || item.questions || item.notes || 'Sem resumo ainda.')}</div>
+          <div class="progress"><span style="width:${masteryPct}%"></span></div><div class="tiny"><span>Domínio ${item.mastery}/5</span><span>RICE ${riceScore(item)}</span></div>
+          ${details}
+          <div class="card-actions"><button type="button" data-action="toggle">${expanded?'Ocultar':'Abrir'}</button><button type="button" data-action="review">Revisar</button><button type="button" data-action="edit">Editar</button><button type="button" data-action="delete">Excluir</button></div>
+        </article>`;
+      }).join('');
+    }
+    function riceScore(item){ return ((Number(item.reach||1)*Number(item.importance||1)*Number(item.confidence||1))/Math.max(1,Number(item.difficulty||1))).toFixed(1); }
+    function renderReviews(item){
+      const reviews = item.reviews || [];
+      if(!reviews.length) return '<h4>Histórico de revisão</h4><div>Ainda sem revisão registrada.</div>';
+      return `<h4>Histórico de revisão</h4><ul>${reviews.slice(-4).reverse().map(r=>`<li>${formatDate(r.date)} · lembrança ${r.recall}/5 — ${escapeHtml(r.note||'sem nota')}</li>`).join('')}</ul>`;
+    }
+    function renderKanban(){
+      const box = $('#kanban');
+      if(state.view !== 'kanban'){ box.classList.add('hidden'); return; }
+      $('#items').classList.add('hidden'); box.classList.remove('hidden');
+      const base = sortedItems().filter(itemMatches);
+      box.innerHTML = lanes.map(([key,label])=>{
+        const laneItems = base.filter(x=>x.status===key).slice(0,12);
+        return `<section class="lane"><h3>${label} · ${laneItems.length}</h3><div class="lane-list">${laneItems.length ? laneItems.map(item=>`<div class="mini-card"><b>${escapeHtml(item.title)}</b><small>Score ${priorityScore(item)} · revisão ${formatDate(item.nextReview)}</small></div>`).join('') : '<div class="subtle">Vazio.</div>'}</div></section>`;
+      }).join('');
+    }
+    function renderWeeklyPlan(){
+      const days = [...Array(7)].map((_,i)=>addDaysISO(i));
+      const rows = days.map((day,i)=>{
+        const due = sortedItems().filter(x=>x.nextReview===day || (i===0 && isDue(x))).slice(0,3);
+        const chosen = due.length ? due : sortedItems().filter(x=>!['consolidado','pausado'].includes(x.status)).slice(i,i+1);
+        const study = chosen.map(x=>escapeHtml(x.title)).join('<br>') || 'Reserva / descanso';
+        const action = chosen.length ? chosen.map(x=> actionFor(x)).join('<br>') : 'Sem pendência crítica';
+        return `<tr><td>${i===0?'<span class="today-mark">Hoje</span>':formatDate(day)}</td><td>${study}</td><td>${action}</td><td>${chosen.map(x=>formatDate(x.nextReview)).join('<br>') || '—'}</td></tr>`;
+      }).join('');
+      $('#weeklyPlan').innerHTML = `<table class="week-table"><thead><tr><th>Dia</th><th>Aprendizado</th><th>Ação mínima</th><th>Revisão</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    function actionFor(item){
+      if(isDue(item)) return 'Recuperar sem olhar + corrigir falhas';
+      if(Number(item.mastery||0) <= 1) return 'Mapear vocabulário + 3 perguntas';
+      if(Number(item.mastery||0) <= 3) return 'Resolver caso prático + exemplo';
+      return 'Ensinar/Feynman + revisão espaçada';
+    }
+    function renderAll(){ renderStats(); renderFilters(); renderItems(); renderKanban(); renderWeeklyPlan(); }
+    function syncRangeLabels(){
+      ['importance','urgency','difficulty','mastery','confidence','reach','energy','clarity','difficultySprint'].forEach(id=>{
+        const el=$('#'+id); if(!el) return;
+        const num=$('#'+id+'Num'); const val=$('#'+id+'Val');
+        if(num) num.textContent=el.value; if(val) val.textContent=el.value;
+      });
+    }
+    function buildSprint(){
+      const goal = $('#sprintGoal').value.trim() || 'estudar o próximo conteúdo importante';
+      const minutes = Number($('#sprintMinutes').value);
+      const energy = Number($('#energy').value); const clarity = Number($('#clarity').value); const diff = Number($('#difficultySprint').value);
+      let title='Sessão 25/5 com recuperação ativa';
+      let steps=[];
+      if(energy <= 2){
+        title = 'Modo baixa energia: porta de entrada minúscula';
+        steps = [['2 min','Abrir material, água e timer. Sem decidir o plano perfeito.'],['5 min','Ler só o índice, títulos ou trecho marcado.'],['5 min','Escrever 3 perguntas que o conteúdo precisa responder.'],['3 min','Responder uma pergunta sem olhar. Parar com vitória pequena.']];
+      } else if(minutes <= 15){
+        title = 'Sprint curta: capturar e recuperar';
+        steps = [['3 min','Definir exatamente o que será aprendido.'],['7 min','Estudar um bloco pequeno, sem alternar aba.'],['3 min','Fechar o material e escrever o que lembra.'],['2 min','Marcar próxima revisão.']];
+      } else if(minutes >= 60 && energy >= 4 && clarity >= 3){
+        title = 'Bloco profundo: entender, aplicar e revisar';
+        steps = [['8 min','Mapa rápido: o que já sei, o que falta, onde vou usar.'],['25 min','Estudo ativo com anotações em perguntas.'],['10 min','Pausa real: levantar, água, zero rolagem infinita.'],['25 min','Aplicar em caso, questão ou exemplo concreto.'],['7 min','Teste Feynman: explicar simples e registrar falhas.']];
+      } else {
+        steps = [['5 min','Preparar ambiente e escolher uma microtarefa.'],['18 min','Estudar respondendo perguntas, não apenas lendo.'],['5 min','Pausa curta sem rede social.'],['10 min','Recuperação ativa: escrever de memória.'],['5 min','Definir próxima revisão e próximo passo.']];
+      }
+      if(diff >= 4) steps.splice(1,0,['4 min','Destravar vocabulário: listar termos difíceis antes de aprofundar.']);
+      $('#sprintResult').innerHTML = `<div class="sprint-title">${escapeHtml(title)}</div><div class="subtle"><b>Objetivo:</b> ${escapeHtml(goal)}</div><div class="sprint-plan">${steps.map((s,i)=>`<div class="sprint-step"><span class="step-no">${i+1}</span><div><b>${s[0]}</b><br>${escapeHtml(s[1])}</div></div>`).join('')}</div>`;
+    }
+    function openReview(id){
+      const item = state.items.find(x=>x.id===id); if(!item) return;
+      state.reviewId = id; $('#reviewTitle').textContent = item.title; $('#reviewNote').value=''; $('#recallScore').value='3'; $('#reviewDialog').showModal();
+    }
+    function saveReview(){
+      const item = state.items.find(x=>x.id===state.reviewId); if(!item) return;
+      const recall = Number($('#recallScore').value); const note=$('#reviewNote').value.trim();
+      const intervals = [0,1,2,4,7,14];
+      item.reviews = [...(item.reviews||[]), {date:todayISO(), recall, note}];
+      item.mastery = Math.max(0, Math.min(5, Math.round((Number(item.mastery||0)*0.55 + recall*0.45)*10)/10));
+      item.nextReview = addDaysISO(intervals[recall] ?? 3);
+      item.status = recall >= 4 ? 'aplicar' : 'revisar';
+      item.updatedAt = Date.now();
+      save(); $('#reviewDialog').close(); state.reviewId=null; renderAll();
+    }
+    function exportData(){
+      const blob = new Blob([JSON.stringify({exportedAt:new Date().toISOString(), items:state.items}, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='aprendizados_tdah_backup.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); toast('Backup exportado ✓');
+    }
+    function importData(file){
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const data = JSON.parse(reader.result); const list = Array.isArray(data) ? data : data.items;
+          if(!Array.isArray(list)) throw new Error('Formato inválido');
+          state.items = list.map(x=>({...x, id:x.id||uid()})); save(); renderAll(); toast('Importado com sucesso ✓');
+        }catch(err){ toast('Arquivo inválido.'); }
+      };
+      reader.readAsText(file);
+    }
+    document.addEventListener('click', (e)=>{
+      const scrollBtn=e.target.closest('[data-scroll]'); if(scrollBtn){ const target=$(scrollBtn.dataset.scroll); if(target) target.scrollIntoView({behavior:'smooth',block:'start'}); }
+    });
+    $('#learningForm').addEventListener('submit', e=>{ e.preventDefault(); const data=getFormData(); if(!data) return; if(state.editingId){ state.items=state.items.map(x=>x.id===data.id?data:x); } else { state.items.unshift(data); } save(); resetForm(); renderAll(); });
+    $('#clearFormBtn').addEventListener('click', resetForm); $('#cancelEditBtn').addEventListener('click', resetForm);
+    $('#filters').addEventListener('click', e=>{ const b=e.target.closest('[data-filter]'); if(!b) return; state.filter=b.dataset.filter; renderAll(); });
+    $('#searchInput').addEventListener('input', e=>{ state.search=e.target.value; renderItems(); renderKanban(); });
+    $('#items').addEventListener('click', e=>{
+      const btn=e.target.closest('[data-action]'); if(!btn) return; const card=btn.closest('[data-id]'); const id=card?.dataset.id; if(!id) return;
+      const item=state.items.find(x=>x.id===id); if(!item) return;
+      const action=btn.dataset.action;
+      if(action==='toggle'){ state.expanded.has(id)?state.expanded.delete(id):state.expanded.add(id); renderItems(); }
+      if(action==='edit') fillForm(item);
+      if(action==='review') openReview(id);
+      if(action==='delete' && confirm('Excluir este aprendizado?')){ state.items=state.items.filter(x=>x.id!==id); save(); renderAll(); }
+    });
+    $$('.view-toggle button').forEach(btn=>btn.addEventListener('click',()=>{ state.view=btn.dataset.view; $$('.view-toggle button').forEach(b=>b.classList.toggle('active',b===btn)); renderItems(); renderKanban(); }));
+    $('#buildSprintBtn').addEventListener('click', buildSprint);
+    $('#randomSprintBtn').addEventListener('click', ()=>{ $('#sprintGoal').value='sair da inércia e estudar o menor pedaço possível'; $('#sprintMinutes').value='10'; $('#energy').value='1'; $('#clarity').value='1'; $('#difficultySprint').value='4'; syncRangeLabels(); buildSprint(); });
+    ['importance','urgency','difficulty','mastery','confidence','reach','energy','clarity','difficultySprint'].forEach(id=>{ const el=$('#'+id); if(el) el.addEventListener('input', syncRangeLabels); });
+    $('#closeReview').addEventListener('click',()=>$('#reviewDialog').close()); $('#cancelReview').addEventListener('click',()=>$('#reviewDialog').close()); $('#saveReview').addEventListener('click',saveReview);
+    $('#exportBtn').addEventListener('click', exportData); $('#importBtn').addEventListener('click',()=>$('#importFile').click()); $('#importFile').addEventListener('change',e=>{ importData(e.target.files?.[0]); e.target.value=''; });
+    $('#printBtn').addEventListener('click',()=>window.print()); $('#rebuildWeekBtn').addEventListener('click',()=>{ renderWeeklyPlan(); toast('Semana reorganizada ✓'); });
+    $('#navLinks').addEventListener('click', e=>{ const a=e.target.closest('a'); if(!a) return; $$('#navLinks a').forEach(x=>x.classList.toggle('active',x===a)); });
+    resetForm(); load(); buildSprint();
+  })();
+  </script>
+</body>
+</html>
