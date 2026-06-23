@@ -467,6 +467,10 @@
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
 const CONFIG = {
   key: "aquisicoes",
   localKey: "sistema_vida_aquisicoes_light_v1",
@@ -506,8 +510,10 @@ const state = {
   tags: [],
   expanded: new Set(),
   firebase: null,
+  currentUser: null,
   remotePath: null,
   remoteRef: null,
+  pendingLocalUploadDone: false,
   isSaving: false,
   lastRemoteAt: 0
 };
@@ -720,41 +726,40 @@ function collectData(){
 }
 
 async function saveRemote(item){
-  const saved = upsertItemLocal(item);
-  setStatus(state.remoteRef ? "busy" : "ok", state.remoteRef ? "Salvando..." : "Salvo localmente ✓");
+  const saved = upsertItemLocal({...item, schemaVersion: 5});
 
-  if(!state.remoteRef || !state.firebase){
-    setStatus("ok","Local ✓");
+  if(!state.currentUser || !state.remoteRef){
+    setStatus("warn","Salvo só local");
+    showToast("Faça login pelo Hub para sincronizar este registro na nuvem.");
     return saved;
   }
 
-  const {dbMod, db} = state.firebase;
+  setStatus("busy","Salvando na nuvem...");
   try{
-    await dbMod.set(dbMod.ref(db, `${state.remotePath}/${saved.id}`), saved);
+    await update(ref(state.firebase.db, `${state.remotePath}/${saved.id}`), saved);
     setStatus("ok","Sincronizado ✓");
   }catch(err){
     console.error(err);
-    setStatus("warn","Salvo localmente");
+    setStatus("warn", err?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Salvo localmente");
     showToast(err?.code === "PERMISSION_DENIED" ? "Firebase bloqueou. Confira a regra users/{uid}." : "O item ficou salvo no navegador. Firebase não confirmou agora.");
   }
   return saved;
 }
 async function deleteRemote(id){
   removeItemLocal(id);
-  setStatus(state.remoteRef ? "busy" : "ok", state.remoteRef ? "Excluindo..." : "Local ✓");
 
-  if(!state.remoteRef || !state.firebase){
-    setStatus("ok","Local ✓");
+  if(!state.currentUser || !state.remoteRef){
+    setStatus("warn","Excluído só local");
     return;
   }
 
-  const {dbMod, db} = state.firebase;
+  setStatus("busy","Excluindo na nuvem...");
   try{
-    await dbMod.remove(dbMod.ref(db, `${state.remotePath}/${id}`));
+    await remove(ref(state.firebase.db, `${state.remotePath}/${id}`));
     setStatus("ok","Sincronizado ✓");
   }catch(err){
     console.error(err);
-    setStatus("warn","Excluído localmente");
+    setStatus("warn", err?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Excluído localmente");
     showToast("Excluí da tela e do backup local. Firebase não confirmou agora.");
   }
 }
@@ -770,8 +775,9 @@ async function onSave(e){
 
   try{
     await saveRemote(data);
-    showToast(state.editingId ? "Registro atualizado e já visível ✓" : "Registro salvo e já visível ✓");
+    showToast(state.editingId ? "Registro atualizado e sincronizado ✓" : "Registro salvo e sincronizado ✓");
     resetForm();
+    closeCaptureModal();
   }catch(err){
     console.error(err);
     setStatus("warn","Erro ao salvar");
@@ -842,16 +848,15 @@ function itemMatches(item){
   return haystack.includes(q);
 }
 function renderStats(list = state.items){
-  const today = todayKey();
   const pending = list.filter(x => ["pendente","pesquisar","esperar"].includes(x.status)).length;
   const focus = list.filter(x => Number(x.priority || 0) >= 4).length;
   const totalValue = list.reduce((sum,item) => sum + parseMoney(item.price), 0);
 
   $("#stats").innerHTML = `
-    <div class="stat"><b>${list.length}</b><span>Itens registrados</span></div>
-    <div class="stat"><b>${pending}</b><span>Em análise</span></div>
-    <div class="stat"><b>${focus}</b><span>Prioridade 4 ou 5</span></div>
-    <div class="stat"><b>${brMoney(totalValue)}</b><span>Valor estimado</span></div>
+    <div class="kpi-card"><div class="kpi-label">Registrados</div><div class="kpi-value">${list.length}</div><div class="kpi-sub">itens na fila</div></div>
+    <div class="kpi-card amber"><div class="kpi-label">Em análise</div><div class="kpi-value">${pending}</div><div class="kpi-sub">pendentes / pesquisar / esperar</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Prioridade alta</div><div class="kpi-value">${focus}</div><div class="kpi-sub">nível 4 ou 5</div></div>
+    <div class="kpi-card"><div class="kpi-label">Valor estimado</div><div class="kpi-value" style="font-size:1.25rem">${brMoney(totalValue)}</div><div class="kpi-sub">soma informada</div></div>
   `;
 }
 function metaFor(item){
@@ -932,64 +937,84 @@ function render(){
   }).join("");
 }
 
+async function uploadLocalItemsToCloud(remoteItems){
+  if(state.pendingLocalUploadDone || !state.remoteRef) return;
+  state.pendingLocalUploadDone = true;
+
+  const remoteMap = new Map(remoteItems.map(item => [item.id, item]));
+  const payload = {};
+  loadLocal().forEach(local => {
+    if(!local?.id) return;
+    const remote = remoteMap.get(local.id);
+    if(!remote || Number(local.updatedAt || 0) > Number(remote.updatedAt || 0)){
+      payload[local.id] = normalizeItem({...local, schemaVersion: 5});
+    }
+  });
+
+  if(!Object.keys(payload).length) return;
+
+  try{
+    setStatus("busy","Enviando backup local...");
+    await update(state.remoteRef, payload);
+    setStatus("ok","Sincronizado ✓");
+  }catch(err){
+    console.warn("Backup local não subiu para a nuvem:", err);
+    state.pendingLocalUploadDone = false;
+    setStatus("warn", err?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Backup local pendente");
+  }
+}
+
 async function initFirebase(){
   state.items = mergeItems(loadLocal());
   render();
-  setStatus("ok","Local ✓");
+  setStatus("busy","Conectando Firebase...");
 
   try{
-    const [appMod, authMod, dbMod] = await Promise.all([
-      import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js")
-    ]);
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+    setPersistence(auth, browserLocalPersistence).catch(console.warn);
 
-    const app = appMod.initializeApp(FIREBASE_CONFIG);
-    const auth = authMod.getAuth(app);
-    authMod.setPersistence?.(auth, authMod.browserLocalPersistence)?.catch?.(console.warn);
-    const db = dbMod.getDatabase(app);
-
-    state.firebase = {authMod, dbMod, db};
-
-    authMod.onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, user => {
       if(!user){
+        state.currentUser = null;
         state.remoteRef = null;
         state.remotePath = null;
         setStatus("warn","Faça login");
-        showToast("Faça login pelo Hub para sincronizar na nuvem. Enquanto isso, fica salvo localmente.");
+        showToast("Faça login pelo Hub para sincronizar na nuvem.");
+        setTimeout(() => {
+          if(!state.currentUser && !location.pathname.endsWith("/index.html")) window.location.href = "../index.html";
+        }, 1200);
         return;
       }
 
+      state.currentUser = user;
+      state.firebase = {auth, db: database};
       state.remotePath = `users/${user.uid}/modulos/${CONFIG.key}`;
-      state.remoteRef = dbMod.ref(db, state.remotePath);
-      setStatus("busy","Sincronizando...");
+      state.remoteRef = ref(database, state.remotePath);
+      state.pendingLocalUploadDone = false;
+      setStatus("busy","Carregando nuvem...");
 
-      dbMod.onValue(state.remoteRef, snap => {
+      onValue(state.remoteRef, snapshot => {
         const remoteItems = [];
-        snap.forEach(child => remoteItems.push({id: child.key, ...child.val()}));
+        snapshot.forEach(child => remoteItems.push({id: child.key, ...child.val()}));
 
         state.lastRemoteAt = Date.now();
         state.items = mergeItems(loadLocal(), remoteItems);
         saveLocal();
         render();
-
-        if(remoteItems.length === 0 && state.items.length){
-          const payload = {};
-          state.items.forEach(item => payload[item.id] = item);
-          dbMod.update(state.remoteRef, payload).catch(err => console.warn("Migração local não enviada:", err));
-        }
-
         setStatus("ok","Sincronizado ✓");
-      }, err => {
-        console.error(err);
+        uploadLocalItemsToCloud(remoteItems);
+      }, error => {
+        console.error(error);
         state.remoteRef = null;
-        setStatus("warn", err?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Offline");
-        showToast("Firebase não respondeu. O sistema continua salvando localmente.");
+        setStatus("warn", error?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Offline/erro");
+        showToast(error?.code === "PERMISSION_DENIED" ? "Firebase bloqueou. Confira a regra users/{uid}." : "Erro ao sincronizar com Firebase. Mantive o backup local.");
       });
     });
   }catch(err){
     console.warn("Firebase indisponível. Modo local ativo.", err);
-    setStatus("ok","Local ✓");
+    setStatus("warn","Local apenas");
   }
 }
 
