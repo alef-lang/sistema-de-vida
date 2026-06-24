@@ -240,10 +240,21 @@
   .item-card[data-status="comprar"]::before{background:var(--blue)}
   .item-card[data-status="esperar"]::before{background:var(--amber)}
   .item-card[data-status="descartado"]::before{background:var(--red)}
+  .item-main{display:flex;flex-direction:column;gap:9px;min-width:0;padding-left:5px}
   .item-title{
     font-family:'Poppins',sans-serif;font-size:.95rem;font-weight:600;line-height:1.25;color:var(--text);
-    overflow-wrap:anywhere;padding-left:5px;
+    overflow-wrap:anywhere;padding-left:0;
   }
+  .subtotal-selector{
+    display:flex;align-items:center;gap:7px;width:max-content;max-width:100%;
+    padding:5px 9px;border-radius:999px;border:1px solid rgba(122,146,168,.25);
+    background:rgba(122,146,168,.10);color:var(--text-muted);font-size:.72rem;
+    font-family:var(--mono);user-select:none;cursor:pointer;transition:border-color .16s,background .16s,color .16s;
+  }
+  .subtotal-selector:hover{border-color:var(--gold);color:var(--gold-light)}
+  .subtotal-selector.selected{background:var(--gold-dim);border-color:var(--gold-border);color:var(--gold-light)}
+  .subtotal-selector input{width:15px;height:15px;margin:0;accent-color:var(--gold);cursor:pointer}
+  .subtotal-selector strong{font-family:'DM Sans',sans-serif;font-size:.76rem;color:var(--gold-light);white-space:nowrap}
   .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
   .badge{
     display:inline-flex;align-items:center;gap:4px;max-width:100%;
@@ -348,7 +359,7 @@
   <div class="page-header-left">
     <a class="back-link" href="index-financas.html">← Hub</a>
     <h1>Aquisições</h1>
-    <p>Fila de decisão · compras em análise · Firebase: users/{uid}/modulos/aquisicoes</p>
+    <p>Fila de decisão · compras em análise</p>
     <span id="syncStatus" class="status busy">Iniciando...</span>
   </div>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -476,7 +487,9 @@ const CONFIG = {
   localKey: "sistema_vida_aquisicoes_light_v1",
   backHref: "index-financas.html",
   fields: [
-    {key:"price", label:"Preço estimado", type:"text", placeholder:"Ex: R$ 349,90"},
+    {key:"price", label:"Preço cheio", type:"text", placeholder:"Ex: R$ 349,90"},
+    {key:"installments", label:"Qtd. parcelas", type:"number", placeholder:"Ex: 10"},
+    {key:"installmentValue", label:"Valor da parcela", type:"text", placeholder:"Ex: R$ 39,90"},
     {key:"priority", label:"Prioridade", type:"select", options:[["1","1 · pode esperar"],["2","2 · útil"],["3","3 · importante"],["4","4 · muito importante"],["5","5 · resolveria algo agora"]]},
     {key:"status", label:"Momento", type:"select", options:[["pendente","Pendente"],["pesquisar","Pesquisar melhor"],["esperar","Esperar esfriar"],["comprar","Pode comprar"],["comprado","Comprado"],["descartado","Descartado"]]},
     {key:"reviewAt", label:"Reavaliar em", type:"date", placeholder:""},
@@ -509,6 +522,7 @@ const state = {
   editingId: null,
   tags: [],
   expanded: new Set(),
+  selectedSubtotal: new Set(safeParse(localStorage.getItem(CONFIG.localKey + "_subtotal_selected") || "[]", [])),
   firebase: null,
   currentUser: null,
   remotePath: null,
@@ -560,6 +574,12 @@ function getDeletedIds(){
 function saveDeletedIds(ids){
   localStorage.setItem(deletedKey(), JSON.stringify([...ids]));
 }
+function selectedSubtotalKey(){
+  return CONFIG.localKey + "_subtotal_selected";
+}
+function saveSubtotalSelection(){
+  localStorage.setItem(selectedSubtotalKey(), JSON.stringify([...state.selectedSubtotal]));
+}
 function loadLocal(){
   const data = safeParse(localStorage.getItem(CONFIG.localKey) || "[]", []);
   return Array.isArray(data) ? data.filter(x => x && x.id) : [];
@@ -603,6 +623,8 @@ function removeItemLocal(id){
   deleted.add(id);
   saveDeletedIds(deleted);
   state.expanded.delete(id);
+  state.selectedSubtotal.delete(id);
+  saveSubtotalSelection();
   state.items = state.items.filter(item => item.id !== id);
   saveLocal();
   render();
@@ -726,7 +748,7 @@ function collectData(){
 }
 
 async function saveRemote(item){
-  const saved = upsertItemLocal({...item, schemaVersion: 5});
+  const saved = upsertItemLocal({...item, schemaVersion: 6});
 
   if(!state.currentUser || !state.remoteRef){
     setStatus("warn","Salvo só local");
@@ -812,11 +834,27 @@ function editItem(id){
 function parseMoney(value){
   const raw = String(value || "").trim();
   if(!raw) return 0;
-  const number = Number(raw.replace(/[^\d,.-]/g,"").replace(/\./g,"").replace(",","."));
+
+  const matches = raw.match(/-?\d{1,3}(?:\.\d{3})+(?:,\d{1,2})?|-?\d{1,3}(?:\.\d{3})*,\d{1,2}|-?\d+(?:[,.]\d{1,2})?|-?\d+/g);
+  if(!matches?.length) return 0;
+
+  let token = matches[matches.length - 1];
+  if(token.includes(",")){
+    token = token.replace(/\./g, "").replace(",", ".");
+  }else if(/\.\d{3}(?:\D|$)/.test(token)){
+    token = token.replace(/\./g, "");
+  }
+
+  const number = Number(token);
   return Number.isFinite(number) ? number : 0;
 }
 function brMoney(value){
   return value.toLocaleString("pt-BR", {style:"currency", currency:"BRL"});
+}
+function effectiveItemValue(item){
+  const installmentValue = parseMoney(item.installmentValue);
+  if(installmentValue > 0) return installmentValue;
+  return parseMoney(item.price);
 }
 function statusLabel(status){
   const found = CONFIG.fields.find(f => f.key === "status")?.options?.find(o => o[0] === status);
@@ -838,6 +876,8 @@ function itemMatches(item){
     item.title,
     stripHtml(item.desc),
     item.price,
+    item.installments,
+    item.installmentValue,
     item.priority,
     item.status,
     item.reviewAt,
@@ -851,17 +891,31 @@ function renderStats(list = state.items){
   const pending = list.filter(x => ["pendente","pesquisar","esperar"].includes(x.status)).length;
   const focus = list.filter(x => Number(x.priority || 0) >= 4).length;
   const totalValue = list.reduce((sum,item) => sum + parseMoney(item.price), 0);
+  const selectedItems = list.filter(item => state.selectedSubtotal.has(item.id));
+  const selectedSubtotal = selectedItems.reduce((sum,item) => sum + effectiveItemValue(item), 0);
 
   $("#stats").innerHTML = `
     <div class="kpi-card"><div class="kpi-label">Registrados</div><div class="kpi-value">${list.length}</div><div class="kpi-sub">itens na fila</div></div>
     <div class="kpi-card amber"><div class="kpi-label">Em análise</div><div class="kpi-value">${pending}</div><div class="kpi-sub">pendentes / pesquisar / esperar</div></div>
     <div class="kpi-card green"><div class="kpi-label">Prioridade alta</div><div class="kpi-value">${focus}</div><div class="kpi-sub">nível 4 ou 5</div></div>
-    <div class="kpi-card"><div class="kpi-label">Valor estimado</div><div class="kpi-value" style="font-size:1.25rem">${brMoney(totalValue)}</div><div class="kpi-sub">soma informada</div></div>
+    <div class="kpi-card"><div class="kpi-label">Preço cheio total</div><div class="kpi-value" style="font-size:1.25rem">${brMoney(totalValue)}</div><div class="kpi-sub">soma do preço cheio</div></div>
+    <div class="kpi-card"><div class="kpi-label">Subtotal selecionado</div><div class="kpi-value" style="font-size:1.25rem">${brMoney(selectedSubtotal)}</div><div class="kpi-sub">${selectedItems.length} item(ns) · parcela se informada</div></div>
   `;
 }
 function metaFor(item){
   const metas = [];
-  if(item.price) metas.push(["Preço", item.price, ""]);
+  if(item.price) metas.push(["Preço cheio", item.price, ""]);
+
+  const installmentCount = Number(String(item.installments || "").replace(/\D/g, "")) || 0;
+  const installmentValue = parseMoney(item.installmentValue);
+  if(item.installments || item.installmentValue){
+    let label = String(item.installmentValue || item.installments || "").trim();
+    if(installmentCount && installmentValue) label = `${installmentCount}x de ${brMoney(installmentValue)}`;
+    else if(installmentCount) label = `${installmentCount}x`;
+    else if(installmentValue) label = `Parcela ${brMoney(installmentValue)}`;
+    metas.push(["Parcelamento", label, "hot"]);
+  }
+
   if(item.priority) metas.push(["Prioridade", item.priority, Number(item.priority) >= 4 ? "hot" : ""]);
   if(item.status) metas.push(["Momento", statusLabel(item.status), item.status === "comprado" ? "ok" : ""]);
   if(item.reviewAt) metas.push(["Reavaliar", formatDate(item.reviewAt), ""]);
@@ -921,9 +975,19 @@ function render(){
     const details = expanded
       ? `<div class="details-body">${sanitizeHtml(item.desc || "<em>Sem observações.</em>")}</div>`
       : "";
+    const selected = state.selectedSubtotal.has(item.id);
+    const subtotalValue = effectiveItemValue(item);
+    const subtotalHint = item.installmentValue ? "Usando valor da parcela no subtotal" : "Usando preço cheio no subtotal";
 
     return `<article class="item-card" data-id="${escapeHtml(item.id)}" data-status="${escapeHtml(item.status || "")}">
-      <h3 class="item-title">${escapeHtml(item.title)}</h3>
+      <div class="item-main">
+        <h3 class="item-title">${escapeHtml(item.title)}</h3>
+        <label class="subtotal-selector ${selected ? "selected" : ""}" title="${escapeHtml(subtotalHint)}">
+          <input type="checkbox" data-subtotal-select ${selected ? "checked" : ""}>
+          <span>Selecionar</span>
+          <strong>${brMoney(subtotalValue)}</strong>
+        </label>
+      </div>
       <div class="meta">${metas}${tags}${hasImage ? '<span class="badge hot">Imagem visível</span>' : ""}${link}</div>
       <div class="snippet-cell">${imageStrip}<div class="snippet">${escapeHtml(text || "Sem observações ainda.")}</div></div>
       ${details}
@@ -947,7 +1011,7 @@ async function uploadLocalItemsToCloud(remoteItems){
     if(!local?.id) return;
     const remote = remoteMap.get(local.id);
     if(!remote || Number(local.updatedAt || 0) > Number(remote.updatedAt || 0)){
-      payload[local.id] = normalizeItem({...local, schemaVersion: 5});
+      payload[local.id] = normalizeItem({...local, schemaVersion: 6});
     }
   });
 
@@ -1263,6 +1327,22 @@ $("#items").addEventListener("click", async e => {
     await deleteRemote(id);
     showToast("Registro excluído ✓");
   }
+});
+
+$("#items").addEventListener("change", e => {
+  const input = e.target.closest("[data-subtotal-select]");
+  if(!input) return;
+
+  const card = input.closest(".item-card");
+  const id = card?.dataset.id;
+  if(!id) return;
+
+  if(input.checked) state.selectedSubtotal.add(id);
+  else state.selectedSubtotal.delete(id);
+
+  input.closest(".subtotal-selector")?.classList.toggle("selected", input.checked);
+  saveSubtotalSelection();
+  renderStats([...state.items].sort((a,b) => (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0)));
 });
 
 document.addEventListener("selectionchange", saveRange);
