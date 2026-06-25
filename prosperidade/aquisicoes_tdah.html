@@ -480,7 +480,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const CONFIG = {
   key: "aquisicoes",
@@ -580,6 +580,22 @@ function selectedSubtotalKey(){
 function saveSubtotalSelection(){
   localStorage.setItem(selectedSubtotalKey(), JSON.stringify([...state.selectedSubtotal]));
 }
+function localTrashKey(){
+  return CONFIG.localKey + "_lixeira";
+}
+function addLocalTrash(item, deletedAt = Date.now()){
+  if(!item?.id) return;
+  const trash = safeParse(localStorage.getItem(localTrashKey()) || "[]", []);
+  trash.unshift({
+    deletedAt,
+    source: `modulos/${CONFIG.key}`,
+    data: {...item, deletedAt, archived:true, updatedAt:deletedAt}
+  });
+  localStorage.setItem(localTrashKey(), JSON.stringify(trash.slice(0, 500)));
+}
+function isDeletedOrArchived(item){
+  return !!(item && (item.archived === true || item.deleted === true || item.deletedAt));
+}
 function loadLocal(){
   const data = safeParse(localStorage.getItem(CONFIG.localKey) || "[]", []);
   return Array.isArray(data) ? data.filter(x => x && x.id) : [];
@@ -603,7 +619,7 @@ function mergeItems(...lists){
   const map = new Map();
   lists.flat().filter(Boolean).forEach(raw => {
     const item = normalizeItem(raw);
-    if(!item.id || deleted.has(item.id)) return;
+    if(!item.id || deleted.has(item.id) || isDeletedOrArchived(item)) return;
     const old = map.get(item.id);
     if(!old || Number(item.updatedAt || 0) >= Number(old.updatedAt || 0)) map.set(item.id, item);
   });
@@ -768,21 +784,51 @@ async function saveRemote(item){
   return saved;
 }
 async function deleteRemote(id){
-  removeItemLocal(id);
-
-  if(!state.currentUser || !state.remoteRef){
-    setStatus("warn","Excluído só local");
+  const item = state.items.find(x => x.id === id);
+  if(!item){
+    removeItemLocal(id);
     return;
   }
 
-  setStatus("busy","Excluindo na nuvem...");
+  const deletedAt = Date.now();
+  const tombstone = normalizeItem({
+    ...item,
+    archived: true,
+    deletedAt,
+    updatedAt: deletedAt,
+    schemaVersion: item.schemaVersion || 6
+  });
+
+  // Lixeira local primeiro: mesmo sem internet, o registro não some sem cópia.
+  addLocalTrash(item, deletedAt);
+
+  if(!state.currentUser || !state.remoteRef){
+    removeItemLocal(id);
+    setStatus("warn","Movido para lixeira local");
+    showToast("Sem login/nuvem agora. Guardei uma cópia na lixeira local.");
+    return;
+  }
+
+  setStatus("busy","Movendo para lixeira...");
   try{
-    await remove(ref(state.firebase.db, `${state.remotePath}/${id}`));
-    setStatus("ok","Sincronizado ✓");
+    const trashId = `${id}_${deletedAt}`;
+    const updates = {};
+    updates[`users/${state.currentUser.uid}/lixeira/${CONFIG.key}/${trashId}`] = {
+      deletedAt,
+      source: `modulos/${CONFIG.key}`,
+      data: tombstone
+    };
+    updates[`${state.remotePath}/${id}`] = tombstone;
+
+    await update(ref(state.firebase.db), updates);
+
+    removeItemLocal(id);
+    setStatus("ok","Movido para lixeira ✓");
   }catch(err){
     console.error(err);
-    setStatus("warn", err?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Excluído localmente");
-    showToast("Excluí da tela e do backup local. Firebase não confirmou agora.");
+    setStatus("warn", err?.code === "PERMISSION_DENIED" ? "Sem permissão" : "Lixeira local");
+    showToast(err?.code === "PERMISSION_DENIED" ? "Firebase bloqueou a lixeira. O registro ficou salvo na lixeira local." : "Não consegui confirmar na nuvem. O registro ficou salvo na lixeira local.");
+    removeItemLocal(id);
   }
 }
 async function onSave(e){
