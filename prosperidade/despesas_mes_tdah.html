@@ -982,6 +982,12 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
   .btn-ghost{background:var(--gold-dim);color:var(--gold-light);border:1px solid var(--gold-border);}
   .btn:hover,.btn-ghost:hover,.btn-gold:hover{opacity:.88;}
   .shell{position:relative;z-index:1;width:min(1220px,100%);margin:0 auto;padding:16px clamp(12px,3vw,26px) 70px;}
+  .item-card.nao-realizado{opacity:.55;border-style:dashed;}
+  .item-card.nao-realizado .item-title{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.3);}
+  .btn-realizado{border:1px solid rgba(76,175,130,.35);background:rgba(76,175,130,.12);color:#4caf82;border-radius:12px;padding:7px 11px;font-weight:800;cursor:pointer;font-size:.8rem;font-family:inherit;transition:.15s;}
+  .btn-realizado:hover{background:rgba(76,175,130,.22);}
+  .btn-realizado.previsto{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#7a92a8;}
+  .btn-realizado.previsto:hover{border-color:rgba(201,168,76,.35);color:var(--gold-light);}
   /* Intro recolhível */
   .intro-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;margin:0 clamp(14px,3vw,28px) 12px;border:1px solid var(--gold-border);border-radius:var(--radius-sm);background:var(--gold-dim);color:var(--gold-light);font-family:var(--mono);font-size:.8rem;font-weight:600;cursor:pointer;user-select:none;transition:.2s;}
   .intro-toggle:hover{background:rgba(201,168,76,.18);}
@@ -1117,16 +1123,16 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
 <script type="module">
 const FIREBASE_CONFIG = {"apiKey": "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8", "authDomain": "sistema-de-vida-e6c68.firebaseapp.com", "databaseURL": "https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com", "projectId": "sistema-de-vida-e6c68", "storageBucket": "sistema-de-vida-e6c68.firebasestorage.app", "messagingSenderId": "590218702063", "appId": "1:590218702063:web:4586798cf9925edacb7f1a"};
 const APP_KEY = 'sistema_vida_financas_hub_v2';
-const STORE_DEFAULT = { manual: [], installmentPlans: [], fixedPlans: [], debts: [], seededImports: [] };
+const STORE_DEFAULT = { manual: [], installmentPlans: [], fixedPlans: [], debts: [], seededImports: [], realizados: {} };
 // fb: referências Firebase por coleção
 const fb = { db: null, dbMod: null, uid: null, refs: {} };
-const state = { data: { manual:[], installmentPlans:[], fixedPlans:[], debts:[], seededImports:[] }, mode: 'local' };
+const state = { data: { manual:[], installmentPlans:[], fixedPlans:[], debts:[], seededImports:[], realizados:{} }, mode: 'local' };
 const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 const toastEl = document.getElementById('toast');
 function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
 function objToArray(obj){ if(Array.isArray(obj)) return obj; if(!obj || typeof obj !== 'object') return []; return Object.entries(obj).map(([fbKey,val])=>({...val, _fbKey:fbKey})); }
-function normalizeStore(raw){ if(!raw || typeof raw !== 'object') return clone(STORE_DEFAULT); return { manual: objToArray(raw.manual), installmentPlans: objToArray(raw.installmentPlans), fixedPlans: objToArray(raw.fixedPlans||{}), debts: objToArray(raw.debts), seededImports: objToArray(raw.seededImports) }; }
+function normalizeStore(raw){ if(!raw || typeof raw !== 'object') return clone(STORE_DEFAULT); return { manual: objToArray(raw.manual), installmentPlans: objToArray(raw.installmentPlans), fixedPlans: objToArray(raw.fixedPlans||{}), debts: objToArray(raw.debts), seededImports: objToArray(raw.seededImports), realizados: (raw.realizados && typeof raw.realizados==='object') ? raw.realizados : {} }; }
 function hasStoreContent(data){ return !!(data && ((data.manual||[]).length || (data.installmentPlans||[]).length || (data.debts||[]).length)); }
 function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(16).slice(2)); }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
@@ -1270,7 +1276,7 @@ function getFixedOccurrences(year,month){
   });
 }
 function getMonthTransactions(year,month){ return [...getManualOccurrences(year,month), ...getInstallmentOccurrences(year,month), ...getFixedOccurrences(year,month), ...getDebtOccurrences(year,month)].sort((a,b)=>{ const d1=(a.date||'').localeCompare(b.date||''); if(d1!==0) return d1; return (a.title||'').localeCompare(b.title||''); }); }
-function getMonthRollup(year,month){ const items=getMonthTransactions(year,month); const entries=items.filter(x=>x.type==='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const exits=items.filter(x=>x.type!=='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const balance=entries-exits; return {year,month,key:monthKey(year,month),items,entries,exits,balance,counts:{manual:items.filter(x=>x.source==='manual').length, installment:items.filter(x=>x.source==='installment').length, fixed:items.filter(x=>x.source==='fixed').length, debt:items.filter(x=>x.source==='debt').length}}; }
+function getMonthRollup(year,month){ const items=getMonthTransactions(year,month); const realized=items.filter(x=>itemRealizadoStatus(x,year,month)); const entries=realized.filter(x=>x.type==='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const exits=realized.filter(x=>x.type!=='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const balance=entries-exits; return {year,month,key:monthKey(year,month),items,entries,exits,balance,counts:{manual:items.filter(x=>x.source==='manual').length, installment:items.filter(x=>x.source==='installment').length, fixed:items.filter(x=>x.source==='fixed').length, debt:items.filter(x=>x.source==='debt').length}}; }
 function getYearProjection(year, opts={}){ const extraIncome=Number(opts.extraIncome)||0; const cutPercent=Math.max(0,Number(opts.cutPercent)||0); const newExpense=Number(opts.newExpense)||0; return ensureMonthStore(year).map(r=>{ let entries=r.entries+extraIncome; let exits=r.exits; if(cutPercent>0) exits = exits * (1 - cutPercent/100); exits += newExpense; return {...r, simEntries:entries, simExits:exits, simBalance:entries-exits}; }); }
 function formatDate(iso){ if(!iso) return ''; const [y,m,d]=String(iso).split('-'); return y&&m&&d ? `${d}/${m}/${y}` : iso; }
 function formatMonth(ym){ const p=parseMonthKey(ym); return `${monthName(p.month)}/${p.year}`; }
@@ -1394,12 +1400,61 @@ async function deleteItem(kind,id){ if(!confirm('Remover este registro?')) retur
   await removeItem(collection, item);
   renderAll(); showToast('Removido'); }
 function filteredCurrentList(){ const q=ui.search.trim().toLowerCase(); const rollup=getMonthRollup(ui.year,ui.month); const list=[...rollup.items]; return list.filter(item=>{ if(ui.filter!=='all' && item.type!==ui.filter && item.source!==ui.filter) return false; if(!q) return true; const hay=[item.title,item.category,stripHtml(item.notes),...(item.tags||[])].join(' ').toLowerCase(); return hay.includes(q); }); }
+// ── Realizado / Previsto ──
+function realizadoKey(itemId, year, month){ return `${itemId}_${monthKey(year,month)}`; }
+function isRealizado(itemId, year, month){
+  // Manual e itens únicos: realizado por padrão (já aconteceu)
+  // Fixos, parcelados, dívidas: previsto por padrão no mês ativo
+  return !!(state.data.realizados||{})[realizadoKey(itemId,year,month)];
+}
+function isCurrentMonth(year,month){ const n=new Date(); return year===n.getFullYear()&&month===(n.getMonth()+1); }
+function itemRealizadoStatus(item, year, month){
+  // Itens manuais são sempre realizados (já foram lançados manualmente)
+  if(item.source==='manual') return true;
+  // Para outros tipos no mês atual: verifica o mapa
+  if(isCurrentMonth(year,month)){
+    const key=realizadoKey(item.parentId||item.id, year, month);
+    // Se não existe entrada no mapa ainda = previsto (false)
+    return (state.data.realizados||{})[key] === true;
+  }
+  // Meses passados: todos realizados. Meses futuros: todos previstos.
+  const now=new Date(); const nowSeq=now.getFullYear()*12+now.getMonth();
+  const itemSeq=year*12+(month-1);
+  return itemSeq < nowSeq;
+}
+async function toggleRealizado(itemId, year, month){
+  if(!state.data.realizados) state.data.realizados={};
+  const key=realizadoKey(itemId,year,month);
+  state.data.realizados[key] = !state.data.realizados[key];
+  // Salva realizados no Firebase como nó separado (não passa pela regra de $itemId)
+  saveLocal();
+  if(state.mode==='firebase' && fb.uid){
+    try{
+      const ref=fb.dbMod.ref(fb.db,`users/${fb.uid}/modulos/despesas_mes/realizados/${key}`);
+      await fb.dbMod.set(ref, state.data.realizados[key]);
+    } catch(e){ console.error(e); }
+  }
+  renderAll();
+}
 function renderStats(){ const current=getMonthRollup(ui.year,ui.month); const planned=current.items.filter(x=>x.source==='installment').length; const debts=current.items.filter(x=>x.source==='debt').length; $('#stats').innerHTML = `<div class="stat"><b>${money(current.entries)}</b><span>Entradas do mês</span></div><div class="stat"><b>${money(current.exits)}</b><span>Saídas do mês</span></div><div class="stat"><b class="${current.balance>=0?'money-good':'money-bad'}">${money(current.balance)}</b><span>Saldo do mês</span></div><div class="stat"><b>${planned+debts}</b><span>Compromissos automáticos</span></div>`; }
 function renderYearGrid(){ const rows=ensureMonthStore(ui.year); $('#yearGrid').innerHTML = rows.map(r=>`<div class="month-card ${r.balance<0?'negative':''}"><h3>${monthName(r.month)}</h3><span class="money">${money(r.balance)}</span><small>Entradas ${money(r.entries)}</small><small>Saídas ${money(r.exits)}</small><small>${r.counts.installment} parcelado(s) · ${r.counts.fixed||0} fixo(s) · ${r.counts.debt} dívida(s)</small></div>`).join(''); }
 function renderReport(){ const current=getMonthRollup(ui.year,ui.month); $('#reportSummary').innerHTML = `<span class="pill">${monthName(ui.month)}/${ui.year}</span><span class="pill">Entradas: ${money(current.entries)}</span><span class="pill">Saídas: ${money(current.exits)}</span><span class="pill">Saldo: <strong class="${current.balance>=0?'money-good':'money-bad'}">${money(current.balance)}</strong></span>`; const list=filteredCurrentList(); if(!list.length){ $('#reportTableWrap').innerHTML = `<div class="empty">Nenhum lançamento neste filtro.</div>`; return; } $('#reportTableWrap').innerHTML = `<table class="list-table"><thead><tr><th>Data</th><th>Título</th><th>Tipo</th><th>Categoria</th><th>Valor</th><th>Origem</th></tr></thead><tbody>${list.map(item=>`<tr><td>${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · ${item.installmentIndex}/${item.installmentTotal}`:''}</td><td>${escapeHtml(item.title)}</td><td>${item.type==='entry'?'Entrada':'Saída'}</td><td>${escapeHtml(item.category||'-')}</td><td>${money(item.amount)}</td><td>${item.source==='installment'?'Parcelado':item.source==='debt'?'Dívida':'Manual'}</td></tr>`).join('')}</tbody></table>`; }
-function renderItems(){ const list=filteredCurrentList(); if(!list.length){ $('#items').innerHTML = `<div class="empty">✨ Nenhum lançamento para este filtro. Registre entradas, saídas ou compras parceladas e o sistema projeta os próximos meses.</div>`; return; } $('#items').innerHTML = list.map(item=>{ const badges=[`<span class="badge ${item.type==='entry'?'':'hot'}">${item.type==='entry'?'Entrada':'Saída'} · ${money(item.amount)}</span>`, item.category?`<span class="badge">${escapeHtml(item.category)}</span>`:'', item.source==='installment'?`<span class="badge hot">Parcelado ${item.installmentIndex}/${item.installmentTotal}</span>`:'', item.source==='fixed'?`<span class="badge hot">Fixo · todo mês</span>`:'', item.source==='debt'?`<span class="badge hot">Vem de Dívidas</span>`:'', ...(item.tags||[]).map(t=>`<span class="badge">#${escapeHtml(t)}</span>`)].join(''); const notes = item.notes ? `<div class="details-body">${sanitizeHtml(item.notes)}</div>` : ''; const action = item.source==='debt' ? `<button class="quiet-btn" disabled>Gerenciado em Dívidas</button>` : `<button data-action="edit" data-kind="${item.source}" data-id="${escapeHtml(item.parentId||item.id)}">Editar</button><button data-action="delete" data-kind="${item.source}" data-id="${escapeHtml(item.parentId||item.id)}">Excluir</button>`; return `<article class="item-card"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="meta">${badges}</div><div class="snippet">${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · parcela ${item.installmentIndex}/${item.installmentTotal}`:''}</div>${notes}<div class="card-actions">${action}</div></article>`; }).join(''); }
+function renderItems(){ const list=filteredCurrentList(); if(!list.length){ $('#items').innerHTML = `<div class="empty">✨ Nenhum lançamento para este filtro. Registre entradas, saídas ou compras parceladas e o sistema projeta os próximos meses.</div>`; return; }
+  const isCurrent=isCurrentMonth(ui.year,ui.month);
+  $('#items').innerHTML = list.map(item=>{
+    const realizado=itemRealizadoStatus(item,ui.year,ui.month);
+    const badges=[`<span class="badge ${item.type==='entry'?'':'hot'}">${item.type==='entry'?'Entrada':'Saída'} · ${money(item.amount)}</span>`, item.category?`<span class="badge">${escapeHtml(item.category)}</span>`:'', item.source==='installment'?`<span class="badge hot">Parcelado ${item.installmentIndex}/${item.installmentTotal}</span>`:'', item.source==='fixed'?`<span class="badge hot">Fixo · todo mês</span>`:'', item.source==='debt'?`<span class="badge hot">Vem de Dívidas</span>`:'', !realizado&&isCurrent?`<span class="badge" style="color:#e8a03a;border-color:rgba(232,160,58,.3)">Previsto</span>`:'', ...(item.tags||[]).map(t=>`<span class="badge">#${escapeHtml(t)}</span>`)].join('');
+    const notes = item.notes ? `<div class="details-body">${sanitizeHtml(item.notes)}</div>` : '';
+    const editId=escapeHtml(item.parentId||item.id);
+    const editKind=item.source;
+    const actionBtns = item.source==='debt' ? `<button class="quiet-btn" disabled>Gerenciado em Dívidas</button>` : `<button data-action="edit" data-kind="${editKind}" data-id="${editId}">Editar</button><button data-action="delete" data-kind="${editKind}" data-id="${editId}">Excluir</button>`;
+    const realizadoBtn = isCurrent && item.source!=='manual'
+      ? `<button class="btn-realizado ${realizado?'':'previsto'}" data-action="toggle-realizado" data-item-id="${escapeHtml(item.parentId||item.id)}">${realizado?'✓ Realizado':'◌ Marcar realizado'}</button>`
+      : '';
+    return `<article class="item-card${!realizado&&isCurrent?' nao-realizado':''}"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="meta">${badges}</div><div class="snippet">${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · parcela ${item.installmentIndex}/${item.installmentTotal}`:''}</div>${notes}<div class="card-actions">${realizadoBtn}${actionBtns}</div></article>`;
+  }).join(''); }
 function renderAll(){ renderStats(); renderYearGrid(); renderReport(); renderItems(); }
-function bindEvents(){ $('#yearSelect').addEventListener('change', e=>{ ui.year=Number(e.target.value)||ui.year; $('#planStartMonth').value = monthKey(ui.year, ui.month); renderAll(); }); $('#monthSelect').addEventListener('change', e=>{ ui.month=Number(e.target.value)||ui.month; renderAll(); }); $('#type').addEventListener('change', toggleMode); $('#captureForm').addEventListener('submit', saveForm); $('#cancelBtn').addEventListener('click', resetForm); $('#addTagBtn').addEventListener('click', addTag); $('#tagInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(); } }); $('#tagChips').addEventListener('click', e=>{ const btn=e.target.closest('[data-tag]'); if(!btn) return; ui.tags=ui.tags.filter(t=>t!==btn.dataset.tag); renderTags(); }); $('#searchInput').addEventListener('input', e=>{ ui.search=e.target.value; renderItems(); renderReport(); }); $$('.filter-btn').forEach(btn=>btn.addEventListener('click', ()=>{ ui.filter=btn.dataset.filter; $$('.filter-btn').forEach(x=>x.classList.toggle('active',x===btn)); renderItems(); renderReport(); })); $('#items').addEventListener('click', e=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const kind=btn.dataset.kind, id=btn.dataset.id; if(btn.dataset.action==='edit') editItem(kind,id); if(btn.dataset.action==='delete') deleteItem(kind,id); }); $('#printBtn').addEventListener('click', ()=>window.print()); }
+function bindEvents(){ $('#yearSelect').addEventListener('change', e=>{ ui.year=Number(e.target.value)||ui.year; $('#planStartMonth').value = monthKey(ui.year, ui.month); renderAll(); }); $('#monthSelect').addEventListener('change', e=>{ ui.month=Number(e.target.value)||ui.month; renderAll(); }); $('#type').addEventListener('change', toggleMode); $('#captureForm').addEventListener('submit', saveForm); $('#cancelBtn').addEventListener('click', resetForm); $('#addTagBtn').addEventListener('click', addTag); $('#tagInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(); } }); $('#tagChips').addEventListener('click', e=>{ const btn=e.target.closest('[data-tag]'); if(!btn) return; ui.tags=ui.tags.filter(t=>t!==btn.dataset.tag); renderTags(); }); $('#searchInput').addEventListener('input', e=>{ ui.search=e.target.value; renderItems(); renderReport(); }); $$('.filter-btn').forEach(btn=>btn.addEventListener('click', ()=>{ ui.filter=btn.dataset.filter; $$('.filter-btn').forEach(x=>x.classList.toggle('active',x===btn)); renderItems(); renderReport(); })); $('#items').addEventListener('click', e=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const kind=btn.dataset.kind, id=btn.dataset.id; if(btn.dataset.action==='edit') editItem(kind,id); if(btn.dataset.action==='delete') deleteItem(kind,id); if(btn.dataset.action==='toggle-realizado') toggleRealizado(btn.dataset.itemId, ui.year, ui.month); }); $('#printBtn').addEventListener('click', ()=>window.print()); }
 renderYearOptions(); renderMonthOptions(); bindEvents(); toggleMode(); resetForm(); initStore(()=>{ seedFixedExpensesFromPdf(); renderAll(); });
 </script>
 </body>
