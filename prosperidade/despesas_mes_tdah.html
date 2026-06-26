@@ -1082,6 +1082,13 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
           <div class="field"><label for="fixedEndMonth">Mês de encerramento <span style="font-weight:400;opacity:.6">(opcional)</span></label><input id="fixedEndMonth" type="month"></div>
         </div>
       </div>
+      <div id="realizadoField" class="field full hidden" style="margin-top:4px;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
+          <input type="checkbox" id="checkRealizado" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;" checked>
+          Realizado neste mês
+        </label>
+        <div style="font-size:.72rem;color:var(--muted2);margin-top:4px;padding-left:26px;">Se desmarcado, o valor aparece no extrato mas não soma nos totais do mês atual.</div>
+      </div>
       <div id="installmentFields" class="field full hidden">
         <div class="form-grid">
           <div class="field"><label for="installments">Parcelas</label><input id="installments" type="number" min="1" value="10"></div>
@@ -1361,8 +1368,19 @@ function renderYearOptions(){ const sel=$('#yearSelect'); const years=[]; const 
 function renderMonthOptions(){ const sel=$('#monthSelect'); sel.innerHTML=Array.from({length:12},(_,i)=>`<option value="${i+1}">${monthName(i+1)}</option>`).join(''); sel.value=String(ui.month); }
 function renderTags(){ $('#tagChips').innerHTML = ui.tags.map(t=>`<button type="button" class="chip" data-tag="${escapeHtml(t)}">${escapeHtml(t)} ×</button>`).join(''); }
 function addTag(){ const input=$('#tagInput'); const v=input.value.trim(); if(v && !ui.tags.includes(v)){ ui.tags.push(v); renderTags(); } input.value=''; }
-function resetForm(){ ui.editingId=null; ui.tags=[]; $('#captureForm').reset(); renderTags(); rich.clear(); $('#saveBtn').textContent='Salvar item'; $('#cancelBtn').classList.add('hidden'); $('#installmentFields').classList.add('hidden'); $('#fixedFields').classList.add('hidden'); $('#txnDate').value = todayKey(); $('#planStartMonth').value = monthKey(ui.year, ui.month); $('#fixedStartMonth').value = monthKey(ui.year, ui.month); $('#fixedEndMonth').value=''; $('#type').value='exit'; }
-function toggleMode(){ const type=$('#type').value; const isInstallment=type==='installment'; const isFixed=type==='fixed_exit'||type==='fixed_entry'; $('#installmentFields').classList.toggle('hidden', !isInstallment); $('#fixedFields').classList.toggle('hidden', !isFixed); $('#manualDateField').classList.toggle('hidden', isInstallment||isFixed); }
+function resetForm(){ ui.editingId=null; ui.tags=[]; $('#captureForm').reset(); renderTags(); rich.clear(); $('#saveBtn').textContent='Salvar item'; $('#cancelBtn').classList.add('hidden'); $('#installmentFields').classList.add('hidden'); $('#fixedFields').classList.add('hidden'); $('#txnDate').value = todayKey(); $('#planStartMonth').value = monthKey(ui.year, ui.month); $('#fixedStartMonth').value = monthKey(ui.year, ui.month); $('#fixedEndMonth').value=''; $('#type').value='exit'; $('#realizadoField').classList.add('hidden'); $('#checkRealizado').checked=true; }
+function toggleMode(){
+  const type=$('#type').value;
+  const isInstallment=type==='installment';
+  const isFixed=type==='fixed_exit'||type==='fixed_entry';
+  const isManual=!isInstallment&&!isFixed;
+  $('#installmentFields').classList.toggle('hidden', !isInstallment);
+  $('#fixedFields').classList.toggle('hidden', !isFixed);
+  $('#manualDateField').classList.toggle('hidden', !isManual);
+  // Campo realizado só aparece para fixo/parcelado E no mês atual, e só ao editar
+  const showRealizado = (isFixed||isInstallment) && !!ui.editingId && isCurrentMonth(ui.year,ui.month);
+  $('#realizadoField').classList.toggle('hidden', !showRealizado);
+}
 function collectForm(){ const type=$('#type').value; const title=$('#itemTitle').value.trim(); if(!title){ showToast('Dê um nome para a movimentação.'); $('#itemTitle').focus(); return null; } const amount=parseMoney($('#amount').value); if(amount<=0){ showToast('Informe um valor válido.'); $('#amount').focus(); return null; } const base={ id: ui.editingId || uid(), title, amount, category:$('#category').value.trim(), notes:rich.getHtml(), tags:[...ui.tags], updatedAt:Date.now() };
   if(type==='installment'){
     const installments=Math.max(1, Number($('#installments').value)||1); const startMonth=$('#planStartMonth').value || monthKey(ui.year,ui.month); return { kind:'installment', item:{ ...base, installments, startMonth, createdAt: ui.editingId ? (state.data.installmentPlans.find(x=>x.id===ui.editingId)?.createdAt || Date.now()) : Date.now() } };
@@ -1388,8 +1406,23 @@ async function saveForm(e){ e.preventDefault(); const payload=collectForm(); if(
   const existing = state.data[collection].find(x=>x.id===item.id);
   if(existing){ Object.assign(existing, item); await persistItem(collection, existing, 'Atualizando...'); }
   else { state.data[collection].unshift(item); await persistItem(collection, item, 'Salvando...'); }
+  // Se campo realizado visível, aplicar estado ao mapa
+  if(!$('#realizadoField').classList.contains('hidden')){
+    if(!state.data.realizados) state.data.realizados={};
+    const rKey=realizadoKey(item.id,ui.year,ui.month);
+    if($('#checkRealizado').checked){ delete state.data.realizados[rKey]; }
+    else { state.data.realizados[rKey]=false; }
+    saveLocal();
+    if(state.mode==='firebase'&&fb.uid){
+      try{
+        const ref=fb.dbMod.ref(fb.db,`users/${fb.uid}/modulos/despesas_mes/realizados/${rKey}`);
+        if($('#checkRealizado').checked) await fb.dbMod.remove(ref);
+        else await fb.dbMod.set(ref,false);
+      }catch(e){ console.error(e); }
+    }
+  }
   showToast(ui.editingId?'Atualizado ✓':'Salvo ✓'); resetForm(); renderAll(); }
-function editItem(kind,id){ let source = kind==='manual' ? state.data.manual.find(x=>x.id===id) : kind==='fixed' ? (state.data.fixedPlans||[]).find(x=>x.id===id) : state.data.installmentPlans.find(x=>x.id===id); if(!source) return; ui.editingId=id; ui.tags=[...(source.tags||[])]; renderTags(); rich.setHtml(source.notes||''); $('#itemTitle').value=source.title||''; $('#amount').value=numberBR(source.amount).replace('.',','); $('#category').value=source.category||''; $('#type').value=kind==='installment'?'installment':kind==='fixed'?(source.type==='exit'?'fixed_exit':'fixed_entry'):(source.type||'exit'); toggleMode(); if(kind==='installment'){ $('#installments').value=source.installments||1; $('#planStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); } else if(kind==='fixed'){ $('#fixedStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); $('#fixedEndMonth').value=source.endMonth||''; } else { $('#txnDate').value=source.date||todayKey(); } $('#saveBtn').textContent='Atualizar item'; $('#cancelBtn').classList.remove('hidden'); $('#capturePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+function editItem(kind,id){ let source = kind==='manual' ? state.data.manual.find(x=>x.id===id) : kind==='fixed' ? (state.data.fixedPlans||[]).find(x=>x.id===id) : state.data.installmentPlans.find(x=>x.id===id); if(!source) return; ui.editingId=id; ui.tags=[...(source.tags||[])]; renderTags(); rich.setHtml(source.notes||''); $('#itemTitle').value=source.title||''; $('#amount').value=numberBR(source.amount).replace('.',','); $('#category').value=source.category||''; $('#type').value=kind==='installment'?'installment':kind==='fixed'?(source.type==='exit'?'fixed_exit':'fixed_entry'):(source.type||'exit'); toggleMode(); if(kind==='installment'){ $('#installments').value=source.installments||1; $('#planStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); } else if(kind==='fixed'){ $('#fixedStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); $('#fixedEndMonth').value=source.endMonth||''; } else { $('#txnDate').value=source.date||todayKey(); } if(kind==='fixed'||kind==='installment'){ const rKey=realizadoKey(source.id,ui.year,ui.month); $('#checkRealizado').checked=(state.data.realizados||{})[rKey]!==false; } $('#saveBtn').textContent='Atualizar item'; $('#cancelBtn').classList.remove('hidden'); $('#capturePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
 async function deleteItem(kind,id){ if(!confirm('Remover este registro?')) return;
   const collectionMap = { installment:'installmentPlans', fixed:'fixedPlans', manual:'manual' };
   const collection = collectionMap[kind] || kind;
@@ -1409,29 +1442,29 @@ function isRealizado(itemId, year, month){
 }
 function isCurrentMonth(year,month){ const n=new Date(); return year===n.getFullYear()&&month===(n.getMonth()+1); }
 function itemRealizadoStatus(item, year, month){
-  // Itens manuais são sempre realizados (já foram lançados manualmente)
+  // Manuais: sempre realizados
   if(item.source==='manual') return true;
-  // Para outros tipos no mês atual: verifica o mapa
+  // Mês atual: realizado por padrão, a não ser que esteja explicitamente marcado como não realizado
   if(isCurrentMonth(year,month)){
     const key=realizadoKey(item.parentId||item.id, year, month);
-    // Se não existe entrada no mapa ainda = previsto (false)
-    return (state.data.realizados||{})[key] === true;
+    // false explícito = não realizado. undefined/true = realizado
+    return (state.data.realizados||{})[key] !== false;
   }
-  // Meses passados: todos realizados. Meses futuros: todos previstos.
-  const now=new Date(); const nowSeq=now.getFullYear()*12+now.getMonth();
-  const itemSeq=year*12+(month-1);
-  return itemSeq < nowSeq;
+  // Outros meses: sempre realizado (projeção completa)
+  return true;
 }
 async function toggleRealizado(itemId, year, month){
   if(!state.data.realizados) state.data.realizados={};
   const key=realizadoKey(itemId,year,month);
-  state.data.realizados[key] = !state.data.realizados[key];
-  // Salva realizados no Firebase como nó separado (não passa pela regra de $itemId)
+  // undefined/true = realizado → marcar false. false = não realizado → voltar para realizado (delete)
+  if(state.data.realizados[key]===false){ delete state.data.realizados[key]; }
+  else { state.data.realizados[key]=false; }
   saveLocal();
   if(state.mode==='firebase' && fb.uid){
     try{
       const ref=fb.dbMod.ref(fb.db,`users/${fb.uid}/modulos/despesas_mes/realizados/${key}`);
-      await fb.dbMod.set(ref, state.data.realizados[key]);
+      if(state.data.realizados[key]===undefined) await fb.dbMod.remove(ref);
+      else await fb.dbMod.set(ref, false);
     } catch(e){ console.error(e); }
   }
   renderAll();
@@ -1449,7 +1482,7 @@ function renderItems(){ const list=filteredCurrentList(); if(!list.length){ $('#
     const editKind=item.source;
     const actionBtns = item.source==='debt' ? `<button class="quiet-btn" disabled>Gerenciado em Dívidas</button>` : `<button data-action="edit" data-kind="${editKind}" data-id="${editId}">Editar</button><button data-action="delete" data-kind="${editKind}" data-id="${editId}">Excluir</button>`;
     const realizadoBtn = isCurrent && item.source!=='manual'
-      ? `<button class="btn-realizado ${realizado?'':'previsto'}" data-action="toggle-realizado" data-item-id="${escapeHtml(item.parentId||item.id)}">${realizado?'✓ Realizado':'◌ Marcar realizado'}</button>`
+      ? `<button class="btn-realizado ${realizado?'':'previsto'}" data-action="toggle-realizado" data-item-id="${escapeHtml(item.parentId||item.id)}">${realizado?'✓ Realizado':'✕ Não realizado'}</button>`
       : '';
     return `<article class="item-card${!realizado&&isCurrent?' nao-realizado':''}"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="meta">${badges}</div><div class="snippet">${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · parcela ${item.installmentIndex}/${item.installmentTotal}`:''}</div>${notes}<div class="card-actions">${realizadoBtn}${actionBtns}</div></article>`;
   }).join(''); }
