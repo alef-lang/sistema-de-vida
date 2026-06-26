@@ -35,7 +35,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.search{flex:1;min-width:220px;height:42px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(255,255,255,.055);color:var(--text);outline:none;padding:0 12px;font:inherit;font-size:14px}.filters{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none !important}
 .items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.item-card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,rgba(20,41,65,.82),rgba(15,30,49,.80));padding:16px;box-shadow:0 14px 34px rgba(0,0,0,.16)}.item-title{margin:0 0 10px;font-size:20px;line-height:1.15}.meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.05);font-size:11px;color:var(--muted);font-weight:800}.badge.hot{color:var(--goldLight);border-color:rgba(255,224,138,.18);background:rgba(216,184,92,.10)}.snippet{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:12px}.details-body{margin-top:10px;padding-top:12px;border-top:1px dashed rgba(255,255,255,.10);color:var(--text);line-height:1.65}.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.card-actions button{border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);color:var(--text);border-radius:12px;padding:9px 11px;font-weight:800;cursor:pointer}.card-actions button:hover{border-color:rgba(255,224,138,.28);color:var(--goldLight)}
 .empty{border:1px dashed rgba(255,255,255,.10);border-radius:24px;padding:32px;text-align:center;color:var(--muted);line-height:1.7;background:rgba(255,255,255,.03)}.toast{position:fixed;right:20px;bottom:20px;z-index:80;background:rgba(19,35,55,.96);border:1px solid rgba(255,224,138,.18);padding:12px 16px;border-radius:14px;color:var(--goldLight);font-weight:800;box-shadow:0 16px 40px rgba(0,0,0,.35);transform:translateY(80px);opacity:0;transition:.28s;pointer-events:none}.toast.show{transform:translateY(0);opacity:1}
-.month-grid{display:grid;grid-template-columns:repeat(12,minmax(110px,1fr));gap:10px;overflow:auto;padding-bottom:4px}.month-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04);padding:12px;min-width:110px}.month-card h3{margin:0 0 8px;font-size:13px;color:var(--goldLight);letter-spacing:.04em;text-transform:uppercase}.month-card .money{display:block;font-size:16px;font-weight:900}.month-card small{display:block;color:var(--muted);margin-top:4px}.month-card.negative{border-color:rgba(255,125,125,.20);background:rgba(255,125,125,.06)}
+.month-grid{display:grid;grid-template-columns:repeat(12,minmax(110px,1fr));gap:10px;overflow:auto;padding-bottom:4px}.month-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04);padding:12px;min-width:110px;aspect-ratio:1;display:flex;flex-direction:column;justify-content:center;}.month-card h3{margin:0 0 8px;font-size:13px;color:var(--goldLight);letter-spacing:.04em;text-transform:uppercase}.month-card .money{display:block;font-size:16px;font-weight:900}.month-card small{display:block;color:var(--muted);margin-top:4px}.month-card.negative{border-color:rgba(255,125,125,.20);background:rgba(255,125,125,.06)}
 .report{border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.03);padding:16px}.report-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}.money-lg{font-size:28px;font-weight:900;letter-spacing:-.03em}.money-good{color:var(--green)}.money-bad{color:#ffb4b4}.list-table{width:100%;border-collapse:collapse}.list-table th,.list-table td{text-align:left;padding:11px 10px;border-bottom:1px dashed rgba(255,255,255,.08);font-size:13px}.list-table th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 .sim-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.sim-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.04);padding:14px}.sim-card h3{margin:0 0 6px;font-size:15px}.sim-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.kpi .stat{height:100%}
 @media (max-width:1040px){.items{grid-template-columns:1fr}.stats,.sim-grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:repeat(2,1fr)}.field,.field.wide{grid-column:span 1}.field.full{grid-column:1/-1}.hero{grid-template-columns:1fr}.kpi{grid-template-columns:1fr}}
@@ -989,8 +989,8 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
   .intro-toggle.open .intro-arrow{transform:rotate(180deg);}
   .intro-body{display:grid;grid-template-rows:0fr;overflow:hidden;transition:grid-template-rows .3s ease;margin:0 clamp(14px,3vw,28px) 16px;}
   .intro-body.open{grid-template-rows:1fr;}
-  .intro-body > *{overflow:hidden;}
-  .intro-body .hero-card,.intro-body .mini-guide{margin-bottom:12px;}
+  .intro-body-inner{overflow:hidden;display:grid;gap:12px;grid-template-columns:minmax(0,1.3fr) minmax(240px,.7fr);padding-bottom:4px;}
+  .intro-body .hero-card,.intro-body .mini-guide{margin-bottom:0;}
   .hero-card{border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:20px;background:linear-gradient(135deg,rgba(27,46,66,.98),rgba(22,36,54,.88));box-shadow:0 14px 36px rgba(0,0,0,.18);}
   .eyebrow{font-size:11px;color:var(--gold-light);font-weight:800;text-transform:uppercase;letter-spacing:.12em;}
   .hero-card h2{margin:8px 0;font-size:1.3rem;font-family:'Poppins',sans-serif;}
@@ -1048,12 +1048,14 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
     <span class="intro-arrow">▾</span>
   </div>
   <div class="intro-body" id="introBody">
-    <div class="hero-card">
-      <span class="eyebrow">Módulo 02</span>
-      <h2>🧾 Despesas do Mês</h2>
-      <p>Anote entradas e saídas com clareza. Compras parceladas se espalham automaticamente pelos próximos meses para você enxergar o impacto real.</p>
+    <div class="intro-body-inner">
+      <div class="hero-card">
+        <span class="eyebrow">Módulo 02</span>
+        <h2>🧾 Despesas do Mês</h2>
+        <p>Anote entradas e saídas com clareza. Compras parceladas se espalham automaticamente pelos próximos meses para você enxergar o impacto real.</p>
+      </div>
+      <aside class="mini-guide"><h3>Como usar sem travar</h3><ol><li>Lance primeiro, organize depois.</li><li>Use "Compra parcelada" quando quiser projeção automática.</li><li>Imprima o mês para revisar com calma.</li></ol></aside>
     </div>
-    <aside class="mini-guide"><h3>Como usar sem travar</h3><ol><li>Lance primeiro, organize depois.</li><li>Use "Compra parcelada" quando quiser projeção automática.</li><li>Imprima o mês para revisar com calma.</li></ol></aside>
   </div>
   
 <section id="stats" class="stats" aria-label="Resumo"></section>
@@ -1062,10 +1064,16 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
   <form id="captureForm">
     <div class="form-grid">
       <div class="field wide"><label for="itemTitle">Descrição</label><input id="itemTitle" type="text" placeholder="Ex: Carnê Loja Estrela, salário, internet, mercado..."></div>
-      <div class="field"><label for="type">Tipo</label><select id="type"><option value="exit">Saída</option><option value="entry">Entrada</option><option value="installment">Compra parcelada</option></select></div>
+      <div class="field"><label for="type">Tipo</label><select id="type"><option value="exit">Saída (única)</option><option value="entry">Entrada (única)</option><option value="fixed_exit">Saída fixa (todo mês)</option><option value="fixed_entry">Entrada fixa (todo mês)</option><option value="installment">Compra parcelada</option></select></div>
       <div class="field"><label for="amount">Valor</label><input id="amount" type="text" placeholder="Ex: 249,90"></div>
       <div class="field"><label for="category">Categoria</label><input id="category" type="text" placeholder="Ex: Casa, Trabalho, Saúde..."></div>
       <div class="field" id="manualDateField"><label for="txnDate">Data</label><input id="txnDate" type="date"></div>
+      <div id="fixedFields" class="field full hidden">
+        <div class="form-grid">
+          <div class="field wide"><label>Como funciona</label><div class="pill">Despesa/entrada fixa: lançada automaticamente em todos os meses a partir do mês informado, sem data de encerramento.</div></div>
+          <div class="field"><label for="fixedStartMonth">Mês de início</label><input id="fixedStartMonth" type="month"></div>
+        </div>
+      </div>
       <div id="installmentFields" class="field full hidden">
         <div class="form-grid">
           <div class="field"><label for="installments">Parcelas</label><input id="installments" type="number" min="1" value="10"></div>
@@ -1107,13 +1115,16 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
 <script type="module">
 const FIREBASE_CONFIG = {"apiKey": "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8", "authDomain": "sistema-de-vida-e6c68.firebaseapp.com", "databaseURL": "https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com", "projectId": "sistema-de-vida-e6c68", "storageBucket": "sistema-de-vida-e6c68.firebasestorage.app", "messagingSenderId": "590218702063", "appId": "1:590218702063:web:4586798cf9925edacb7f1a"};
 const APP_KEY = 'sistema_vida_financas_hub_v2';
-const STORE_DEFAULT = { manual: [], installmentPlans: [], debts: [], seededImports: [], updatedAt: 0 };
-const state = { data: structuredClone ? structuredClone(STORE_DEFAULT) : JSON.parse(JSON.stringify(STORE_DEFAULT)), mode: 'local', remoteRef: null, firebase: null };
+const STORE_DEFAULT = { manual: [], installmentPlans: [], fixedPlans: [], debts: [], seededImports: [] };
+// fb: referências Firebase por coleção
+const fb = { db: null, dbMod: null, uid: null, refs: {} };
+const state = { data: { manual:[], installmentPlans:[], fixedPlans:[], debts:[], seededImports:[] }, mode: 'local' };
 const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 const toastEl = document.getElementById('toast');
 function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
-function normalizeStore(raw){ const base=clone(STORE_DEFAULT); if(!raw || typeof raw !== 'object') return base; base.manual=Array.isArray(raw.manual)?raw.manual:[]; base.installmentPlans=Array.isArray(raw.installmentPlans)?raw.installmentPlans:[]; base.debts=Array.isArray(raw.debts)?raw.debts:[]; base.seededImports=Array.isArray(raw.seededImports)?raw.seededImports:[]; base.updatedAt=raw.updatedAt||0; return base; }
+function objToArray(obj){ if(Array.isArray(obj)) return obj; if(!obj || typeof obj !== 'object') return []; return Object.entries(obj).map(([fbKey,val])=>({...val, _fbKey:fbKey})); }
+function normalizeStore(raw){ if(!raw || typeof raw !== 'object') return clone(STORE_DEFAULT); return { manual: objToArray(raw.manual), installmentPlans: objToArray(raw.installmentPlans), fixedPlans: objToArray(raw.fixedPlans||{}), debts: objToArray(raw.debts), seededImports: objToArray(raw.seededImports) }; }
 function hasStoreContent(data){ return !!(data && ((data.manual||[]).length || (data.installmentPlans||[]).length || (data.debts||[]).length)); }
 function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(16).slice(2)); }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
@@ -1129,27 +1140,63 @@ function stripHtml(html){ const div=document.createElement('div'); div.innerHTML
 function sanitizeHtml(html){ const tpl=document.createElement('template'); tpl.innerHTML=html||''; tpl.content.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(el=>el.remove()); tpl.content.querySelectorAll('*').forEach(el=>{ [...el.attributes].forEach(attr=>{ const n=attr.name.toLowerCase(); const v=String(attr.value||''); if(n.startsWith('on') || /javascript:/i.test(v)) el.removeAttribute(attr.name); }); if(el.tagName==='IMG'){ el.setAttribute('loading','lazy'); el.setAttribute('decoding','async'); } if(el.tagName==='A'){ el.setAttribute('target','_blank'); el.setAttribute('rel','noopener'); } }); return tpl.innerHTML.trim(); }
 function setStatus(kind,msg){ const el=$('#syncStatus'); if(el){ el.className='status '+kind; el.textContent=msg; } }
 function showToast(msg){ if(!toastEl) return; toastEl.textContent=msg; toastEl.classList.add('show'); clearTimeout(showToast._t); showToast._t=setTimeout(()=>toastEl.classList.remove('show'),2500); }
+function saveLocal(){ localStorage.setItem(APP_KEY, JSON.stringify(state.data)); }
 function loadLocal(){ try{ state.data = normalizeStore(JSON.parse(localStorage.getItem(APP_KEY)||'null')); } catch { state.data = clone(STORE_DEFAULT); } }
-function saveLocal(){ state.data.updatedAt = Date.now(); localStorage.setItem(APP_KEY, JSON.stringify(state.data)); }
-async function persistStore(reason='Salvando...'){
-  state.data.updatedAt = Date.now();
-  if(state.mode==='firebase' && state.remoteRef && state.firebase){
-    try{
-      setStatus('busy',reason);
-      const {dbMod}=state.firebase;
-      state._saving = true;
-      await dbMod.set(state.remoteRef, state.data);
-      setStatus('ok','Sincronizado ✓');
-    }catch(err){
-      console.error(err);
-      setStatus('warn','Erro ao salvar');
-      showToast('Falha ao sincronizar.');
-      saveLocal();
-    } finally {
-      state._saving = false;
-    }
-  } else { saveLocal(); setStatus('ok','Local ✓'); }
+
+// ── Operações Firebase por item (padrão Sistema de Vida) ──
+function fbRef(collection){ return fb.dbMod.ref(fb.db, `users/${fb.uid}/modulos/despesas_mes/${collection}`); }
+async function fbPush(collection, item){
+  if(state.mode !== 'firebase') return null;
+  const { createdAt, updatedAt, _fbKey, ...data } = item;
+  const payload = { ...data, createdAt: createdAt || Date.now(), updatedAt: Date.now() };
+  const ref = await fb.dbMod.push(fbRef(collection), payload);
+  return ref.key;
 }
+async function fbUpdate(collection, fbKey, item){
+  if(state.mode !== 'firebase' || !fbKey) return;
+  const { _fbKey, ...data } = item;
+  await fb.dbMod.update(fb.dbMod.ref(fb.db, `users/${fb.uid}/modulos/despesas_mes/${collection}/${fbKey}`), { ...data, updatedAt: Date.now() });
+}
+async function fbRemove(collection, fbKey){
+  if(state.mode !== 'firebase' || !fbKey) return;
+  await fb.dbMod.remove(fb.dbMod.ref(fb.db, `users/${fb.uid}/modulos/despesas_mes/${collection}/${fbKey}`));
+}
+
+// ── persistItem: salva/atualiza um item na coleção certa ──
+async function persistItem(collection, item, reason='Salvando...'){
+  setStatus('busy', reason);
+  saveLocal();
+  if(state.mode !== 'firebase'){ setStatus('ok','Local ✓'); return; }
+  try{
+    if(item._fbKey){
+      await fbUpdate(collection, item._fbKey, item);
+    } else {
+      const key = await fbPush(collection, item);
+      item._fbKey = key;
+    }
+    setStatus('ok','Sincronizado ✓');
+  } catch(err){
+    console.error(err);
+    setStatus('warn','Erro ao salvar');
+    showToast('Falha ao sincronizar.');
+  }
+}
+
+// ── removeItem: remove da coleção ──
+async function removeItem(collection, item){
+  setStatus('busy','Excluindo...');
+  saveLocal();
+  if(state.mode !== 'firebase'){ setStatus('ok','Local ✓'); return; }
+  try{
+    await fbRemove(collection, item._fbKey);
+    setStatus('ok','Sincronizado ✓');
+  } catch(err){
+    console.error(err);
+    setStatus('warn','Erro ao excluir');
+    showToast('Falha ao excluir.');
+  }
+}
+
 async function initStore(onReady){
   loadLocal(); if(onReady) onReady(); setStatus('ok','Local ✓');
   try{
@@ -1161,27 +1208,33 @@ async function initStore(onReady){
     const app = appMod.initializeApp(FIREBASE_CONFIG);
     const auth = authMod.getAuth(app);
     const db = dbMod.getDatabase(app);
-    state.firebase = {dbMod};
+    fb.db = db; fb.dbMod = dbMod;
     authMod.onAuthStateChanged(auth, user => {
       if(!user){
-        state.mode='local'; state.remoteRef=null;
+        state.mode='local';
         setStatus('warn','Faça login');
         setTimeout(()=>{ window.location.href='../index.html'; }, 600);
         return;
       }
-      state.mode='firebase';
-      state.remoteRef = dbMod.ref(db, 'users/' + user.uid + '/modulos/despesas_mes');
+      fb.uid = user.uid;
+      state.mode = 'firebase';
       setStatus('busy','Sincronizando...');
-      dbMod.onValue(state.remoteRef, async snap => {
-        if(state._saving){ return; }
-        const remoteRaw = snap.val();
+      const baseRef = dbMod.ref(db, `users/${user.uid}/modulos/despesas_mes`);
+      dbMod.onValue(baseRef, snap => {
+        const raw = snap.val();
         const localBackup = normalizeStore(JSON.parse(localStorage.getItem(APP_KEY)||'null'));
-        if(!remoteRaw && hasStoreContent(localBackup)){
+        if(!raw && hasStoreContent(localBackup)){
+          // Migra localStorage para Firebase item a item
           state.data = localBackup;
-          state._saving = true;
-          await dbMod.set(state.remoteRef, state.data).finally(()=>{ state._saving = false; });
+          const migrateAll = async () => {
+            for(const item of state.data.manual)       await fbPush('manual', item);
+            for(const item of state.data.installmentPlans) await fbPush('installmentPlans', item);
+            for(const item of state.data.fixedPlans)   await fbPush('fixedPlans', item);
+            for(const item of state.data.debts)        await fbPush('debts', item);
+          };
+          migrateAll().catch(console.error);
         } else {
-          state.data = normalizeStore(remoteRaw);
+          state.data = normalizeStore(raw);
         }
         saveLocal();
         if(onReady) onReady();
@@ -1197,8 +1250,18 @@ function ensureMonthStore(year){ return Array.from({length:12},(_,i)=>getMonthRo
 function getInstallmentOccurrences(year,month){ const seq=monthSeq(year,month); return state.data.installmentPlans.flatMap(plan=>{ const start=parseMonthKey(plan.startMonth); const s=monthSeq(start.year,start.month); const total=Number(plan.installments)||1; if(seq < s || seq >= s + total) return []; const idx=seq-s+1; return [{ id:`plan_${plan.id}_${year}_${month}`, source:'installment', parentId:plan.id, title:plan.title, type:'exit', amount:Number(plan.amount)||0, category:plan.category||'Parcelado', monthKey:monthKey(year,month), notes:plan.notes||'', tags:plan.tags||[], installmentIndex:idx, installmentTotal:total, date:`${monthKey(year,month)}-01`, createdAt:plan.createdAt||0 }]; }); }
 function getDebtOccurrences(year,month){ const seq=monthSeq(year,month); return state.data.debts.flatMap(debt=>{ if(debt.status==='quitada' || debt.includeInBudget===false) return []; const start=parseMonthKey(debt.startMonth); const s=monthSeq(start.year,start.month); const months=Number(debt.months)||1; const paid=Number(debt.paidMonths)||0; const activeStart=s+paid; if(seq < activeStart || seq >= s + months) return []; const idx=seq-s+1; return [{ id:`debt_${debt.id}_${year}_${month}`, source:'debt', parentId:debt.id, title:debt.creditor || debt.title || 'Dívida', type:'exit', amount:Number(debt.monthlyPayment)||0, category:debt.category||'Dívida', monthKey:monthKey(year,month), notes:debt.notes||'', tags:debt.tags||[], installmentIndex:idx, installmentTotal:months, date:`${monthKey(year,month)}-01`, createdAt:debt.createdAt||0 }]; }); }
 function getManualOccurrences(year,month){ const mk=monthKey(year,month); return state.data.manual.filter(item=>String(item.date||'').slice(0,7)===mk).map(item=>({...item, source:'manual', monthKey:mk, amount:Number(item.amount)||0 })); }
-function getMonthTransactions(year,month){ return [...getManualOccurrences(year,month), ...getInstallmentOccurrences(year,month), ...getDebtOccurrences(year,month)].sort((a,b)=>{ const d1=(a.date||'').localeCompare(b.date||''); if(d1!==0) return d1; return (a.title||'').localeCompare(b.title||''); }); }
-function getMonthRollup(year,month){ const items=getMonthTransactions(year,month); const entries=items.filter(x=>x.type==='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const exits=items.filter(x=>x.type!=='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const balance=entries-exits; return {year,month,key:monthKey(year,month),items,entries,exits,balance,counts:{manual:items.filter(x=>x.source==='manual').length, installment:items.filter(x=>x.source==='installment').length, debt:items.filter(x=>x.source==='debt').length}}; }
+function getFixedOccurrences(year,month){
+  if(!state.data.fixedPlans) return [];
+  const seq=monthSeq(year,month);
+  return state.data.fixedPlans.flatMap(plan=>{
+    const start=parseMonthKey(plan.startMonth);
+    const s=monthSeq(start.year,start.month);
+    if(seq < s) return [];
+    return [{ id:`fixed_${plan.id}_${year}_${month}`, source:'fixed', parentId:plan.id, title:plan.title, type:plan.type, amount:Number(plan.amount)||0, category:plan.category||'Fixo', monthKey:monthKey(year,month), notes:plan.notes||'', tags:plan.tags||[], date:`${monthKey(year,month)}-01`, createdAt:plan.createdAt||0 }];
+  });
+}
+function getMonthTransactions(year,month){ return [...getManualOccurrences(year,month), ...getInstallmentOccurrences(year,month), ...getFixedOccurrences(year,month), ...getDebtOccurrences(year,month)].sort((a,b)=>{ const d1=(a.date||'').localeCompare(b.date||''); if(d1!==0) return d1; return (a.title||'').localeCompare(b.title||''); }); }
+function getMonthRollup(year,month){ const items=getMonthTransactions(year,month); const entries=items.filter(x=>x.type==='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const exits=items.filter(x=>x.type!=='entry').reduce((s,x)=>s+(Number(x.amount)||0),0); const balance=entries-exits; return {year,month,key:monthKey(year,month),items,entries,exits,balance,counts:{manual:items.filter(x=>x.source==='manual').length, installment:items.filter(x=>x.source==='installment').length, fixed:items.filter(x=>x.source==='fixed').length, debt:items.filter(x=>x.source==='debt').length}}; }
 function getYearProjection(year, opts={}){ const extraIncome=Number(opts.extraIncome)||0; const cutPercent=Math.max(0,Number(opts.cutPercent)||0); const newExpense=Number(opts.newExpense)||0; return ensureMonthStore(year).map(r=>{ let entries=r.entries+extraIncome; let exits=r.exits; if(cutPercent>0) exits = exits * (1 - cutPercent/100); exits += newExpense; return {...r, simEntries:entries, simExits:exits, simBalance:entries-exits}; }); }
 function formatDate(iso){ if(!iso) return ''; const [y,m,d]=String(iso).split('-'); return y&&m&&d ? `${d}/${m}/${y}` : iso; }
 function formatMonth(ym){ const p=parseMonthKey(ym); return `${monthName(p.month)}/${p.year}`; }
@@ -1272,7 +1335,8 @@ function seedFixedExpensesFromPdf(){
     }));
   if(newItems.length) state.data.manual = [...newItems, ...(state.data.manual||[])];
   state.data.seededImports.push(FIXED_EXPENSE_IMPORT_ID);
-  persistStore('Salvando lançamentos...');
+  saveLocal();
+  // Itens do seed serão sincronizados no próximo persistItem chamado pelo usuário
   return newItems.length > 0;
 }
 
@@ -1282,22 +1346,42 @@ function renderYearOptions(){ const sel=$('#yearSelect'); const years=[]; const 
 function renderMonthOptions(){ const sel=$('#monthSelect'); sel.innerHTML=Array.from({length:12},(_,i)=>`<option value="${i+1}">${monthName(i+1)}</option>`).join(''); sel.value=String(ui.month); }
 function renderTags(){ $('#tagChips').innerHTML = ui.tags.map(t=>`<button type="button" class="chip" data-tag="${escapeHtml(t)}">${escapeHtml(t)} ×</button>`).join(''); }
 function addTag(){ const input=$('#tagInput'); const v=input.value.trim(); if(v && !ui.tags.includes(v)){ ui.tags.push(v); renderTags(); } input.value=''; }
-function resetForm(){ ui.editingId=null; ui.tags=[]; $('#captureForm').reset(); renderTags(); rich.clear(); $('#saveBtn').textContent='Salvar item'; $('#cancelBtn').classList.add('hidden'); $('#installmentFields').classList.add('hidden'); $('#txnDate').value = todayKey(); $('#planStartMonth').value = monthKey(ui.year, ui.month); $('#type').value='exit'; }
-function toggleMode(){ const type=$('#type').value; $('#installmentFields').classList.toggle('hidden', type!=='installment'); $('#manualDateField').classList.toggle('hidden', type==='installment'); }
+function resetForm(){ ui.editingId=null; ui.tags=[]; $('#captureForm').reset(); renderTags(); rich.clear(); $('#saveBtn').textContent='Salvar item'; $('#cancelBtn').classList.add('hidden'); $('#installmentFields').classList.add('hidden'); $('#fixedFields').classList.add('hidden'); $('#txnDate').value = todayKey(); $('#planStartMonth').value = monthKey(ui.year, ui.month); $('#fixedStartMonth').value = monthKey(ui.year, ui.month); $('#type').value='exit'; }
+function toggleMode(){ const type=$('#type').value; const isInstallment=type==='installment'; const isFixed=type==='fixed_exit'||type==='fixed_entry'; $('#installmentFields').classList.toggle('hidden', !isInstallment); $('#fixedFields').classList.toggle('hidden', !isFixed); $('#manualDateField').classList.toggle('hidden', isInstallment||isFixed); }
 function collectForm(){ const type=$('#type').value; const title=$('#itemTitle').value.trim(); if(!title){ showToast('Dê um nome para a movimentação.'); $('#itemTitle').focus(); return null; } const amount=parseMoney($('#amount').value); if(amount<=0){ showToast('Informe um valor válido.'); $('#amount').focus(); return null; } const base={ id: ui.editingId || uid(), title, amount, category:$('#category').value.trim(), notes:rich.getHtml(), tags:[...ui.tags], updatedAt:Date.now() };
   if(type==='installment'){
     const installments=Math.max(1, Number($('#installments').value)||1); const startMonth=$('#planStartMonth').value || monthKey(ui.year,ui.month); return { kind:'installment', item:{ ...base, installments, startMonth, createdAt: ui.editingId ? (state.data.installmentPlans.find(x=>x.id===ui.editingId)?.createdAt || Date.now()) : Date.now() } };
   }
+  if(type==='fixed_exit'||type==='fixed_entry'){
+    const startMonth=$('#fixedStartMonth').value || monthKey(ui.year,ui.month);
+    return { kind:'fixed', item:{ ...base, type:type==='fixed_exit'?'exit':'entry', startMonth, createdAt: ui.editingId ? (state.data.manual.find(x=>x.id===ui.editingId)?.createdAt || Date.now()) : Date.now() } };
+  }
   return { kind:'manual', item:{ ...base, type, date:$('#txnDate').value || todayKey(), createdAt: ui.editingId ? (state.data.manual.find(x=>x.id===ui.editingId)?.createdAt || Date.now()) : Date.now() } };
 }
-async function saveForm(e){ e.preventDefault(); const payload=collectForm(); if(!payload) return; if(payload.kind==='installment'){ state.data.installmentPlans = state.data.installmentPlans.filter(x=>x.id!==payload.item.id); state.data.installmentPlans.unshift(payload.item); } else { state.data.manual = state.data.manual.filter(x=>x.id!==payload.item.id); state.data.manual.unshift(payload.item); } await persistStore('Salvando despesa...'); showToast(ui.editingId?'Atualizado ✓':'Salvo ✓'); resetForm(); renderAll(); }
-function editItem(kind,id){ let source = kind==='manual' ? state.data.manual.find(x=>x.id===id) : state.data.installmentPlans.find(x=>x.id===id); if(!source) return; ui.editingId=id; ui.tags=[...(source.tags||[])]; renderTags(); rich.setHtml(source.notes||''); $('#itemTitle').value=source.title||''; $('#amount').value=numberBR(source.amount).replace('.',','); $('#category').value=source.category||''; $('#type').value=kind==='installment' ? 'installment' : (source.type||'exit'); toggleMode(); if(kind==='installment'){ $('#installments').value=source.installments||1; $('#planStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); } else { $('#txnDate').value=source.date||todayKey(); } $('#saveBtn').textContent='Atualizar item'; $('#cancelBtn').classList.remove('hidden'); $('#capturePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
-async function deleteItem(kind,id){ if(!confirm('Remover este registro?')) return; if(kind==='manual') state.data.manual = state.data.manual.filter(x=>x.id!==id); else state.data.installmentPlans = state.data.installmentPlans.filter(x=>x.id!==id); await persistStore('Excluindo...'); renderAll(); showToast('Removido'); }
+async function saveForm(e){ e.preventDefault(); const payload=collectForm(); if(!payload) return;
+  const { kind, item } = payload;
+  const collectionMap = { installment:'installmentPlans', fixed:'fixedPlans', manual:'manual' };
+  const collection = collectionMap[kind] || 'manual';
+  if(!state.data[collection]) state.data[collection]=[];
+  const existing = state.data[collection].find(x=>x.id===item.id);
+  if(existing){ Object.assign(existing, item); await persistItem(collection, existing, 'Atualizando...'); }
+  else { state.data[collection].unshift(item); await persistItem(collection, item, 'Salvando...'); }
+  showToast(ui.editingId?'Atualizado ✓':'Salvo ✓'); resetForm(); renderAll(); }
+function editItem(kind,id){ let source = kind==='manual' ? state.data.manual.find(x=>x.id===id) : kind==='fixed' ? (state.data.fixedPlans||[]).find(x=>x.id===id) : state.data.installmentPlans.find(x=>x.id===id); if(!source) return; ui.editingId=id; ui.tags=[...(source.tags||[])]; renderTags(); rich.setHtml(source.notes||''); $('#itemTitle').value=source.title||''; $('#amount').value=numberBR(source.amount).replace('.',','); $('#category').value=source.category||''; $('#type').value=kind==='installment'?'installment':kind==='fixed'?(source.type==='exit'?'fixed_exit':'fixed_entry'):(source.type||'exit'); toggleMode(); if(kind==='installment'){ $('#installments').value=source.installments||1; $('#planStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); } else if(kind==='fixed'){ $('#fixedStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); } else { $('#txnDate').value=source.date||todayKey(); } $('#saveBtn').textContent='Atualizar item'; $('#cancelBtn').classList.remove('hidden'); $('#capturePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+async function deleteItem(kind,id){ if(!confirm('Remover este registro?')) return;
+  const collectionMap = { installment:'installmentPlans', fixed:'fixedPlans', manual:'manual' };
+  const collection = collectionMap[kind] || kind;
+  if(!state.data[collection]) return;
+  const item = state.data[collection].find(x=>x.id===id);
+  if(!item) return;
+  state.data[collection] = state.data[collection].filter(x=>x.id!==id);
+  await removeItem(collection, item);
+  renderAll(); showToast('Removido'); }
 function filteredCurrentList(){ const q=ui.search.trim().toLowerCase(); const rollup=getMonthRollup(ui.year,ui.month); const list=[...rollup.items]; return list.filter(item=>{ if(ui.filter!=='all' && item.type!==ui.filter && item.source!==ui.filter) return false; if(!q) return true; const hay=[item.title,item.category,stripHtml(item.notes),...(item.tags||[])].join(' ').toLowerCase(); return hay.includes(q); }); }
 function renderStats(){ const current=getMonthRollup(ui.year,ui.month); const planned=current.items.filter(x=>x.source==='installment').length; const debts=current.items.filter(x=>x.source==='debt').length; $('#stats').innerHTML = `<div class="stat"><b>${money(current.entries)}</b><span>Entradas do mês</span></div><div class="stat"><b>${money(current.exits)}</b><span>Saídas do mês</span></div><div class="stat"><b class="${current.balance>=0?'money-good':'money-bad'}">${money(current.balance)}</b><span>Saldo do mês</span></div><div class="stat"><b>${planned+debts}</b><span>Compromissos automáticos</span></div>`; }
-function renderYearGrid(){ const rows=ensureMonthStore(ui.year); $('#yearGrid').innerHTML = rows.map(r=>`<div class="month-card ${r.balance<0?'negative':''}"><h3>${monthName(r.month)}</h3><span class="money">${money(r.balance)}</span><small>Entradas ${money(r.entries)}</small><small>Saídas ${money(r.exits)}</small><small>${r.counts.installment} parcelado(s) · ${r.counts.debt} dívida(s)</small></div>`).join(''); }
+function renderYearGrid(){ const rows=ensureMonthStore(ui.year); $('#yearGrid').innerHTML = rows.map(r=>`<div class="month-card ${r.balance<0?'negative':''}"><h3>${monthName(r.month)}</h3><span class="money">${money(r.balance)}</span><small>Entradas ${money(r.entries)}</small><small>Saídas ${money(r.exits)}</small><small>${r.counts.installment} parcelado(s) · ${r.counts.fixed||0} fixo(s) · ${r.counts.debt} dívida(s)</small></div>`).join(''); }
 function renderReport(){ const current=getMonthRollup(ui.year,ui.month); $('#reportSummary').innerHTML = `<span class="pill">${monthName(ui.month)}/${ui.year}</span><span class="pill">Entradas: ${money(current.entries)}</span><span class="pill">Saídas: ${money(current.exits)}</span><span class="pill">Saldo: <strong class="${current.balance>=0?'money-good':'money-bad'}">${money(current.balance)}</strong></span>`; const list=filteredCurrentList(); if(!list.length){ $('#reportTableWrap').innerHTML = `<div class="empty">Nenhum lançamento neste filtro.</div>`; return; } $('#reportTableWrap').innerHTML = `<table class="list-table"><thead><tr><th>Data</th><th>Título</th><th>Tipo</th><th>Categoria</th><th>Valor</th><th>Origem</th></tr></thead><tbody>${list.map(item=>`<tr><td>${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · ${item.installmentIndex}/${item.installmentTotal}`:''}</td><td>${escapeHtml(item.title)}</td><td>${item.type==='entry'?'Entrada':'Saída'}</td><td>${escapeHtml(item.category||'-')}</td><td>${money(item.amount)}</td><td>${item.source==='installment'?'Parcelado':item.source==='debt'?'Dívida':'Manual'}</td></tr>`).join('')}</tbody></table>`; }
-function renderItems(){ const list=filteredCurrentList(); if(!list.length){ $('#items').innerHTML = `<div class="empty">✨ Nenhum lançamento para este filtro. Registre entradas, saídas ou compras parceladas e o sistema projeta os próximos meses.</div>`; return; } $('#items').innerHTML = list.map(item=>{ const badges=[`<span class="badge ${item.type==='entry'?'':'hot'}">${item.type==='entry'?'Entrada':'Saída'} · ${money(item.amount)}</span>`, item.category?`<span class="badge">${escapeHtml(item.category)}</span>`:'', item.source==='installment'?`<span class="badge hot">Parcelado ${item.installmentIndex}/${item.installmentTotal}</span>`:'', item.source==='debt'?`<span class="badge hot">Vem de Dívidas</span>`:'', ...(item.tags||[]).map(t=>`<span class="badge">#${escapeHtml(t)}</span>`)].join(''); const notes = item.notes ? `<div class="details-body">${sanitizeHtml(item.notes)}</div>` : ''; const action = item.source==='manual' || item.source==='installment' ? `<button data-action="edit" data-kind="${item.source==='installment'?'installment':'manual'}" data-id="${escapeHtml(item.source==='installment'?item.parentId||item.id:item.id)}">Editar</button><button data-action="delete" data-kind="${item.source==='installment'?'installment':'manual'}" data-id="${escapeHtml(item.source==='installment'?item.parentId||item.id:item.id)}">Excluir</button>` : `<button class="quiet-btn" disabled>Gerenciado em Dívidas</button>`; return `<article class="item-card"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="meta">${badges}</div><div class="snippet">${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · parcela ${item.installmentIndex}/${item.installmentTotal}`:''}</div>${notes}<div class="card-actions">${action}</div></article>`; }).join(''); }
+function renderItems(){ const list=filteredCurrentList(); if(!list.length){ $('#items').innerHTML = `<div class="empty">✨ Nenhum lançamento para este filtro. Registre entradas, saídas ou compras parceladas e o sistema projeta os próximos meses.</div>`; return; } $('#items').innerHTML = list.map(item=>{ const badges=[`<span class="badge ${item.type==='entry'?'':'hot'}">${item.type==='entry'?'Entrada':'Saída'} · ${money(item.amount)}</span>`, item.category?`<span class="badge">${escapeHtml(item.category)}</span>`:'', item.source==='installment'?`<span class="badge hot">Parcelado ${item.installmentIndex}/${item.installmentTotal}</span>`:'', item.source==='fixed'?`<span class="badge hot">Fixo · todo mês</span>`:'', item.source==='debt'?`<span class="badge hot">Vem de Dívidas</span>`:'', ...(item.tags||[]).map(t=>`<span class="badge">#${escapeHtml(t)}</span>`)].join(''); const notes = item.notes ? `<div class="details-body">${sanitizeHtml(item.notes)}</div>` : ''; const action = item.source==='debt' ? `<button class="quiet-btn" disabled>Gerenciado em Dívidas</button>` : `<button data-action="edit" data-kind="${item.source}" data-id="${escapeHtml(item.parentId||item.id)}">Editar</button><button data-action="delete" data-kind="${item.source}" data-id="${escapeHtml(item.parentId||item.id)}">Excluir</button>`; return `<article class="item-card"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="meta">${badges}</div><div class="snippet">${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · parcela ${item.installmentIndex}/${item.installmentTotal}`:''}</div>${notes}<div class="card-actions">${action}</div></article>`; }).join(''); }
 function renderAll(){ renderStats(); renderYearGrid(); renderReport(); renderItems(); }
 function bindEvents(){ $('#yearSelect').addEventListener('change', e=>{ ui.year=Number(e.target.value)||ui.year; $('#planStartMonth').value = monthKey(ui.year, ui.month); renderAll(); }); $('#monthSelect').addEventListener('change', e=>{ ui.month=Number(e.target.value)||ui.month; renderAll(); }); $('#type').addEventListener('change', toggleMode); $('#captureForm').addEventListener('submit', saveForm); $('#cancelBtn').addEventListener('click', resetForm); $('#addTagBtn').addEventListener('click', addTag); $('#tagInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(); } }); $('#tagChips').addEventListener('click', e=>{ const btn=e.target.closest('[data-tag]'); if(!btn) return; ui.tags=ui.tags.filter(t=>t!==btn.dataset.tag); renderTags(); }); $('#searchInput').addEventListener('input', e=>{ ui.search=e.target.value; renderItems(); renderReport(); }); $$('.filter-btn').forEach(btn=>btn.addEventListener('click', ()=>{ ui.filter=btn.dataset.filter; $$('.filter-btn').forEach(x=>x.classList.toggle('active',x===btn)); renderItems(); renderReport(); })); $('#items').addEventListener('click', e=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const kind=btn.dataset.kind, id=btn.dataset.id; if(btn.dataset.action==='edit') editItem(kind,id); if(btn.dataset.action==='delete') deleteItem(kind,id); }); $('#printBtn').addEventListener('click', ()=>window.print()); }
 renderYearOptions(); renderMonthOptions(); bindEvents(); toggleMode(); resetForm(); initStore(()=>{ seedFixedExpensesFromPdf(); renderAll(); });
