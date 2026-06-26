@@ -982,12 +982,12 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
   .btn-ghost{background:var(--gold-dim);color:var(--gold-light);border:1px solid var(--gold-border);}
   .btn:hover,.btn-ghost:hover,.btn-gold:hover{opacity:.88;}
   .shell{position:relative;z-index:1;width:min(1220px,100%);margin:0 auto;padding:16px clamp(12px,3vw,26px) 70px;}
-  .item-card.nao-realizado{opacity:.55;border-style:dashed;}
-  .item-card.nao-realizado .item-title{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.3);}
-  .btn-realizado{border:1px solid rgba(76,175,130,.35);background:rgba(76,175,130,.12);color:#4caf82;border-radius:12px;padding:7px 11px;font-weight:800;cursor:pointer;font-size:.8rem;font-family:inherit;transition:.15s;}
-  .btn-realizado:hover{background:rgba(76,175,130,.22);}
-  .btn-realizado.previsto{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#7a92a8;}
-  .btn-realizado.previsto:hover{border-color:rgba(201,168,76,.35);color:var(--gold-light);}
+  .item-card.nao-realizado{opacity:.5;border-style:dashed;border-color:rgba(255,255,255,.12);}
+  .item-card.nao-realizado .item-title{text-decoration:line-through;text-decoration-color:rgba(255,255,255,.25);}
+  .chk-nao-realizado{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:.78rem;color:#7a92a8;font-family:inherit;padding:5px 10px;border:1px solid rgba(255,255,255,.1);border-radius:8px;background:transparent;transition:.15s;user-select:none;}
+  .chk-nao-realizado:hover{border-color:rgba(224,92,92,.4);color:#e05c5c;}
+  .chk-nao-realizado input{accent-color:#e05c5c;width:14px;height:14px;cursor:pointer;}
+  .chk-nao-realizado.marcado{border-color:rgba(224,92,92,.4);background:rgba(224,92,92,.08);color:#e05c5c;}
   /* Intro recolhível */
   .intro-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 16px;margin:0 clamp(14px,3vw,28px) 12px;border:1px solid var(--gold-border);border-radius:var(--radius-sm);background:var(--gold-dim);color:var(--gold-light);font-family:var(--mono);font-size:.8rem;font-weight:600;cursor:pointer;user-select:none;transition:.2s;}
   .intro-toggle:hover{background:rgba(201,168,76,.18);}
@@ -1083,11 +1083,10 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
         </div>
       </div>
       <div id="realizadoField" class="field full hidden" style="margin-top:4px;">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.8rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em;">
-          <input type="checkbox" id="checkRealizado" style="width:16px;height:16px;accent-color:var(--green);cursor:pointer;" checked>
-          Realizado neste mês
+        <label class="chk-nao-realizado" id="labelNaoRealizado">
+          <input type="checkbox" id="checkNaoRealizado" onchange="this.closest('label').classList.toggle('marcado',this.checked)">
+          Não realizado — não soma nos totais
         </label>
-        <div style="font-size:.72rem;color:var(--muted2);margin-top:4px;padding-left:26px;">Se desmarcado, o valor aparece no extrato mas não soma nos totais do mês atual.</div>
       </div>
       <div id="installmentFields" class="field full hidden">
         <div class="form-grid">
@@ -1368,7 +1367,7 @@ function renderYearOptions(){ const sel=$('#yearSelect'); const years=[]; const 
 function renderMonthOptions(){ const sel=$('#monthSelect'); sel.innerHTML=Array.from({length:12},(_,i)=>`<option value="${i+1}">${monthName(i+1)}</option>`).join(''); sel.value=String(ui.month); }
 function renderTags(){ $('#tagChips').innerHTML = ui.tags.map(t=>`<button type="button" class="chip" data-tag="${escapeHtml(t)}">${escapeHtml(t)} ×</button>`).join(''); }
 function addTag(){ const input=$('#tagInput'); const v=input.value.trim(); if(v && !ui.tags.includes(v)){ ui.tags.push(v); renderTags(); } input.value=''; }
-function resetForm(){ ui.editingId=null; ui.tags=[]; $('#captureForm').reset(); renderTags(); rich.clear(); $('#saveBtn').textContent='Salvar item'; $('#cancelBtn').classList.add('hidden'); $('#installmentFields').classList.add('hidden'); $('#fixedFields').classList.add('hidden'); $('#txnDate').value = todayKey(); $('#planStartMonth').value = monthKey(ui.year, ui.month); $('#fixedStartMonth').value = monthKey(ui.year, ui.month); $('#fixedEndMonth').value=''; $('#type').value='exit'; $('#realizadoField').classList.add('hidden'); $('#checkRealizado').checked=true; }
+function resetForm(){ ui.editingId=null; ui.tags=[]; $('#captureForm').reset(); renderTags(); rich.clear(); $('#saveBtn').textContent='Salvar item'; $('#cancelBtn').classList.add('hidden'); $('#installmentFields').classList.add('hidden'); $('#fixedFields').classList.add('hidden'); $('#txnDate').value = todayKey(); $('#planStartMonth').value = monthKey(ui.year, ui.month); $('#fixedStartMonth').value = monthKey(ui.year, ui.month); $('#fixedEndMonth').value=''; $('#type').value='exit'; $('#realizadoField').classList.add('hidden'); $('#checkNaoRealizado').checked=false; if($('#labelNaoRealizado')) $('#labelNaoRealizado').classList.remove('marcado'); }
 function toggleMode(){
   const type=$('#type').value;
   const isInstallment=type==='installment';
@@ -1406,23 +1405,23 @@ async function saveForm(e){ e.preventDefault(); const payload=collectForm(); if(
   const existing = state.data[collection].find(x=>x.id===item.id);
   if(existing){ Object.assign(existing, item); await persistItem(collection, existing, 'Atualizando...'); }
   else { state.data[collection].unshift(item); await persistItem(collection, item, 'Salvando...'); }
-  // Se campo realizado visível, aplicar estado ao mapa
   if(!$('#realizadoField').classList.contains('hidden')){
     if(!state.data.realizados) state.data.realizados={};
     const rKey=realizadoKey(item.id,ui.year,ui.month);
-    if($('#checkRealizado').checked){ delete state.data.realizados[rKey]; }
-    else { state.data.realizados[rKey]=false; }
+    const naoRealizado=$('#checkNaoRealizado').checked;
+    if(naoRealizado){ state.data.realizados[rKey]=true; }
+    else { delete state.data.realizados[rKey]; }
     saveLocal();
     if(state.mode==='firebase'&&fb.uid){
       try{
         const ref=fb.dbMod.ref(fb.db,`users/${fb.uid}/modulos/despesas_mes/realizados/${rKey}`);
-        if($('#checkRealizado').checked) await fb.dbMod.remove(ref);
-        else await fb.dbMod.set(ref,false);
+        if(naoRealizado) await fb.dbMod.set(ref,true);
+        else await fb.dbMod.remove(ref);
       }catch(e){ console.error(e); }
     }
   }
   showToast(ui.editingId?'Atualizado ✓':'Salvo ✓'); resetForm(); renderAll(); }
-function editItem(kind,id){ let source = kind==='manual' ? state.data.manual.find(x=>x.id===id) : kind==='fixed' ? (state.data.fixedPlans||[]).find(x=>x.id===id) : state.data.installmentPlans.find(x=>x.id===id); if(!source) return; ui.editingId=id; ui.tags=[...(source.tags||[])]; renderTags(); rich.setHtml(source.notes||''); $('#itemTitle').value=source.title||''; $('#amount').value=numberBR(source.amount).replace('.',','); $('#category').value=source.category||''; $('#type').value=kind==='installment'?'installment':kind==='fixed'?(source.type==='exit'?'fixed_exit':'fixed_entry'):(source.type||'exit'); toggleMode(); if(kind==='installment'){ $('#installments').value=source.installments||1; $('#planStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); } else if(kind==='fixed'){ $('#fixedStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); $('#fixedEndMonth').value=source.endMonth||''; } else { $('#txnDate').value=source.date||todayKey(); } if(kind==='fixed'||kind==='installment'){ const rKey=realizadoKey(source.id,ui.year,ui.month); $('#checkRealizado').checked=(state.data.realizados||{})[rKey]!==false; } $('#saveBtn').textContent='Atualizar item'; $('#cancelBtn').classList.remove('hidden'); $('#capturePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+function editItem(kind,id){ let source = kind==='manual' ? state.data.manual.find(x=>x.id===id) : kind==='fixed' ? (state.data.fixedPlans||[]).find(x=>x.id===id) : state.data.installmentPlans.find(x=>x.id===id); if(!source) return; ui.editingId=id; ui.tags=[...(source.tags||[])]; renderTags(); rich.setHtml(source.notes||''); $('#itemTitle').value=source.title||''; $('#amount').value=numberBR(source.amount).replace('.',','); $('#category').value=source.category||''; $('#type').value=kind==='installment'?'installment':kind==='fixed'?(source.type==='exit'?'fixed_exit':'fixed_entry'):(source.type||'exit'); toggleMode(); if(kind==='installment'){ $('#installments').value=source.installments||1; $('#planStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); } else if(kind==='fixed'){ $('#fixedStartMonth').value=source.startMonth||monthKey(ui.year,ui.month); $('#fixedEndMonth').value=source.endMonth||''; } else { $('#txnDate').value=source.date||todayKey(); } { const rKey=realizadoKey(source.id,ui.year,ui.month); $('#checkNaoRealizado').checked=(state.data.realizados||{})[rKey]===true; const lbl=$('#labelNaoRealizado'); if(lbl) lbl.classList.toggle('marcado',$('#checkNaoRealizado').checked); } $('#saveBtn').textContent='Atualizar item'; $('#cancelBtn').classList.remove('hidden'); $('#capturePanel').scrollIntoView({behavior:'smooth',block:'start'}); }
 async function deleteItem(kind,id){ if(!confirm('Remover este registro?')) return;
   const collectionMap = { installment:'installmentPlans', fixed:'fixedPlans', manual:'manual' };
   const collection = collectionMap[kind] || kind;
@@ -1442,27 +1441,23 @@ function isRealizado(itemId, year, month){
 }
 function isCurrentMonth(year,month){ const n=new Date(); return year===n.getFullYear()&&month===(n.getMonth()+1); }
 function itemRealizadoStatus(item, year, month){
-  // Mês atual: realizado por padrão, a não ser que esteja explicitamente marcado como não realizado
-  if(isCurrentMonth(year,month)){
-    const key=realizadoKey(item.parentId||item.id, year, month);
-    // false explícito = não realizado. undefined/true = realizado
-    return (state.data.realizados||{})[key] !== false;
-  }
-  // Outros meses: sempre realizado (projeção completa)
-  return true;
+  if(!isCurrentMonth(year,month)) return true;
+  const key=realizadoKey(item.parentId||item.id, year, month);
+  // true no mapa = não realizado. ausente = realizado (padrão)
+  return (state.data.realizados||{})[key] !== true;
 }
 async function toggleRealizado(itemId, year, month){
   if(!state.data.realizados) state.data.realizados={};
   const key=realizadoKey(itemId,year,month);
-  // undefined/true = realizado → marcar false. false = não realizado → voltar para realizado (delete)
-  if(state.data.realizados[key]===false){ delete state.data.realizados[key]; }
-  else { state.data.realizados[key]=false; }
+  // true = não realizado. ausente = realizado
+  if(state.data.realizados[key]===true){ delete state.data.realizados[key]; }
+  else { state.data.realizados[key]=true; }
   saveLocal();
   if(state.mode==='firebase' && fb.uid){
     try{
       const ref=fb.dbMod.ref(fb.db,`users/${fb.uid}/modulos/despesas_mes/realizados/${key}`);
       if(state.data.realizados[key]===undefined) await fb.dbMod.remove(ref);
-      else await fb.dbMod.set(ref, false);
+      else await fb.dbMod.set(ref, true);
     } catch(e){ console.error(e); }
   }
   renderAll();
@@ -1479,8 +1474,9 @@ function renderItems(){ const list=filteredCurrentList(); if(!list.length){ $('#
     const editId=escapeHtml(item.parentId||item.id);
     const editKind=item.source;
     const actionBtns = item.source==='debt' ? `<button class="quiet-btn" disabled>Gerenciado em Dívidas</button>` : `<button data-action="edit" data-kind="${editKind}" data-id="${editId}">Editar</button><button data-action="delete" data-kind="${editKind}" data-id="${editId}">Excluir</button>`;
-    const realizadoBtn = isCurrent && item.source!=='manual'
-      ? `<button class="btn-realizado ${realizado?'':'previsto'}" data-action="toggle-realizado" data-item-id="${escapeHtml(item.parentId||item.id)}">${realizado?'✓ Realizado':'✕ Não realizado'}</button>`
+    const naoRealizado=!realizado;
+    const realizadoBtn = isCurrent
+      ? `<label class="chk-nao-realizado${naoRealizado?' marcado':''}" onclick="toggleRealizado('${escapeHtml(item.parentId||item.id)}',${ui.year},${ui.month});event.preventDefault()"><input type="checkbox" ${naoRealizado?'checked':''} style="pointer-events:none">Não realizado</label>`
       : '';
     return `<article class="item-card${!realizado&&isCurrent?' nao-realizado':''}"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="meta">${badges}</div><div class="snippet">${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · parcela ${item.installmentIndex}/${item.installmentTotal}`:''}</div>${notes}<div class="card-actions">${realizadoBtn}${actionBtns}</div></article>`;
   }).join(''); }
