@@ -899,10 +899,10 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
 
 /* Visão do ano */
 .month-grid{display:grid!important;grid-template-columns:repeat(12,minmax(110px,1fr))!important;gap:10px!important;overflow:auto!important;padding-bottom:4px!important;}
-.month-card{padding:12px!important;min-width:110px!important;border-radius:var(--radius-sm)!important;background:var(--bg-card2)!important;border-color:rgba(255,255,255,0.07)!important;box-shadow:none!important;}
-.month-card h3{margin:0 0 8px!important;font:700 12px var(--font-title)!important;color:var(--gold-light)!important;letter-spacing:.04em!important;text-transform:uppercase!important;}
-.month-card .money{display:block!important;color:var(--text)!important;font:700 15px var(--font-title)!important;}
-.month-card small{display:block!important;color:var(--text-light)!important;margin-top:4px!important;font:500 11px var(--font-mono)!important;}
+.month-card{padding:12px!important;min-width:110px!important;aspect-ratio:1!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;border-radius:var(--radius-sm)!important;background:var(--bg-card2)!important;border-color:rgba(255,255,255,0.07)!important;box-shadow:none!important;overflow:hidden!important;}
+.month-card h3{margin:0 0 4px!important;font:700 10px var(--font-title)!important;color:var(--gold-light)!important;letter-spacing:.04em!important;text-transform:uppercase!important;}
+.month-card .money{display:block!important;color:var(--text)!important;font:700 13px var(--font-title)!important;line-height:1.2!important;}
+.month-card small{display:block!important;color:var(--text-light)!important;margin-top:2px!important;font:500 10px var(--font-mono)!important;line-height:1.3!important;}
 .month-card.negative{border-color:rgba(255,118,117,0.25)!important;background:rgba(255,118,117,0.08)!important;}
 
 /* Relatório */
@@ -989,7 +989,7 @@ select option{background:#1b2e42!important;color:var(--text)!important;}
   .intro-toggle.open .intro-arrow{transform:rotate(180deg);}
   .intro-body{display:grid;grid-template-rows:0fr;overflow:hidden;transition:grid-template-rows .3s ease;margin:0 clamp(14px,3vw,28px) 16px;}
   .intro-body.open{grid-template-rows:1fr;}
-  .intro-body-inner{overflow:hidden;display:grid;gap:12px;grid-template-columns:minmax(0,1.3fr) minmax(240px,.7fr);padding-bottom:4px;}
+  .intro-body-inner{overflow:hidden;min-height:0;display:grid;gap:12px;grid-template-columns:minmax(0,1.3fr) minmax(240px,.7fr);padding-bottom:4px;}
   .intro-body .hero-card,.intro-body .mini-guide{margin-bottom:0;}
   .hero-card{border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:20px;background:linear-gradient(135deg,rgba(27,46,66,.98),rgba(22,36,54,.88));box-shadow:0 14px 36px rgba(0,0,0,.18);}
   .eyebrow{font-size:11px;color:var(--gold-light);font-weight:800;text-transform:uppercase;letter-spacing:.12em;}
@@ -1220,25 +1220,31 @@ async function initStore(onReady){
       state.mode = 'firebase';
       setStatus('busy','Sincronizando...');
       const baseRef = dbMod.ref(db, `users/${user.uid}/modulos/despesas_mes`);
+      let initialLoad = true;
       dbMod.onValue(baseRef, snap => {
         const raw = snap.val();
-        const localBackup = normalizeStore(JSON.parse(localStorage.getItem(APP_KEY)||'null'));
-        if(!raw && hasStoreContent(localBackup)){
-          // Migra localStorage para Firebase item a item
-          state.data = localBackup;
-          const migrateAll = async () => {
-            for(const item of state.data.manual)       await fbPush('manual', item);
-            for(const item of state.data.installmentPlans) await fbPush('installmentPlans', item);
-            for(const item of state.data.fixedPlans)   await fbPush('fixedPlans', item);
-            for(const item of state.data.debts)        await fbPush('debts', item);
-          };
-          migrateAll().catch(console.error);
-        } else {
-          state.data = normalizeStore(raw);
+        if(initialLoad){
+          // Primeira carga: sincroniza dados do Firebase ou migra do localStorage
+          initialLoad = false;
+          const localBackup = normalizeStore(JSON.parse(localStorage.getItem(APP_KEY)||'null'));
+          if(!raw && hasStoreContent(localBackup)){
+            state.data = localBackup;
+            const migrateAll = async () => {
+              for(const item of state.data.manual)           await fbPush('manual', item);
+              for(const item of state.data.installmentPlans) await fbPush('installmentPlans', item);
+              for(const item of state.data.fixedPlans)       await fbPush('fixedPlans', item);
+              for(const item of state.data.debts)            await fbPush('debts', item);
+            };
+            migrateAll().catch(console.error);
+          } else {
+            state.data = normalizeStore(raw);
+          }
+          saveLocal();
+          if(onReady) onReady();
+          setStatus('ok','Sincronizado ✓');
         }
-        saveLocal();
-        if(onReady) onReady();
-        setStatus('ok','Sincronizado ✓');
+        // Atualizações subsequentes (push/update/remove do próprio módulo)
+        // são refletidas localmente em tempo real sem re-render completo
       }, err => {
         console.error(err);
         setStatus('warn', err?.code==='PERMISSION_DENIED' ? 'Sem permissão no Firebase' : 'Offline/erro Firebase');
