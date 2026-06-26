@@ -1378,7 +1378,7 @@ function toggleMode(){
   $('#fixedFields').classList.toggle('hidden', !isFixed);
   $('#manualDateField').classList.toggle('hidden', !isManual);
   // Campo realizado só aparece para fixo/parcelado E no mês atual, e só ao editar
-  const showRealizado = (isFixed||isInstallment) && !!ui.editingId && isCurrentMonth(ui.year,ui.month);
+  const showRealizado = isCurrentMonth(ui.year,ui.month);
   $('#realizadoField').classList.toggle('hidden', !showRealizado);
 }
 function collectForm(){ const type=$('#type').value; const title=$('#itemTitle').value.trim(); if(!title){ showToast('Dê um nome para a movimentação.'); $('#itemTitle').focus(); return null; } const amount=parseMoney($('#amount').value); if(amount<=0){ showToast('Informe um valor válido.'); $('#amount').focus(); return null; } const base={ id: ui.editingId || uid(), title, amount, category:$('#category').value.trim(), notes:rich.getHtml(), tags:[...ui.tags], updatedAt:Date.now() };
@@ -1442,8 +1442,6 @@ function isRealizado(itemId, year, month){
 }
 function isCurrentMonth(year,month){ const n=new Date(); return year===n.getFullYear()&&month===(n.getMonth()+1); }
 function itemRealizadoStatus(item, year, month){
-  // Manuais: sempre realizados
-  if(item.source==='manual') return true;
   // Mês atual: realizado por padrão, a não ser que esteja explicitamente marcado como não realizado
   if(isCurrentMonth(year,month)){
     const key=realizadoKey(item.parentId||item.id, year, month);
