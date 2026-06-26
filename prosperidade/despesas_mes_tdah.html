@@ -1138,7 +1138,7 @@ const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 const toastEl = document.getElementById('toast');
 function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
 function objToArray(obj){ if(Array.isArray(obj)) return obj; if(!obj || typeof obj !== 'object') return []; return Object.entries(obj).map(([fbKey,val])=>({...val, _fbKey:fbKey})); }
-function normalizeStore(raw){ if(!raw || typeof raw !== 'object') return clone(STORE_DEFAULT); return { manual: objToArray(raw.manual), installmentPlans: objToArray(raw.installmentPlans), fixedPlans: objToArray(raw.fixedPlans||{}), debts: objToArray(raw.debts), seededImports: objToArray(raw.seededImports), realizados: (raw.realizados && typeof raw.realizados==='object') ? raw.realizados : {} }; }
+function normalizeStore(raw){ if(!raw || typeof raw !== 'object') return clone(STORE_DEFAULT); return { manual: objToArray(raw.manual), installmentPlans: objToArray(raw.installmentPlans), fixedPlans: objToArray(raw.fixedPlans||{}), debts: objToArray(raw.debts), seededImports: objToArray(raw.seededImports), realizados: (()=>{ if(!raw.realizados||typeof raw.realizados!=="object") return {}; const out={}; for(const [k,v] of Object.entries(raw.realizados)){ if(v===true||(v&&v.value===true)) out[k]=true; } return out; })() }; }
 function hasStoreContent(data){ return !!(data && ((data.manual||[]).length || (data.installmentPlans||[]).length || (data.debts||[]).length)); }
 function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(16).slice(2)); }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
@@ -1415,7 +1415,7 @@ async function saveForm(e){ e.preventDefault(); const payload=collectForm(); if(
     if(state.mode==='firebase'&&fb.uid){
       try{
         const ref=fb.dbMod.ref(fb.db,`users/${fb.uid}/modulos/despesas_mes/realizados/${rKey}`);
-        if(naoRealizado) await fb.dbMod.set(ref,true);
+        if(naoRealizado) await fb.dbMod.set(ref,{ value: true, createdAt: Date.now(), updatedAt: Date.now() });
         else await fb.dbMod.remove(ref);
       }catch(e){ console.error(e); }
     }
@@ -1457,7 +1457,7 @@ async function toggleRealizado(itemId, year, month){
     try{
       const ref=fb.dbMod.ref(fb.db,`users/${fb.uid}/modulos/despesas_mes/realizados/${key}`);
       if(state.data.realizados[key]===undefined) await fb.dbMod.remove(ref);
-      else await fb.dbMod.set(ref, true);
+      else await fb.dbMod.set(ref, { value: true, createdAt: Date.now(), updatedAt: Date.now() });
     } catch(e){ console.error(e); }
   }
   renderAll();
