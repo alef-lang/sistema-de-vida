@@ -653,13 +653,13 @@ select option{background:#1b2e42;color:var(--text);}
 <script type="module">
 const FIREBASE_CONFIG = {"apiKey": "AIzaSyC_WmNYQ8f5ChftZfEdNLtdUWMDE-10RZ8", "authDomain": "sistema-de-vida-e6c68.firebaseapp.com", "databaseURL": "https://sistema-de-vida-e6c68-default-rtdb.firebaseio.com", "projectId": "sistema-de-vida-e6c68", "storageBucket": "sistema-de-vida-e6c68.firebasestorage.app", "messagingSenderId": "590218702063", "appId": "1:590218702063:web:4586798cf9925edacb7f1a"};
 const APP_KEY = 'sistema_vida_financas_hub_v2';
-const STORE_DEFAULT = { manual: [], installmentPlans: [], debts: [], updatedAt: 0 };
+const STORE_DEFAULT = { manual: [], installmentPlans: [], debts: [], seededImports: [], updatedAt: 0 };
 const state = { data: structuredClone ? structuredClone(STORE_DEFAULT) : JSON.parse(JSON.stringify(STORE_DEFAULT)), mode: 'local', remoteRef: null, firebase: null };
 const $ = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
 const toastEl = document.getElementById('toast');
 function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
-function normalizeStore(raw){ const base=clone(STORE_DEFAULT); if(!raw || typeof raw !== 'object') return base; base.manual=Array.isArray(raw.manual)?raw.manual:[]; base.installmentPlans=Array.isArray(raw.installmentPlans)?raw.installmentPlans:[]; base.debts=Array.isArray(raw.debts)?raw.debts:[]; base.updatedAt=raw.updatedAt||0; return base; }
+function normalizeStore(raw){ const base=clone(STORE_DEFAULT); if(!raw || typeof raw !== 'object') return base; base.manual=Array.isArray(raw.manual)?raw.manual:[]; base.installmentPlans=Array.isArray(raw.installmentPlans)?raw.installmentPlans:[]; base.debts=Array.isArray(raw.debts)?raw.debts:[]; base.seededImports=Array.isArray(raw.seededImports)?raw.seededImports:[]; base.updatedAt=raw.updatedAt||0; return base; }
 function hasStoreContent(data){ return !!(data && ((data.manual||[]).length || (data.installmentPlans||[]).length || (data.debts||[]).length)); }
 function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id_' + Date.now() + '_' + Math.random().toString(16).slice(2)); }
 function todayKey(){ return new Date().toISOString().slice(0,10); }
@@ -715,6 +715,53 @@ function attachRichEditor(editorId='richEditor', inputId='imgInput'){
   return { editor, getHtml, clear(){ editor.innerHTML=''; savedRange=null; }, setHtml(v){ editor.innerHTML=sanitizeHtml(v||''); } };
 }
 
+const FIXED_EXPENSE_IMPORT_ID = 'financas_alef_fixos_pdf_2026_06_v2';
+const FIXED_EXPENSES_ALEF = [
+  { title:'Aluguel', amount:500, category:'Fixos Essenciais' },
+  { title:'Alimentação', amount:400, category:'Fixos Essenciais' },
+  { title:'Plano TIM', amount:31, category:'Fixos Essenciais' },
+  { title:'Naltrexona', amount:150, category:'Fixos Essenciais' },
+  { title:'Desvenlafaxina', amount:50, category:'Fixos Essenciais' },
+  { title:'Higiene', amount:120, category:'Fixos Essenciais' },
+  { title:'Corte', amount:50, category:'Fixos Essenciais' },
+  { title:'Consignados', amount:500, category:'Dívidas' }
+];
+function normalizeText(value){ return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim(); }
+function hasEquivalentManualExpense(exp,targetDate){
+  const targetMonth=String(targetDate).slice(0,7);
+  return (state.data.manual||[]).some(item=>
+    item.type==='exit' &&
+    String(item.date||'').slice(0,7)===targetMonth &&
+    Math.abs((Number(item.amount)||0) - Number(exp.amount||0)) < 0.01 &&
+    normalizeText(item.title)===normalizeText(exp.title) &&
+    normalizeText(item.category)===normalizeText(exp.category)
+  );
+}
+function seedFixedExpensesFromPdf(){
+  state.data.seededImports = Array.isArray(state.data.seededImports) ? state.data.seededImports : [];
+  if(state.data.seededImports.includes(FIXED_EXPENSE_IMPORT_ID)) return false;
+  const targetDate = todayKey();
+  const stamp = Date.now();
+  const newItems = FIXED_EXPENSES_ALEF
+    .filter(exp=>!hasEquivalentManualExpense(exp,targetDate))
+    .map((exp,idx)=>({
+      id:`${FIXED_EXPENSE_IMPORT_ID}_${String(idx+1).padStart(2,'0')}`,
+      title:exp.title,
+      amount:exp.amount,
+      category:exp.category,
+      notes:'',
+      tags:[],
+      type:'exit',
+      date:targetDate,
+      createdAt:stamp+idx,
+      updatedAt:stamp+idx
+    }));
+  if(newItems.length) state.data.manual = [...newItems, ...(state.data.manual||[])];
+  state.data.seededImports.push(FIXED_EXPENSE_IMPORT_ID);
+  persistStore('Salvando lançamentos...');
+  return newItems.length > 0;
+}
+
 const ui = { year: new Date().getFullYear(), month: new Date().getMonth()+1, filter:'all', search:'', editingId:null, tags:[] };
 const rich = attachRichEditor();
 function renderYearOptions(){ const sel=$('#yearSelect'); const years=[]; const now=new Date().getFullYear(); for(let y=now-2;y<=now+6;y++) years.push(y); sel.innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join(''); sel.value=String(ui.year); $('#planStartMonth').value = monthKey(ui.year, ui.month); $('#txnDate').value = `${monthKey(ui.year, ui.month)}-` + String(new Date().getDate()).padStart(2,'0'); }
@@ -739,7 +786,7 @@ function renderReport(){ const current=getMonthRollup(ui.year,ui.month); $('#rep
 function renderItems(){ const list=filteredCurrentList(); if(!list.length){ $('#items').innerHTML = `<div class="empty">✨ Nenhum lançamento para este filtro. Registre entradas, saídas ou compras parceladas e o sistema projeta os próximos meses.</div>`; return; } $('#items').innerHTML = list.map(item=>{ const badges=[`<span class="badge ${item.type==='entry'?'':'hot'}">${item.type==='entry'?'Entrada':'Saída'} · ${money(item.amount)}</span>`, item.category?`<span class="badge">${escapeHtml(item.category)}</span>`:'', item.source==='installment'?`<span class="badge hot">Parcelado ${item.installmentIndex}/${item.installmentTotal}</span>`:'', item.source==='debt'?`<span class="badge hot">Vem de Dívidas</span>`:'', ...(item.tags||[]).map(t=>`<span class="badge">#${escapeHtml(t)}</span>`)].join(''); const notes = item.notes ? `<div class="details-body">${sanitizeHtml(item.notes)}</div>` : ''; const action = item.source==='manual' || item.source==='installment' ? `<button data-action="edit" data-kind="${item.source==='installment'?'installment':'manual'}" data-id="${escapeHtml(item.source==='installment'?item.parentId||item.id:item.id)}">Editar</button><button data-action="delete" data-kind="${item.source==='installment'?'installment':'manual'}" data-id="${escapeHtml(item.source==='installment'?item.parentId||item.id:item.id)}">Excluir</button>` : `<button class="quiet-btn" disabled>Gerenciado em Dívidas</button>`; return `<article class="item-card"><h3 class="item-title">${escapeHtml(item.title)}</h3><div class="meta">${badges}</div><div class="snippet">${item.source==='manual'?formatDate(item.date):formatMonth(item.monthKey)}${item.installmentIndex?` · parcela ${item.installmentIndex}/${item.installmentTotal}`:''}</div>${notes}<div class="card-actions">${action}</div></article>`; }).join(''); }
 function renderAll(){ renderStats(); renderYearGrid(); renderReport(); renderItems(); }
 function bindEvents(){ $('#yearSelect').addEventListener('change', e=>{ ui.year=Number(e.target.value)||ui.year; $('#planStartMonth').value = monthKey(ui.year, ui.month); renderAll(); }); $('#monthSelect').addEventListener('change', e=>{ ui.month=Number(e.target.value)||ui.month; renderAll(); }); $('#type').addEventListener('change', toggleMode); $('#captureForm').addEventListener('submit', saveForm); $('#cancelBtn').addEventListener('click', resetForm); $('#addTagBtn').addEventListener('click', addTag); $('#tagInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTag(); } }); $('#tagChips').addEventListener('click', e=>{ const btn=e.target.closest('[data-tag]'); if(!btn) return; ui.tags=ui.tags.filter(t=>t!==btn.dataset.tag); renderTags(); }); $('#searchInput').addEventListener('input', e=>{ ui.search=e.target.value; renderItems(); renderReport(); }); $$('.filter-btn').forEach(btn=>btn.addEventListener('click', ()=>{ ui.filter=btn.dataset.filter; $$('.filter-btn').forEach(x=>x.classList.toggle('active',x===btn)); renderItems(); renderReport(); })); $('#items').addEventListener('click', e=>{ const btn=e.target.closest('[data-action]'); if(!btn) return; const kind=btn.dataset.kind, id=btn.dataset.id; if(btn.dataset.action==='edit') editItem(kind,id); if(btn.dataset.action==='delete') deleteItem(kind,id); }); $('#printBtn').addEventListener('click', ()=>window.print()); }
-renderYearOptions(); renderMonthOptions(); bindEvents(); toggleMode(); resetForm(); initStore(renderAll);
+renderYearOptions(); renderMonthOptions(); bindEvents(); toggleMode(); resetForm(); initStore(()=>{ seedFixedExpensesFromPdf(); renderAll(); });
 </script>
 </body>
 </html>
