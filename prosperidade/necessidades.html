@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Necessidades | BIF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0d1b2a;
+      --card:#1b2e42;
+      --card-2:#223850;
+      --gold:#c9a84c;
+      --gold-2:#e8c97a;
+      --text:#f6f1df;
+      --muted:#b8c2d0;
+      --line:rgba(232,201,122,.23);
+      --danger:#e46b6b;
+      --ok:#6fd7a3;
+      --shadow:0 20px 60px rgba(0,0,0,.35);
+      --radius:26px;
+      --max-card:1080px;
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      min-height:100vh;
+      overflow-x:hidden;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(201,168,76,.14), transparent 34%),
+        radial-gradient(circle at 95% 12%, rgba(232,201,122,.10), transparent 30%),
+        linear-gradient(180deg, #0d1b2a 0%, #081421 100%);
+      color:var(--text);
+      font-family:'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    button, input, select, textarea{ font:inherit; }
+    button{ cursor:pointer; }
+    img{ max-width:100%; display:block; }
+
+    .app-shell{
+      width:min(1180px, calc(100vw - 28px));
+      margin:0 auto;
+      padding:22px 0 70px;
+    }
+
+    .hero{
+      position:sticky;
+      top:0;
+      z-index:40;
+      margin:0 -2px 18px;
+      padding:14px 0 14px;
+      backdrop-filter:blur(18px);
+      background:linear-gradient(180deg, rgba(13,27,42,.96), rgba(13,27,42,.76));
+      border-bottom:1px solid rgba(232,201,122,.13);
+    }
+
+    .hero-inner{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:14px;
+      align-items:start;
+    }
+
+    .eyebrow{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:8px;
+      color:var(--gold-2);
+      font-family:'DM Mono', monospace;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .dot{
+      width:9px;
+      height:9px;
+      border-radius:999px;
+      background:var(--gold-2);
+      box-shadow:0 0 16px rgba(232,201,122,.75);
+    }
+
+    h1{
+      margin:0;
+      font-family:'Poppins', sans-serif;
+      font-size:clamp(30px, 4.5vw, 58px);
+      line-height:1;
+      letter-spacing:-.05em;
+    }
+
+    .subtitle{
+      max-width:780px;
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.45;
+    }
+
+    .sync-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-width:178px;
+      padding:10px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(27,46,66,.78);
+      color:var(--text);
+      box-shadow:0 10px 28px rgba(0,0,0,.18);
+      font-family:'DM Mono', monospace;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .sync-pill .cloud{
+      width:9px;
+      height:9px;
+      border-radius:999px;
+      background:var(--gold-2);
+    }
+
+    .sync-pill.ok .cloud{ background:var(--ok); box-shadow:0 0 14px rgba(111,215,163,.7); }
+    .sync-pill.warn .cloud{ background:var(--gold-2); box-shadow:0 0 14px rgba(232,201,122,.7); }
+    .sync-pill.off .cloud{ background:var(--danger); box-shadow:0 0 14px rgba(228,107,107,.7); }
+
+    .toolbar{
+      display:grid;
+      grid-template-columns:minmax(180px, 1fr) 170px auto;
+      gap:10px;
+      margin:14px 0 2px;
+      align-items:center;
+    }
+
+    .field, .select{
+      width:100%;
+      min-height:46px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:rgba(27,46,66,.86);
+      color:var(--text);
+      outline:none;
+      padding:0 14px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+
+    .field::placeholder{ color:rgba(246,241,223,.54); }
+
+    .btn{
+      min-height:46px;
+      border:1px solid rgba(232,201,122,.34);
+      border-radius:16px;
+      padding:0 16px;
+      color:#172331;
+      background:linear-gradient(135deg, var(--gold-2), var(--gold));
+      font-weight:800;
+      box-shadow:0 12px 30px rgba(201,168,76,.18);
+      transition:.18s transform ease, .18s filter ease, .18s opacity ease;
+      white-space:nowrap;
+    }
+
+    .btn:hover{ transform:translateY(-1px); filter:brightness(1.05); }
+    .btn.secondary{
+      color:var(--text);
+      background:rgba(27,46,66,.86);
+      box-shadow:none;
+    }
+    .btn.ghost{
+      min-height:38px;
+      padding:0 12px;
+      border-color:rgba(232,201,122,.18);
+      color:var(--gold-2);
+      background:rgba(13,27,42,.42);
+      box-shadow:none;
+    }
+    .btn.danger{
+      color:#fff;
+      border-color:rgba(228,107,107,.45);
+      background:rgba(228,107,107,.16);
+      box-shadow:none;
+    }
+
+    .metrics{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:10px;
+      margin:18px 0;
+    }
+
+    .metric-card{
+      min-height:82px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(27,46,66,.92), rgba(27,46,66,.66));
+      padding:14px;
+      box-shadow:0 16px 32px rgba(0,0,0,.16);
+    }
+
+    .metric-card b{
+      display:block;
+      font-family:'Poppins', sans-serif;
+      font-size:26px;
+      letter-spacing:-.04em;
+    }
+    .metric-card span{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
+      font-family:'DM Mono', monospace;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .board{
+      display:flex;
+      flex-direction:column;
+      gap:22px;
+      align-items:center;
+      width:100%;
+      min-height:70vh;
+    }
+
+    .need-card{
+      position:relative;
+      width:min(var(--max-card), 100%);
+      aspect-ratio:1/1;
+      border:1px solid rgba(232,201,122,.22);
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:var(--card);
+      box-shadow:var(--shadow);
+      user-select:none;
+      touch-action:manipulation;
+      outline:none;
+    }
+
+    .need-card.dragging{
+      opacity:.5;
+      transform:scale(.99);
+    }
+
+    .card-bg{
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(135deg, rgba(201,168,76,.18), transparent 42%),
+        radial-gradient(circle at 72% 20%, rgba(232,201,122,.15), transparent 32%),
+        linear-gradient(180deg, #213650 0%, #101f31 100%);
+    }
+
+    .card-bg img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter:saturate(1.04) contrast(1.02);
+    }
+
+    .placeholder-art{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      padding:40px;
+      color:rgba(246,241,223,.84);
+      background:
+        linear-gradient(135deg, rgba(201,168,76,.16), rgba(13,27,42,.18)),
+        repeating-linear-gradient(45deg, rgba(255,255,255,.035) 0 1px, transparent 1px 18px);
+    }
+
+    .placeholder-art .emoji{
+      font-size:clamp(84px, 16vw, 190px);
+      line-height:1;
+      filter:drop-shadow(0 16px 28px rgba(0,0,0,.28));
+    }
+
+    .placeholder-art .hint{
+      margin-top:18px;
+      font-family:'Poppins', sans-serif;
+      font-size:clamp(20px, 3vw, 36px);
+      font-weight:700;
+      letter-spacing:-.04em;
+    }
+
+    .card-top{
+      position:absolute;
+      top:18px;
+      left:18px;
+      right:18px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      z-index:2;
+    }
+
+    .priority-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:9px 12px;
+      border:1px solid rgba(232,201,122,.42);
+      border-radius:999px;
+      background:rgba(13,27,42,.72);
+      color:var(--gold-2);
+      font-family:'DM Mono', monospace;
+      font-size:13px;
+      backdrop-filter:blur(12px);
+      box-shadow:0 12px 30px rgba(0,0,0,.22);
+    }
+
+    .card-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .icon-btn{
+      width:42px;
+      height:42px;
+      border:1px solid rgba(232,201,122,.28);
+      border-radius:14px;
+      background:rgba(13,27,42,.68);
+      color:var(--gold-2);
+      backdrop-filter:blur(12px);
+      box-shadow:0 12px 30px rgba(0,0,0,.20);
+      font-weight:800;
+    }
+    .icon-btn:disabled{
+      opacity:.34;
+      cursor:not-allowed;
+    }
+
+    .caption{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:2;
+      padding:clamp(18px, 3.2vw, 42px);
+      background:linear-gradient(180deg, rgba(8,20,33,0), rgba(8,20,33,.72) 22%, rgba(8,20,33,.96) 100%);
+      color:var(--text);
+    }
+
+    .caption h2{
+      margin:0;
+      font-family:'Poppins', sans-serif;
+      font-size:clamp(30px, 7vw, 78px);
+      line-height:.96;
+      letter-spacing:-.06em;
+      text-transform:capitalize;
+      text-shadow:0 10px 30px rgba(0,0,0,.5);
+    }
+
+    .caption-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+
+    .price-tag{
+      display:inline-flex;
+      align-items:baseline;
+      gap:8px;
+      padding:12px 15px;
+      border:1px solid rgba(232,201,122,.34);
+      border-radius:18px;
+      background:rgba(27,46,66,.88);
+      color:var(--gold-2);
+      box-shadow:0 14px 30px rgba(0,0,0,.24);
+    }
+    .price-tag small{
+      color:var(--muted);
+      font-size:12px;
+      font-family:'DM Mono', monospace;
+      text-transform:uppercase;
+    }
+    .price-tag strong{
+      font-family:'Poppins', sans-serif;
+      font-size:clamp(20px, 3vw, 32px);
+      letter-spacing:-.04em;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(246,241,223,.14);
+      background:rgba(246,241,223,.08);
+      color:var(--text);
+      font-family:'DM Mono', monospace;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+
+    .empty-state{
+      width:100%;
+      border:1px dashed rgba(232,201,122,.38);
+      border-radius:22px;
+      padding:26px;
+      text-align:center;
+      color:var(--muted);
+      background:rgba(27,46,66,.38);
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:90;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(5,12,20,.78);
+      backdrop-filter:blur(14px);
+    }
+    .modal-backdrop.active{ display:flex; }
+
+    .modal{
+      width:min(980px, 100%);
+      max-height:min(92vh, 980px);
+      overflow:hidden;
+      display:grid;
+      grid-template-rows:auto 1fr auto;
+      border:1px solid rgba(232,201,122,.26);
+      border-radius:28px;
+      background:linear-gradient(180deg, rgba(27,46,66,.98), rgba(13,27,42,.98));
+      box-shadow:0 30px 80px rgba(0,0,0,.52);
+    }
+
+    .modal-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      padding:20px 22px 16px;
+      border-bottom:1px solid rgba(232,201,122,.14);
+    }
+
+    .modal-header h3{
+      margin:0;
+      font-family:'Poppins', sans-serif;
+      font-size:24px;
+      letter-spacing:-.04em;
+    }
+    .modal-header p{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .modal-body{
+      overflow:auto;
+      padding:20px 22px;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .form-group{ min-width:0; }
+    .form-group.full{ grid-column:1/-1; }
+    label{
+      display:block;
+      margin:0 0 7px;
+      color:var(--gold-2);
+      font-family:'DM Mono', monospace;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .input{
+      width:100%;
+      min-height:46px;
+      border:1px solid rgba(232,201,122,.2);
+      border-radius:15px;
+      background:rgba(13,27,42,.58);
+      color:var(--text);
+      outline:none;
+      padding:0 13px;
+    }
+
+    .image-tools{
+      display:grid;
+      grid-template-columns:220px 1fr;
+      gap:14px;
+      align-items:stretch;
+    }
+
+    .cover-drop{
+      min-height:220px;
+      border:1px dashed rgba(232,201,122,.42);
+      border-radius:20px;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      background:rgba(13,27,42,.42);
+      text-align:center;
+      color:var(--muted);
+      padding:16px;
+      outline:none;
+    }
+    .cover-drop:focus{ border-color:var(--gold-2); box-shadow:0 0 0 3px rgba(232,201,122,.12); }
+    .cover-drop img{ width:100%; height:100%; object-fit:cover; border-radius:14px; }
+
+    .editor{
+      width:100%;
+      min-height:260px;
+      border:1px solid rgba(232,201,122,.2);
+      border-radius:20px;
+      background:rgba(13,27,42,.58);
+      color:var(--text);
+      padding:16px;
+      outline:none;
+      overflow:auto;
+      font-family:'Poppins', sans-serif;
+      font-size:16px;
+      line-height:1.55;
+    }
+    .editor:empty:before{
+      content:attr(data-placeholder);
+      color:rgba(246,241,223,.46);
+      font-family:'Poppins', sans-serif;
+    }
+    .editor img{
+      max-width:100%;
+      height:auto;
+      border-radius:16px;
+      margin:12px 0;
+      border:1px solid rgba(232,201,122,.20);
+      box-shadow:0 16px 34px rgba(0,0,0,.22);
+    }
+
+    .editor-toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:9px;
+    }
+
+    .small-note{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .modal-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:16px 22px 20px;
+      border-top:1px solid rgba(232,201,122,.14);
+      background:rgba(8,20,33,.44);
+    }
+
+    .footer-left, .footer-right{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      z-index:130;
+      transform:translateX(-50%) translateY(20px);
+      opacity:0;
+      pointer-events:none;
+      padding:12px 16px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(27,46,66,.96);
+      color:var(--text);
+      font-size:13px;
+      box-shadow:0 18px 45px rgba(0,0,0,.32);
+      transition:.22s ease;
+    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+    @media (max-width:860px){
+      .app-shell{ width:min(100% - 18px, 1180px); padding-top:12px; }
+      .hero-inner{ grid-template-columns:1fr; }
+      .sync-pill{ justify-self:start; }
+      .toolbar{ grid-template-columns:1fr; }
+      .metrics{ grid-template-columns:1fr; }
+      .need-card{ border-radius:22px; }
+      .card-top{ top:12px; left:12px; right:12px; }
+      .caption{ padding:20px; }
+      .caption-row{ margin-top:12px; }
+      .form-grid{ grid-template-columns:1fr; }
+      .image-tools{ grid-template-columns:1fr; }
+      .cover-drop{ min-height:240px; }
+      .modal-footer{ flex-direction:column; align-items:stretch; }
+      .footer-left, .footer-right{ justify-content:stretch; }
+      .modal-footer .btn{ flex:1; }
+      .subtitle{ font-size:13px; }
+    }
+
+    @media print{
+      body{ background:#fff; color:#000; }
+      .hero, .toolbar, .metrics, .card-actions, .modal-backdrop, .toast{ display:none !important; }
+      .app-shell{ width:100%; padding:0; }
+      .board{ gap:12mm; }
+      .need-card{ page-break-inside:avoid; width:100%; box-shadow:none; border:1px solid #999; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero" aria-label="Cabeçalho da página Necessidades">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> BIF · Prioridades pessoais</div>
+          <h1>Necessidades</h1>
+          <p class="subtitle">Arraste os cards para cima ou para baixo. O que fica mais alto vira prioridade maior. Cada card é quadrado no formato Instagram, com foto, legenda e estimativa de preço.</p>
+        </div>
+        <div id="syncStatus" class="sync-pill warn" title="Status de sincronização">
+          <span class="cloud"></span><span>Conectando nuvem...</span>
+        </div>
+      </div>
+
+      <div class="toolbar" aria-label="Busca e ações">
+        <input id="searchInput" class="field" type="search" placeholder="Buscar necessidade, detalhe, status..." autocomplete="off" />
+        <select id="statusFilter" class="select" aria-label="Filtrar por status">
+          <option value="todos">Todos os status</option>
+          <option value="Pesquisa">Pesquisa</option>
+          <option value="Cotando">Cotando</option>
+          <option value="Decidir">Decidir</option>
+          <option value="Comprar">Comprar</option>
+          <option value="Concluído">Concluído</option>
+        </select>
+        <button id="addCardBtn" class="btn" type="button">+ Nova necessidade</button>
+      </div>
+    </section>
+
+    <section class="metrics" aria-label="Resumo">
+      <div class="metric-card"><b id="totalNeeds">0</b><span>necessidades</span></div>
+      <div class="metric-card"><b id="totalEstimate">R$ 0</b><span>estimativa total</span></div>
+      <div class="metric-card"><b id="topNeed">—</b><span>prioridade #1</span></div>
+    </section>
+
+    <section id="board" class="board" aria-label="Kanban vertical de necessidades"></section>
+  </main>
+
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <section class="modal">
+      <header class="modal-header">
+        <div>
+          <h3 id="modalTitle">Editar necessidade</h3>
+          <p>Use imagem principal para ilustrar o card. No campo detalhes, cole textos e imagens livremente.</p>
+        </div>
+        <button id="closeModalBtn" class="icon-btn" type="button" aria-label="Fechar">×</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="needTitle">Nome da necessidade</label>
+            <input id="needTitle" class="input" type="text" placeholder="Ex.: fogão" />
+          </div>
+          <div class="form-group">
+            <label for="needPrice">Estimativa de preço</label>
+            <input id="needPrice" class="input" type="text" inputmode="decimal" placeholder="Ex.: R$ 1.500,00" />
+          </div>
+          <div class="form-group">
+            <label for="needStatus">Status</label>
+            <select id="needStatus" class="input">
+              <option>Pesquisa</option>
+              <option>Cotando</option>
+              <option>Decidir</option>
+              <option>Comprar</option>
+              <option>Concluído</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="needDue">Prazo / momento ideal</label>
+            <input id="needDue" class="input" type="text" placeholder="Ex.: até dezembro / sem prazo" />
+          </div>
+
+          <div class="form-group full">
+            <label>Imagem principal do card</label>
+            <div class="image-tools">
+              <div id="coverDrop" class="cover-drop" tabindex="0">
+                <span>Clique, arraste ou cole uma imagem aqui</span>
+              </div>
+              <div>
+                <input id="coverInput" type="file" accept="image/*" hidden />
+                <button id="chooseCoverBtn" class="btn secondary" type="button">Escolher foto principal</button>
+                <button id="removeCoverBtn" class="btn ghost" type="button">Remover foto</button>
+                <p class="small-note">A imagem principal é ajustada para formato quadrado 1080×1080. JPG, PNG, WebP, GIF e outros formatos aceitos pelo navegador podem ser usados.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label>Detalhes</label>
+            <div class="editor-toolbar" aria-label="Ferramentas de texto">
+              <button class="btn ghost" type="button" data-cmd="bold">Negrito</button>
+              <button class="btn ghost" type="button" data-cmd="insertUnorderedList">Lista</button>
+              <button class="btn ghost" type="button" data-cmd="removeFormat">Limpar formatação</button>
+              <button id="insertImageBtn" class="btn ghost" type="button">Inserir imagem</button>
+            </div>
+            <input id="detailImageInput" type="file" accept="image/*" multiple hidden />
+            <div id="detailsEditor" class="editor" contenteditable="true" spellcheck="true" data-placeholder="Digite detalhes, cole prints, referências, links, fotos de orçamento, medidas, observações..."></div>
+            <p class="small-note">Também dá para copiar uma imagem de outro lugar e colar direto aqui. O conteúdo é salvo junto com o card.</p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <div class="footer-left">
+          <button id="deleteCardBtn" class="btn danger" type="button">Excluir</button>
+        </div>
+        <div class="footer-right">
+          <button id="cancelModalBtn" class="btn secondary" type="button">Cancelar</button>
+          <button id="saveModalBtn" class="btn" type="button">Salvar</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const DATABASE_URL = 'https://portal-treinamentos-lang-default-rtdb.firebaseio.com';
+    const FIREBASE_ENDPOINT = `${DATABASE_URL}/bif/necessidades.json`;
+    const CACHE_KEY = 'bif_necessidades_cache_v1';
+
+    const defaultCards = [
+      { title:'fogão', emoji:'🍳', status:'Pesquisa', price:'', due:'', detailsHTML:'<p>Necessidade cadastrada. Adicione foto, orçamento, medidas e observações.</p>' },
+      { title:'geladeira', emoji:'🧊', status:'Pesquisa', price:'', due:'', detailsHTML:'<p>Necessidade cadastrada. Adicione modelos, consumo de energia, medidas e comparação de preços.</p>' },
+      { title:'óculos', emoji:'👓', status:'Pesquisa', price:'', due:'', detailsHTML:'<p>Necessidade cadastrada. Adicione receita, armações, lentes e orçamento.</p>' },
+      { title:'implante', emoji:'🦷', status:'Pesquisa', price:'', due:'', detailsHTML:'<p>Necessidade cadastrada. Adicione avaliações, orçamento, etapas e observações.</p>' },
+      { title:'academia', emoji:'🏋️', status:'Pesquisa', price:'', due:'', detailsHTML:'<p>Necessidade cadastrada. Adicione endereço, mensalidade, horários e motivo da escolha.</p>' }
+    ];
+
+    let cards = [];
+    let activeId = null;
+    let draggedId = null;
+    let saveTimer = null;
+    let isOnline = navigator.onLine;
+
+    const board = document.getElementById('board');
+    const syncStatus = document.getElementById('syncStatus');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const totalNeeds = document.getElementById('totalNeeds');
+    const totalEstimate = document.getElementById('totalEstimate');
+    const topNeed = document.getElementById('topNeed');
+
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const needTitle = document.getElementById('needTitle');
+    const needPrice = document.getElementById('needPrice');
+    const needStatus = document.getElementById('needStatus');
+    const needDue = document.getElementById('needDue');
+    const coverDrop = document.getElementById('coverDrop');
+    const coverInput = document.getElementById('coverInput');
+    const chooseCoverBtn = document.getElementById('chooseCoverBtn');
+    const removeCoverBtn = document.getElementById('removeCoverBtn');
+    const detailsEditor = document.getElementById('detailsEditor');
+    const detailImageInput = document.getElementById('detailImageInput');
+    const toast = document.getElementById('toast');
+
+    const uid = () => `need_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    const nowISO = () => new Date().toISOString();
+
+    function seedCards(){
+      return defaultCards.map((item, index) => ({
+        id: uid(),
+        title: item.title,
+        emoji: item.emoji,
+        status: item.status,
+        price: item.price,
+        due: item.due,
+        photo: '',
+        detailsHTML: item.detailsHTML,
+        createdAt: nowISO(),
+        updatedAt: nowISO(),
+        order: index
+      }));
+    }
+
+    function setSync(status, text){
+      syncStatus.className = `sync-pill ${status}`;
+      syncStatus.querySelector('span:last-child').textContent = text;
+    }
+
+    function showToast(message){
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 2300);
+    }
+
+    function safeCards(value){
+      if(!Array.isArray(value)) return [];
+      return value
+        .filter(item => item && typeof item === 'object' && item.id && item.title)
+        .map((item, index) => ({
+          id: String(item.id),
+          title: String(item.title || 'Sem nome'),
+          emoji: item.emoji || '✨',
+          status: item.status || 'Pesquisa',
+          price: item.price || '',
+          due: item.due || '',
+          photo: item.photo || '',
+          detailsHTML: item.detailsHTML || '',
+          createdAt: item.createdAt || nowISO(),
+          updatedAt: item.updatedAt || nowISO(),
+          order: Number.isFinite(Number(item.order)) ? Number(item.order) : index
+        }))
+        .sort((a,b) => a.order - b.order);
+    }
+
+    function saveCache(){
+      try{
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ cards, updatedAt: nowISO() }));
+      }catch(err){
+        console.warn('Falha ao salvar cache local:', err);
+        showToast('Cache local cheio. Reduza imagens muito grandes.');
+      }
+    }
+
+    function readCache(){
+      try{
+        const raw = localStorage.getItem(CACHE_KEY);
+        if(!raw) return [];
+        const parsed = JSON.parse(raw);
+        return safeCards(parsed.cards || parsed);
+      }catch(err){
+        console.warn('Falha ao ler cache local:', err);
+        return [];
+      }
+    }
+
+    async function loadFromFirebase(){
+      const response = await fetch(`${FIREBASE_ENDPOINT}?ts=${Date.now()}`, {
+        method:'GET',
+        headers:{ 'Accept':'application/json' },
+        cache:'no-store'
+      });
+      if(!response.ok) throw new Error(`Firebase GET ${response.status}`);
+      const data = await response.json();
+      return safeCards(data?.cards || data);
+    }
+
+    async function saveToFirebase(){
+      if(!Array.isArray(cards) || cards.length === 0){
+        setSync('warn', 'Nuvem protegida: lista vazia não enviada');
+        return;
+      }
+      setSync('warn', 'Salvando na nuvem...');
+      const payload = {
+        cards: cards.map((item, index) => ({ ...item, order:index })),
+        updatedAt: nowISO(),
+        source:'necessidades.html'
+      };
+      const response = await fetch(FIREBASE_ENDPOINT, {
+        method:'PUT',
+        headers:{ 'Content-Type':'application/json' },
+        body:JSON.stringify(payload)
+      });
+      if(!response.ok) throw new Error(`Firebase PUT ${response.status}`);
+      setSync('ok', 'Nuvem sincronizada');
+    }
+
+    function scheduleSave(){
+      cards = cards.map((item, index) => ({ ...item, order:index, updatedAt:item.updatedAt || nowISO() }));
+      saveCache();
+      setSync('warn', 'Cache salvo · aguardando nuvem');
+      window.clearTimeout(saveTimer);
+      saveTimer = window.setTimeout(async () => {
+        try{
+          await saveToFirebase();
+        }catch(err){
+          console.warn('Falha Firebase:', err);
+          setSync('off', 'Offline ou sem permissão · cache local ativo');
+        }
+      }, 650);
+    }
+
+    function normalizeMoneyInput(value){
+      if(!value) return '';
+      const clean = String(value).replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',', '.');
+      const number = Number(clean);
+      if(!Number.isFinite(number) || number <= 0) return value.trim();
+      return number.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+    }
+
+    function parseBRL(value){
+      if(!value) return 0;
+      const clean = String(value).replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',', '.');
+      const number = Number(clean);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function getFilteredCards(){
+      const term = searchInput.value.trim().toLowerCase();
+      const status = statusFilter.value;
+      return cards.filter(card => {
+        const haystack = `${card.title} ${card.status} ${card.price} ${card.due} ${stripHTML(card.detailsHTML)}`.toLowerCase();
+        const matchSearch = !term || haystack.includes(term);
+        const matchStatus = status === 'todos' || card.status === status;
+        return matchSearch && matchStatus;
+      });
+    }
+
+    function stripHTML(html){
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html || '';
+      return tmp.textContent || tmp.innerText || '';
+    }
+
+    function updateMetrics(){
+      totalNeeds.textContent = cards.length;
+      const sum = cards.reduce((acc, card) => acc + parseBRL(card.price), 0);
+      totalEstimate.textContent = sum ? sum.toLocaleString('pt-BR', { style:'currency', currency:'BRL', maximumFractionDigits:0 }) : 'R$ 0';
+      topNeed.textContent = cards[0]?.title || '—';
+    }
+
+    function render(){
+      const filtered = getFilteredCards();
+      board.innerHTML = '';
+      updateMetrics();
+
+      if(filtered.length === 0){
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<strong>Nenhuma necessidade encontrada.</strong><br>Limpe a busca ou crie um novo card.';
+        board.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach((card) => {
+        const realIndex = cards.findIndex(item => item.id === card.id);
+        const article = document.createElement('article');
+        article.className = 'need-card';
+        article.draggable = true;
+        article.dataset.id = card.id;
+        article.tabIndex = 0;
+        article.setAttribute('aria-label', `${card.title}, prioridade ${realIndex + 1}`);
+
+        article.innerHTML = `
+          <div class="card-bg">
+            ${card.photo ? `<img src="${card.photo}" alt="Imagem da necessidade ${escapeHTML(card.title)}">` : `<div class="placeholder-art"><div><div class="emoji">${escapeHTML(card.emoji || '✨')}</div><div class="hint">Inserir foto</div></div></div>`}
+          </div>
+          <div class="card-top">
+            <span class="priority-badge">#${realIndex + 1} prioridade</span>
+            <div class="card-actions">
+              <button class="icon-btn" type="button" data-action="up" ${realIndex === 0 ? 'disabled' : ''} title="Subir prioridade">↑</button>
+              <button class="icon-btn" type="button" data-action="down" ${realIndex === cards.length - 1 ? 'disabled' : ''} title="Descer prioridade">↓</button>
+              <button class="icon-btn" type="button" data-action="edit" title="Editar">✎</button>
+            </div>
+          </div>
+          <div class="caption">
+            <h2>${escapeHTML(card.title)}</h2>
+            <div class="caption-row">
+              <span class="status-badge">${escapeHTML(card.status || 'Pesquisa')}</span>
+              <span class="price-tag"><small>Estimativa</small><strong>${escapeHTML(card.price || 'A definir')}</strong></span>
+            </div>
+          </div>
+        `;
+
+        article.addEventListener('click', (event) => {
+          if(event.target.closest('button')) return;
+          openModal(card.id);
+        });
+        article.addEventListener('keydown', (event) => {
+          if(event.key === 'Enter') openModal(card.id);
+        });
+        article.addEventListener('dragstart', handleDragStart);
+        article.addEventListener('dragover', handleDragOver);
+        article.addEventListener('drop', handleDrop);
+        article.addEventListener('dragend', handleDragEnd);
+
+        board.appendChild(article);
+      });
+    }
+
+    function escapeHTML(value){
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;'
+      }[char]));
+    }
+
+    function moveCard(id, direction){
+      const index = cards.findIndex(item => item.id === id);
+      if(index < 0) return;
+      const next = direction === 'up' ? index - 1 : index + 1;
+      if(next < 0 || next >= cards.length) return;
+      const [item] = cards.splice(index, 1);
+      cards.splice(next, 0, item);
+      cards = cards.map((card, idx) => ({ ...card, order:idx, updatedAt:nowISO() }));
+      render();
+      scheduleSave();
+    }
+
+    function handleDragStart(event){
+      draggedId = event.currentTarget.dataset.id;
+      event.currentTarget.classList.add('dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', draggedId);
+    }
+
+    function handleDragOver(event){
+      event.preventDefault();
+      const target = event.currentTarget;
+      if(!draggedId || target.dataset.id === draggedId) return;
+      const rect = target.getBoundingClientRect();
+      const after = event.clientY > rect.top + rect.height / 2;
+      const draggingEl = board.querySelector('.dragging');
+      if(!draggingEl) return;
+      if(after){
+        target.after(draggingEl);
+      }else{
+        target.before(draggingEl);
+      }
+    }
+
+    function handleDrop(event){
+      event.preventDefault();
+      reorderFromDOM();
+    }
+
+    function handleDragEnd(event){
+      event.currentTarget.classList.remove('dragging');
+      draggedId = null;
+      reorderFromDOM();
+    }
+
+    function reorderFromDOM(){
+      const ids = [...board.querySelectorAll('.need-card')].map(el => el.dataset.id);
+      if(!ids.length || ids.length !== getFilteredCards().length) return;
+      const filteredIds = new Set(ids);
+      const filteredOrdered = ids.map(id => cards.find(card => card.id === id)).filter(Boolean);
+      const unfiltered = cards.filter(card => !filteredIds.has(card.id));
+      cards = [...filteredOrdered, ...unfiltered].map((card, index) => ({ ...card, order:index, updatedAt:nowISO() }));
+      render();
+      scheduleSave();
+    }
+
+    board.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if(!button) return;
+      event.stopPropagation();
+      const cardEl = button.closest('.need-card');
+      const id = cardEl?.dataset.id;
+      const action = button.dataset.action;
+      if(action === 'edit') openModal(id);
+      if(action === 'up') moveCard(id, 'up');
+      if(action === 'down') moveCard(id, 'down');
+    });
+
+    document.getElementById('addCardBtn').addEventListener('click', () => {
+      const card = {
+        id: uid(), title:'nova necessidade', emoji:'✨', status:'Pesquisa', price:'', due:'', photo:'',
+        detailsHTML:'', createdAt:nowISO(), updatedAt:nowISO(), order:cards.length
+      };
+      cards.push(card);
+      render();
+      scheduleSave();
+      openModal(card.id);
+    });
+
+    searchInput.addEventListener('input', render);
+    statusFilter.addEventListener('change', render);
+
+    function openModal(id){
+      const card = cards.find(item => item.id === id);
+      if(!card) return;
+      activeId = id;
+      needTitle.value = card.title || '';
+      needPrice.value = card.price || '';
+      needStatus.value = card.status || 'Pesquisa';
+      needDue.value = card.due || '';
+      detailsEditor.innerHTML = card.detailsHTML || '';
+      renderCover(card.photo);
+      modalBackdrop.classList.add('active');
+      setTimeout(() => needTitle.focus(), 80);
+    }
+
+    function closeModal(){
+      activeId = null;
+      modalBackdrop.classList.remove('active');
+    }
+
+    function getActiveCard(){
+      return cards.find(item => item.id === activeId);
+    }
+
+    function saveModal(){
+      const card = getActiveCard();
+      if(!card) return;
+      card.title = needTitle.value.trim() || 'Sem nome';
+      card.price = normalizeMoneyInput(needPrice.value.trim());
+      card.status = needStatus.value || 'Pesquisa';
+      card.due = needDue.value.trim();
+      card.detailsHTML = sanitizeEditorHTML(detailsEditor.innerHTML);
+      card.updatedAt = nowISO();
+      render();
+      scheduleSave();
+      closeModal();
+      showToast('Necessidade salva.');
+    }
+
+    function sanitizeEditorHTML(html){
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = html || '';
+      wrapper.querySelectorAll('script, iframe, object, embed, style').forEach(el => el.remove());
+      wrapper.querySelectorAll('*').forEach(el => {
+        [...el.attributes].forEach(attr => {
+          if(attr.name.startsWith('on')) el.removeAttribute(attr.name);
+        });
+      });
+      return wrapper.innerHTML;
+    }
+
+    document.getElementById('saveModalBtn').addEventListener('click', saveModal);
+    document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+    modalBackdrop.addEventListener('click', event => {
+      if(event.target === modalBackdrop) closeModal();
+    });
+    document.addEventListener('keydown', event => {
+      if(event.key === 'Escape' && modalBackdrop.classList.contains('active')) closeModal();
+    });
+
+    document.getElementById('deleteCardBtn').addEventListener('click', () => {
+      const card = getActiveCard();
+      if(!card) return;
+      const ok = confirm(`Excluir "${card.title}"?`);
+      if(!ok) return;
+      cards = cards.filter(item => item.id !== card.id).map((item, index) => ({ ...item, order:index }));
+      render();
+      scheduleSave();
+      closeModal();
+      showToast('Necessidade excluída.');
+    });
+
+    chooseCoverBtn.addEventListener('click', () => coverInput.click());
+    coverInput.addEventListener('change', async event => {
+      const file = event.target.files?.[0];
+      if(file) await setCoverFromFile(file);
+      coverInput.value = '';
+    });
+
+    removeCoverBtn.addEventListener('click', () => {
+      const card = getActiveCard();
+      if(!card) return;
+      card.photo = '';
+      renderCover('');
+      showToast('Foto principal removida.');
+    });
+
+    coverDrop.addEventListener('click', () => coverInput.click());
+    coverDrop.addEventListener('dragover', event => {
+      event.preventDefault();
+      coverDrop.style.borderColor = 'var(--gold-2)';
+    });
+    coverDrop.addEventListener('dragleave', () => coverDrop.style.borderColor = 'rgba(232,201,122,.42)');
+    coverDrop.addEventListener('drop', async event => {
+      event.preventDefault();
+      coverDrop.style.borderColor = 'rgba(232,201,122,.42)';
+      const file = [...event.dataTransfer.files].find(item => item.type.startsWith('image/'));
+      if(file) await setCoverFromFile(file);
+    });
+    coverDrop.addEventListener('paste', async event => {
+      const file = getFirstImageFromClipboard(event.clipboardData);
+      if(!file) return;
+      event.preventDefault();
+      await setCoverFromFile(file);
+    });
+
+    async function setCoverFromFile(file){
+      const card = getActiveCard();
+      if(!card) return;
+      try{
+        const dataUrl = await compressImage(file, { size:1080, square:true, quality:.84 });
+        card.photo = dataUrl;
+        card.updatedAt = nowISO();
+        renderCover(dataUrl);
+        showToast('Foto principal inserida.');
+      }catch(err){
+        console.error(err);
+        showToast('Não consegui ler essa imagem.');
+      }
+    }
+
+    function renderCover(src){
+      coverDrop.innerHTML = src ? `<img src="${src}" alt="Foto principal">` : '<span>Clique, arraste ou cole uma imagem aqui</span>';
+    }
+
+    document.querySelectorAll('[data-cmd]').forEach(button => {
+      button.addEventListener('click', () => {
+        detailsEditor.focus();
+        document.execCommand(button.dataset.cmd, false, null);
+      });
+    });
+
+    document.getElementById('insertImageBtn').addEventListener('click', () => detailImageInput.click());
+    detailImageInput.addEventListener('change', async event => {
+      const files = [...event.target.files].filter(file => file.type.startsWith('image/'));
+      for(const file of files){
+        const dataUrl = await compressImage(file, { size:1080, square:false, quality:.82 });
+        insertImageInEditor(dataUrl);
+      }
+      detailImageInput.value = '';
+    });
+
+    detailsEditor.addEventListener('paste', async event => {
+      const items = [...(event.clipboardData?.items || [])];
+      const imageFiles = items
+        .filter(item => item.kind === 'file' && item.type.startsWith('image/'))
+        .map(item => item.getAsFile())
+        .filter(Boolean);
+      if(!imageFiles.length) return;
+      event.preventDefault();
+      for(const file of imageFiles){
+        const dataUrl = await compressImage(file, { size:1080, square:false, quality:.82 });
+        insertImageInEditor(dataUrl);
+      }
+      showToast(`${imageFiles.length} imagem(ns) colada(s) nos detalhes.`);
+    });
+
+    function getFirstImageFromClipboard(clipboardData){
+      const items = [...(clipboardData?.items || [])];
+      const imageItem = items.find(item => item.kind === 'file' && item.type.startsWith('image/'));
+      return imageItem ? imageItem.getAsFile() : null;
+    }
+
+    function insertImageInEditor(src){
+      detailsEditor.focus();
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = 'Imagem inserida nos detalhes';
+      const selection = window.getSelection();
+      if(!selection || selection.rangeCount === 0){
+        detailsEditor.appendChild(img);
+        detailsEditor.appendChild(document.createElement('br'));
+        return;
+      }
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(img);
+      const br = document.createElement('br');
+      img.after(br);
+      range.setStartAfter(br);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+
+    function compressImage(file, options = {}){
+      const { size = 1080, square = false, quality = .84 } = options;
+      return new Promise((resolve, reject) => {
+        if(!file || !file.type.startsWith('image/')){
+          reject(new Error('Arquivo não é imagem.'));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if(square){
+              canvas.width = size;
+              canvas.height = size;
+              const srcSize = Math.min(img.width, img.height);
+              const sx = (img.width - srcSize) / 2;
+              const sy = (img.height - srcSize) / 2;
+              ctx.drawImage(img, sx, sy, srcSize, srcSize, 0, 0, size, size);
+            }else{
+              const scale = Math.min(1, size / Math.max(img.width, img.height));
+              canvas.width = Math.max(1, Math.round(img.width * scale));
+              canvas.height = Math.max(1, Math.round(img.height * scale));
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            }
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    window.addEventListener('online', () => {
+      isOnline = true;
+      setSync('warn', 'Online · sincronizando...');
+      scheduleSave();
+    });
+    window.addEventListener('offline', () => {
+      isOnline = false;
+      setSync('off', 'Offline · cache local ativo');
+    });
+
+    async function boot(){
+      setSync('warn', 'Conectando nuvem...');
+      try{
+        const cloudCards = await loadFromFirebase();
+        if(cloudCards.length){
+          cards = cloudCards;
+          saveCache();
+          setSync('ok', 'Nuvem carregada');
+        }else{
+          const cached = readCache();
+          if(cached.length){
+            cards = cached;
+            setSync('warn', 'Firebase vazio · usando cache');
+            scheduleSave();
+          }else{
+            cards = seedCards();
+            setSync('warn', 'Criando base inicial');
+            scheduleSave();
+          }
+        }
+      }catch(err){
+        console.warn('Falha ao carregar Firebase:', err);
+        const cached = readCache();
+        if(cached.length){
+          cards = cached;
+          setSync('off', 'Sem nuvem · cache local carregado');
+        }else{
+          cards = seedCards();
+          setSync('off', 'Sem nuvem · base inicial local');
+          saveCache();
+        }
+      }
+      render();
+    }
+
+    boot();
+  </script>
+</body>
+</html>
