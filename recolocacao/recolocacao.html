@@ -156,6 +156,18 @@ span.sm{display:none}
 .tag.st-enviado{background:#d8e8ff;color:#0b3f94}.tag.st-entrevista{background:#d7f3e1;color:#0d5a2d}.tag.st-sem-retorno{background:#ffe9c9;color:#7a4700}.tag.st-encerrado{background:#e7e7ea;color:#444}
 .cl.ok{color:var(--ok)}.cl.warn{color:var(--warn)}.cl.bad{color:var(--danger)}
 
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.kpi{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:9px 11px;background:var(--bar);border:1px solid var(--line);border-top:3px solid var(--kc,var(--line));border-radius:10px;min-width:0}
+.kpi:hover{border-color:var(--accent)}
+.kpi:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.kpi[aria-pressed="true"]{background:var(--btn);border-color:var(--accent);border-top-color:var(--kc,var(--accent))}
+.kpi .k-n{font:700 26px/1.1 var(--ui);color:var(--fg);font-variant-numeric:tabular-nums}
+.kpi .k-l{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi.k-total{--kc:var(--accent)}.kpi.k-novo{--kc:#8ba0b8}.kpi.k-enviado{--kc:#6aa7ff}.kpi.k-entrevista{--kc:#5fd08a}.kpi.k-sem{--kc:#e8b04c}.kpi.k-enc{--kc:#9a9aa6}
+.kpisum{grid-column:1/-1;font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 16px;margin:0}
+.kpisum b{color:var(--fg)}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi .k-n{font-size:22px}}
+@media (max-width:420px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .recbar{background:var(--bar);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:8px}
 .recbar summary{cursor:pointer;font-size:13px;font-weight:700;padding:2px 0}
 .rgrid{display:grid;grid-template-columns:1.3fr 1.3fr;gap:8px;padding-top:6px}
@@ -182,7 +194,7 @@ span.sm{display:none}
   #bHist{display:inline-flex}
   .rgrid{grid-template-columns:1fr}
 }
-@media print{.side,.recbar,.empty,.modal{display:none!important}.shell{display:block;max-width:none}.main{max-width:none}}
+@media print{.kpis,.side,.recbar,.empty,.modal{display:none!important}.shell{display:block;max-width:none}.main{max-width:none}}
 
 </style>
 
@@ -201,6 +213,7 @@ span.sm{display:none}
   </aside>
 
   <div class="main">
+    <section class="kpis" id="kpis" aria-label="Indicadores das candidaturas"></section>
     <div class="top">
       <div class="row">
         <button class="btn" id="bHist" type="button" aria-expanded="false">Histórico</button>
@@ -870,7 +883,28 @@ function cloudTag(r){
   if(s==='ok')return ['cl ok','☁ salvo'];
   if(s==='error'||s==='diverge')return ['cl bad','☁ falhou'];
   return ['cl warn','☁ pendente']}
+function renderKpi(){
+  var n={Novo:0,Enviado:0,Entrevista:0,'Sem retorno':0,Encerrado:0},tot=store.records.length;
+  store.records.forEach(function(r){if(n[r.status]!=null)n[r.status]++});
+  var sent=tot-n.Novo,wk=Date.now()-7*864e5,week=store.records.filter(function(r){return r.createdAt>=wk}).length;
+  var defs=[['','Total','k-total',tot],['Novo','Novos','k-novo',n.Novo],['Enviado','Enviados','k-enviado',n.Enviado],['Entrevista','Entrevistas','k-entrevista',n.Entrevista],['Sem retorno','Sem retorno','k-sem',n['Sem retorno']],['Encerrado','Encerrados','k-enc',n.Encerrado]];
+  var k=$('#kpis');k.replaceChildren();
+  defs.forEach(function(d){
+    var b=el('button','kpi '+d[2]);b.type='button';b.setAttribute('data-st',d[0]);
+    b.setAttribute('aria-pressed',String(flt.st===d[0]));
+    b.setAttribute('aria-label',d[1]+': '+d[3]+(d[0]?'. Filtrar o histórico por esta situação':'. Mostrar todas as situações'));
+    b.append(el('span','k-n',String(d[3])),el('span','k-l',d[1]));
+    b.addEventListener('click',function(){
+      flt.st=(flt.st===d[0]?'':d[0]);$('#hSt').value=flt.st;
+      if(flt.st&&window.matchMedia('(max-width:900px)').matches){document.body.classList.add('hist-open');$('#bHist').setAttribute('aria-expanded','true')}
+      renderHist()});
+    k.append(b)});
+  var s=el('p','kpisum'),rate=sent?Math.round(n.Entrevista/sent*100):0;
+  function item(label,val){var sp=el('span','',label+': ');sp.append(el('b','',val));return sp}
+  s.append(item('Candidaturas enviadas (todas exceto Novo)',String(sent)),item('Taxa de entrevista',sent?rate+'%':'—'),item('Adicionados nos últimos 7 dias',String(week)));
+  k.append(s)}
 function renderHist(){
+  renderKpi();
   var q=flt.q.toLowerCase(),list=store.records.filter(function(r){
     if(flt.st&&r.status!==flt.st)return false;
     return !q||(r.title+' '+r.vaga.value+' '+r.nota).toLowerCase().indexOf(q)>=0})
