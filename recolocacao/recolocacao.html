@@ -196,6 +196,15 @@ span.sm{display:none}
 }
 @media print{.kpis,.side,.recbar,.empty,.modal{display:none!important}.shell{display:block;max-width:none}.main{max-width:none}}
 
+.envbox{border:1px solid var(--line);border-radius:8px;padding:6px 8px 8px;margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.envbox legend{font-size:12px;color:var(--muted);padding:0 4px}
+.envrow{display:grid;grid-template-columns:1.3fr 1.3fr 150px 1.2fr auto;gap:6px;margin-bottom:6px}
+.envrow input[type=date]{font:13.5px var(--ui);border:1px solid var(--btn-line);border-radius:7px;background:var(--btn);color:var(--fg);padding:7px 9px;min-height:36px;width:100%}
+.envrow input:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+#envAdd{align-self:flex-start}
+@media (max-width:900px){.envrow{grid-template-columns:1fr 1fr}.envrow input:nth-child(4){grid-column:1/-1}}
+@media print{.envbox{display:none}}
+
 </style>
 
 <div class="shell">
@@ -206,7 +215,7 @@ span.sm{display:none}
       <button class="btn" id="bPaste" type="button">Colar JSON</button>
     </div>
     <input type="file" id="fFile" accept=".json,application/json" multiple hidden>
-    <input type="search" id="hQ" placeholder="Buscar por título, vaga ou nota" aria-label="Buscar currículos">
+    <input type="search" id="hQ" placeholder="Buscar título, vaga ou empresa" aria-label="Buscar currículos">
     <select id="hSt" aria-label="Filtrar por situação"></select>
     <div class="hlist" id="hList"></div>
     <div class="row"><button class="btn sm" id="bExpAll" type="button" title="Baixa um arquivo com todos os currículos, como cópia de segurança">Exportar tudo (.json)</button></div>
@@ -260,6 +269,11 @@ span.sm{display:none}
           <select id="rStatus"></select></label>
         <label class="span2">Observação
           <input type="text" id="rNota" spellcheck="false" placeholder="Ex.: contato por WhatsApp (15) 98105-6431"></label>
+        <fieldset class="span2 envbox">
+          <legend>Enviado para <span id="envCnt"></span></legend>
+          <div id="envList" aria-live="polite"></div>
+          <button class="btn sm" id="envAdd" type="button">+ Registrar envio</button>
+        </fieldset>
         <div class="row span2">
           <button class="btn sm" id="rDup" type="button">Duplicar</button>
           <button class="btn sm" id="rExp" type="button">Exportar JSON</button>
@@ -600,8 +614,16 @@ function select(id){
   sheet.classList.toggle('bw',state.bw);
   renderRec();applyScale();fit();renderAll();
   document.body.classList.remove('hist-open')}
+function normEnvios(a){
+  if(a&&!Array.isArray(a)&&typeof a==='object')a=Object.keys(a).sort(function(x,y){return x-y}).map(function(k){return a[k]});
+  if(!Array.isArray(a))return [];
+  return a.filter(function(e){return e&&typeof e==='object'}).slice(0,200).map(function(e){
+    return {id:String(e.id||newId()).slice(0,40),empresa:String(e.empresa||'').slice(0,120),vaga:String(e.vaga||'').slice(0,120),data:/^\d{4}-\d{2}-\d{2}$/.test(String(e.data||''))?String(e.data):'',obs:String(e.obs||'').slice(0,200)}})}
+function sameEnvios(a,b){return JSON.stringify(normEnvios(a))===JSON.stringify(normEnvios(b))}
+function todayIso(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fmtDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||'');return m?m[3]+'/'+m[2]+'/'+m[1]:''}
 function addRecord(it){
-  var now=Date.now(),r={id:newId(),title:it.title,vaga:it.vaga||{kind:'',value:''},status:it.status||'Novo',nota:it.nota||'',
+  var now=Date.now(),r={id:newId(),title:it.title,vaga:it.vaga||{kind:'',value:''},status:it.status||'Novo',nota:it.nota||'',envios:normEnvios(it.envios),
     createdAt:it.createdAt||now,updatedAt:now,model:it.model,orig:JSON.stringify(it.model)};
   store.records.push(r);saveStore();queueSave(r.id);return r}
 function removeRecord(id){
@@ -622,7 +644,7 @@ function normItem(o){
   var v=o.vaga,vv=typeof v==='string'?v:(v&&(v.valor||v.value)||'');
   var st=STATUS.indexOf(o.status)>=0?o.status:'Novo';
   return {title:String(o.titulo||o.title||plain(m.header&&m.header.role)||plain(m.header&&m.header.name)||'Currículo').slice(0,160),
-    vaga:classify(vv),status:st,nota:String(o.nota||'').slice(0,400),createdAt:Date.parse(o.criadoEm||o.createdAt)||Date.now(),model:m}}
+    vaga:classify(vv),status:st,nota:String(o.nota||'').slice(0,400),envios:normEnvios(o.envios),createdAt:Date.parse(o.criadoEm||o.createdAt)||Date.now(),model:m}}
 function extractItems(data){
   if(Array.isArray(data))return data;
   if(data&&Array.isArray(data.curriculos))return data.curriculos;
@@ -708,7 +730,7 @@ function download(name,text){
   var u=URL.createObjectURL(new Blob([text],{type:'application/json'})),a=el('a','');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();
   setTimeout(function(){URL.revokeObjectURL(u)},5000)}
 function envelope(r){
-  return {schema:'cv-hub/1',titulo:r.title,vaga:{tipo:r.vaga.kind,valor:r.vaga.value},status:r.status,nota:r.nota,criadoEm:new Date(r.createdAt).toISOString(),model:r.model}}
+  return {schema:'cv-hub/1',titulo:r.title,vaga:{tipo:r.vaga.kind,valor:r.vaga.value},status:r.status,nota:r.nota,envios:normEnvios(r.envios).map(function(e){return {empresa:e.empresa,vaga:e.vaga,data:e.data,obs:e.obs}}),criadoEm:new Date(r.createdAt).toISOString(),model:r.model}}
 function slug(s){return String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'curriculo'}
 function exportOne(){var r=cur();if(!r)return;commit();download('cv-'+slug(r.title)+'.json',JSON.stringify(envelope(r),null,2));msg('JSON exportado.')}
 function exportAll(){
@@ -759,12 +781,12 @@ function cloudSignIn(){
     clog(false,'Falha no login: '+cloud.err+(e&&e.code==='auth/unauthorized-domain'?' (adicione o domínio em Authentication > Settings > Authorized domains)':''));renderStatus()})}
 function cloudSignOut(){if(window.firebase&&firebase.auth)return firebase.auth().signOut().then(function(){clog(true,'Sessão encerrada')})}
 
-function toRemote(r){return {title:r.title,vaga:{kind:r.vaga.kind,value:r.vaga.value},status:r.status,nota:r.nota,createdAt:r.createdAt,updatedAt:r.updatedAt,model:JSON.stringify(r.model),orig:r.orig||'',app:'cv-hub-v1'}}
+function toRemote(r){return {title:r.title,vaga:{kind:r.vaga.kind,value:r.vaga.value},status:r.status,nota:r.nota,envios:normEnvios(r.envios),createdAt:r.createdAt,updatedAt:r.updatedAt,model:JSON.stringify(r.model),orig:r.orig||'',app:'cv-hub-v1'}}
 function fromRemote(d,id){
   var m=JSON.parse(d.model);
-  return {id:id,title:d.title||'Currículo',vaga:d.vaga||{kind:'',value:''},status:STATUS.indexOf(d.status)>=0?d.status:'Novo',nota:d.nota||'',createdAt:d.createdAt||d.updatedAt,updatedAt:d.updatedAt,model:m,orig:d.orig||JSON.stringify(m)}}
+  return {id:id,title:d.title||'Currículo',vaga:d.vaga||{kind:'',value:''},status:STATUS.indexOf(d.status)>=0?d.status:'Novo',nota:d.nota||'',envios:normEnvios(d.envios),createdAt:d.createdAt||d.updatedAt,updatedAt:d.updatedAt,model:m,orig:d.orig||JSON.stringify(m)}}
 function sameRemote(a,b){
-  return !!a&&a.model===b.model&&a.title===b.title&&a.status===b.status&&a.nota===b.nota&&a.updatedAt===b.updatedAt&&a.createdAt===b.createdAt&&JSON.stringify(a.vaga)===JSON.stringify(b.vaga)}
+  return !!a&&a.model===b.model&&a.title===b.title&&a.status===b.status&&a.nota===b.nota&&a.updatedAt===b.updatedAt&&a.createdAt===b.createdAt&&JSON.stringify(a.vaga)===JSON.stringify(b.vaga)&&sameEnvios(a.envios,b.envios)}
 
 function queueSave(id){cloud.q[id]='save';cloud.st[id]='pending';schedFlush()}
 function queueDel(id){cloud.q[id]='del';schedFlush()}
@@ -907,7 +929,7 @@ function renderHist(){
   renderKpi();
   var q=flt.q.toLowerCase(),list=store.records.filter(function(r){
     if(flt.st&&r.status!==flt.st)return false;
-    return !q||(r.title+' '+r.vaga.value+' '+r.nota).toLowerCase().indexOf(q)>=0})
+    return !q||(r.title+' '+r.vaga.value+' '+r.nota+' '+normEnvios(r.envios).map(function(e){return e.empresa+' '+e.vaga}).join(' ')).toLowerCase().indexOf(q)>=0})
    .sort(function(a,b){return b.createdAt-a.createdAt});
   $('#hCnt').textContent='('+store.records.length+')';
   var h=$('#hList');h.replaceChildren();
@@ -916,17 +938,42 @@ function renderHist(){
     var b=el('button','item'+(r.id===store.currentId?' cur':''));b.type='button';b.setAttribute('data-id',r.id);
     if(r.id===store.currentId)b.setAttribute('aria-current','true');
     b.append(el('span','i-t',r.title));
-    b.append(el('span','i-s',r.vaga.value||r.nota||'Sem link ou e-mail da vaga'));
+    var ev=normEnvios(r.envios).filter(function(e){return e.empresa||e.vaga});
+    b.append(el('span','i-s',ev.length?('Enviado: '+[ev[ev.length-1].empresa,ev[ev.length-1].vaga].filter(Boolean).join(' · ')+(ev.length>1?' +'+(ev.length-1):'')):(r.vaga.value||r.nota||'Sem link ou e-mail da vaga')));
     var m=el('span','i-m');m.append(el('span','',dmy(r.createdAt)),el('span','tag st-'+slugCls(r.status),r.status));
     var ct=cloudTag(r);if(ct)m.append(el('span',ct[0],ct[1]));
     b.append(m);b.addEventListener('click',function(){select(r.id)});h.append(b)})}
+function renderEnvios(r){
+  var box=$('#envList'),list=normEnvios(r.envios);
+  if(box.getAttribute('data-rid')===r.id&&Number(box.getAttribute('data-n'))===list.length)return;
+  box.setAttribute('data-rid',r.id);box.setAttribute('data-n',String(list.length));box.replaceChildren();
+  $('#envCnt').textContent=list.length?'('+list.length+')':'';
+  if(!list.length){box.append(el('p','note','Nenhum envio registrado ainda.'));return}
+  list.forEach(function(e,i){
+    var row=el('div','envrow');
+    var emp=el('input','');emp.type='text';emp.spellcheck=false;emp.value=e.empresa;emp.placeholder='Nome da empresa';emp.setAttribute('aria-label','Empresa do envio '+(i+1));
+    var vg=el('input','');vg.type='text';vg.spellcheck=false;vg.value=e.vaga;vg.placeholder='Vaga (cargo)';vg.setAttribute('aria-label','Vaga do envio '+(i+1));
+    var dt=el('input','');dt.type='date';dt.value=e.data;dt.setAttribute('aria-label','Data do envio '+(i+1));
+    var ob=el('input','');ob.type='text';ob.spellcheck=false;ob.value=e.obs;ob.placeholder='Canal ou contato (opcional)';ob.setAttribute('aria-label','Observação do envio '+(i+1));
+    var rm=el('button','btn sm danger','Remover');rm.type='button';
+    function upd(){var c=cur();if(!c)return;var l=normEnvios(c.envios);if(!l[i])return;l[i]={id:l[i].id,empresa:emp.value,vaga:vg.value,data:dt.value,obs:ob.value};c.envios=normEnvios(l);touch(c)}
+    emp.addEventListener('input',upd);vg.addEventListener('input',upd);dt.addEventListener('input',upd);dt.addEventListener('change',upd);ob.addEventListener('input',upd);
+    var t=null;rm.addEventListener('click',function(){
+      if(!t){rm.textContent='Confirmar';t=setTimeout(function(){t=null;rm.textContent='Remover'},4000);return}
+      clearTimeout(t);var c=cur();if(!c)return;var l=normEnvios(c.envios);l.splice(i,1);c.envios=l;touch(c);box.removeAttribute('data-rid');renderEnvios(c)});
+    row.append(emp,vg,dt,ob,rm);box.append(row)})}
+function addEnvio(){
+  var r=cur();if(!r)return;
+  var l=normEnvios(r.envios);l.push({id:newId(),empresa:'',vaga:'',data:todayIso(),obs:''});r.envios=l;touch(r);
+  $('#envList').removeAttribute('data-rid');renderEnvios(r);
+  var rows=$('#envList').querySelectorAll('.envrow');var last=rows[rows.length-1];if(last)last.querySelector('input').focus()}
 function renderRec(){
   var r=cur();
   $('#recbar').hidden=!r;$('#empty').hidden=!!r;$('#stage').hidden=!r;
   if(!r)return;
   var set=function(id,v){var e=$(id);if(document.activeElement!==e)e.value=v};
   set('#rTitle',r.title);set('#rVaga',r.vaga.value);set('#rNota',r.nota);
-  $('#rStatus').value=r.status;
+  $('#rStatus').value=r.status;renderEnvios(r);
   $('#rVagaGo').disabled=!(r.vaga.kind==='link'||r.vaga.kind==='email');
   $('#rVagaGo').textContent=r.vaga.kind==='email'?'Escrever':'Abrir'}
 function renderUI(){
@@ -934,7 +981,7 @@ function renderUI(){
   $('#bEdit').textContent=state.edit?'Concluir':'Editar';$('#bEdit').setAttribute('aria-pressed',String(state.edit));
   $('#bBw').setAttribute('aria-pressed',String(state.bw));$('#cFill').checked=state.autofit;
   $('#bUndo').disabled=!has||(!hist.u.length&&!(hist.last&&JSON.stringify(readModel())!==hist.last));$('#bRedo').disabled=!has||!hist.r.length;
-  ['bEdit','bPdf','bBw','zIn','zOut','zFit','z100','rDup','rExp','rReset','rDel'].forEach(function(id){$('#'+id).disabled=!has});
+  ['bEdit','bPdf','bBw','zIn','zOut','zFit','z100','rDup','rExp','rReset','rDel','envAdd'].forEach(function(id){$('#'+id).disabled=!has});
   $('#bPdf').disabled=!has||state.busy;
   renderStatus()}
 function renderAll(){renderHist();renderRec();renderUI();renderLog()}
@@ -1061,6 +1108,7 @@ $('#rStatus').addEventListener('change',function(e){var r=cur();if(!r)return;r.s
 $('#rVaga').addEventListener('input',function(e){var r=cur();if(!r)return;r.vaga=classify(e.target.value);r.vaga.value=e.target.value.trim()&&r.vaga.kind==='texto'?e.target.value.trim():r.vaga.value;touch(r);$('#rVagaGo').disabled=!(r.vaga.kind==='link'||r.vaga.kind==='email')});
 $('#rVaga').addEventListener('blur',function(){renderRec()});
 $('#rVagaGo').addEventListener('click',function(){var r=cur();if(r)openVaga(r.vaga)});
+$('#envAdd').addEventListener('click',addEnvio);
 $('#rExp').addEventListener('click',exportOne);
 $('#rDup').addEventListener('click',function(){
   var r=cur();if(!r)return;commit();
