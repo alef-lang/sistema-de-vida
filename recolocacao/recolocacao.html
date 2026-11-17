@@ -272,7 +272,6 @@ span.sm{display:none}
         <fieldset class="span2 envbox">
           <legend>Enviado para <span id="envCnt"></span></legend>
           <div id="envList" aria-live="polite"></div>
-          <button class="btn sm" id="envAdd" type="button">+ Registrar envio</button>
         </fieldset>
         <div class="row span2">
           <button class="btn sm" id="rDup" type="button">Duplicar</button>
@@ -948,7 +947,7 @@ function renderEnvios(r){
   if(box.getAttribute('data-rid')===r.id&&Number(box.getAttribute('data-n'))===list.length)return;
   box.setAttribute('data-rid',r.id);box.setAttribute('data-n',String(list.length));box.replaceChildren();
   $('#envCnt').textContent=list.length?'('+list.length+')':'';
-  if(!list.length){box.append(el('p','note','Nenhum envio registrado ainda.'));return}
+  if(!list.length){box.append(el('p','note','Nenhum envio registrado. Use "Duplicar" para registrar empresa, vaga e data.'));return}
   list.forEach(function(e,i){
     var row=el('div','envrow');
     var emp=el('input','');emp.type='text';emp.spellcheck=false;emp.value=e.empresa;emp.placeholder='Nome da empresa';emp.setAttribute('aria-label','Empresa do envio '+(i+1));
@@ -962,11 +961,25 @@ function renderEnvios(r){
       if(!t){rm.textContent='Confirmar';t=setTimeout(function(){t=null;rm.textContent='Remover'},4000);return}
       clearTimeout(t);var c=cur();if(!c)return;var l=normEnvios(c.envios);l.splice(i,1);c.envios=l;touch(c);box.removeAttribute('data-rid');renderEnvios(c)});
     row.append(emp,vg,dt,ob,rm);box.append(row)})}
-function addEnvio(){
-  var r=cur();if(!r)return;
-  var l=normEnvios(r.envios);l.push({id:newId(),empresa:'',vaga:'',data:todayIso(),obs:''});r.envios=l;touch(r);
-  $('#envList').removeAttribute('data-rid');renderEnvios(r);
-  var rows=$('#envList').querySelectorAll('.envrow');var last=rows[rows.length-1];if(last)last.querySelector('input').focus()}
+function askEnvio(r){
+  return new Promise(function(res){
+    var box=el('div',''),f={};
+    box.append(el('p','jt','Duplicar: '+r.title));
+    function fld(k,label,type,ph,val){
+      var lab=el('label','');lab.style.cssText='display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--muted);margin-top:8px';
+      lab.append(label);var i=el('input','');i.type=type;i.spellcheck=false;if(ph)i.placeholder=ph;i.value=val||'';i.id='mdlEnv'+k;
+      i.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();ok()}});lab.append(i);box.append(lab);f[k]=i}
+    fld('Emp','Nome da empresa','text','Ex.: Drogaria São Paulo','');
+    fld('Vaga','Vaga (cargo)','text','Ex.: Atendente de Loja','');
+    fld('Data','Data do envio','date','',todayIso());
+    function ok(){
+      var emp=f.Emp.value.trim(),vg=f.Vaga.value.trim();
+      if(!emp&&!vg){modalErr('Informe a empresa ou a vaga, ou use "Só duplicar".');f.Emp.focus();return}
+      closeModal();res({a:'ok',e:{id:newId(),empresa:emp.slice(0,120),vaga:vg.slice(0,120),data:f.Data.value,obs:''}})}
+    modal('Duplicar currículo',box,[
+      {label:'Cancelar',fn:function(){closeModal();res({a:'cancel'})},esc:true},
+      {label:'Só duplicar',fn:function(){closeModal();res({a:'plain'})}},
+      {label:'Duplicar e registrar envio',cls:'primary',fn:ok}])})}
 function renderRec(){
   var r=cur();
   $('#recbar').hidden=!r;$('#empty').hidden=!!r;$('#stage').hidden=!r;
@@ -981,7 +994,7 @@ function renderUI(){
   $('#bEdit').textContent=state.edit?'Concluir':'Editar';$('#bEdit').setAttribute('aria-pressed',String(state.edit));
   $('#bBw').setAttribute('aria-pressed',String(state.bw));$('#cFill').checked=state.autofit;
   $('#bUndo').disabled=!has||(!hist.u.length&&!(hist.last&&JSON.stringify(readModel())!==hist.last));$('#bRedo').disabled=!has||!hist.r.length;
-  ['bEdit','bPdf','bBw','zIn','zOut','zFit','z100','rDup','rExp','rReset','rDel','envAdd'].forEach(function(id){$('#'+id).disabled=!has});
+  ['bEdit','bPdf','bBw','zIn','zOut','zFit','z100','rDup','rExp','rReset','rDel'].forEach(function(id){$('#'+id).disabled=!has});
   $('#bPdf').disabled=!has||state.busy;
   renderStatus()}
 function renderAll(){renderHist();renderRec();renderUI();renderLog()}
@@ -1108,11 +1121,15 @@ $('#rStatus').addEventListener('change',function(e){var r=cur();if(!r)return;r.s
 $('#rVaga').addEventListener('input',function(e){var r=cur();if(!r)return;r.vaga=classify(e.target.value);r.vaga.value=e.target.value.trim()&&r.vaga.kind==='texto'?e.target.value.trim():r.vaga.value;touch(r);$('#rVagaGo').disabled=!(r.vaga.kind==='link'||r.vaga.kind==='email')});
 $('#rVaga').addEventListener('blur',function(){renderRec()});
 $('#rVagaGo').addEventListener('click',function(){var r=cur();if(r)openVaga(r.vaga)});
-$('#envAdd').addEventListener('click',addEnvio);
 $('#rExp').addEventListener('click',exportOne);
 $('#rDup').addEventListener('click',function(){
   var r=cur();if(!r)return;commit();
-  var n=addRecord({title:r.title+' (cópia)',vaga:r.vaga,status:'Novo',nota:r.nota,model:JSON.parse(JSON.stringify(r.model))});select(n.id);msg('Currículo duplicado.')});
+  askEnvio(r).then(function(x){
+    if(x.a==='cancel')return;
+    var base=r.title.replace(/ \(cópia\)$/,''),e=x.a==='ok'?x.e:null;
+    var t=e&&e.empresa?base+' – '+e.empresa:base+' (cópia)';
+    var n=addRecord({title:t,vaga:r.vaga,status:e?'Enviado':'Novo',nota:r.nota,envios:e?[e]:[],model:JSON.parse(JSON.stringify(r.model))});
+    select(n.id);msg(e?'Duplicado e envio registrado.':'Currículo duplicado.')})});
 function twoClick(id,label,confirm,run){
   var t=null;$(id).addEventListener('click',function(){
     var b=$(id);
